@@ -1,0 +1,71 @@
+﻿@model IEnumerable<AgropRamirez.Models.CarritoDetalle>
+
+@{
+    ViewData["Title"] = "Carrito Detalles";
+}
+
+<!-- Encabezado -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Detalles del Carrito</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Carritos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Detalles</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<h1 class="mb-4">Detalle del carrito</h1>
+
+<div class="container">
+    <p>
+        <a asp-action="Create" class="btn btn-success mb-3">
+            <i class="bi bi-plus-circle"></i> Agregar nuevo
+        </a>
+    </p>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-bordered table-striped text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>SubTotal</th>
+                        <th>Carrito</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Producto?.Nombre</td>
+                            <td>@item.Cantidad</td>
+                            <td>S/ @item.PrecioUnitario</td>
+                            <td><strong>S/ @item.SubTotal</strong></td>
+                            <td>
+                                @item.Carrito?.FechaCreacion.ToString("dd/MM/yyyy") -
+                                @item.Carrito?.Usuario?.Nombre @item.Carrito?.Usuario?.Apellido
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.CarritoDetalleId" class="btn btn-sm btn-warning me-1">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.CarritoDetalleId" class="btn btn-sm btn-info text-white me-1">
+                                    <i class="bi bi-eye"></i> Detalles
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.CarritoDetalleId" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

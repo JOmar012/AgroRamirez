@@ -1,0 +1,53 @@
+﻿@model AgropRamirez.Models.CarritoDetalle
+
+@{
+    ViewData["Title"] = "Detalle del Carrito";
+}
+
+<!-- Encabezado -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Detalle del Carrito</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Carrito Detalles</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Detalles</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<h1 class="mb-4">Detalle del carrito</h1>
+
+<div class="container">
+    <div class="card shadow-sm p-4 mb-4">
+        <dl class="row">
+            <dt class="col-sm-4">Carrito</dt>
+            <dd class="col-sm-8">
+                @Model.Carrito?.FechaCreacion.ToString("dd/MM/yyyy") -
+                @Model.Carrito?.Usuario?.Nombre @Model.Carrito?.Usuario?.Apellido
+            </dd>
+
+            <dt class="col-sm-4">Producto</dt>
+            <dd class="col-sm-8">@Model.Producto?.Nombre</dd>
+
+            <dt class="col-sm-4">Cantidad</dt>
+            <dd class="col-sm-8">@Model.Cantidad</dd>
+
+            <dt class="col-sm-4">Precio Unitario</dt>
+            <dd class="col-sm-8">S/ @Model.PrecioUnitario</dd>
+
+            <dt class="col-sm-4">SubTotal</dt>
+            <dd class="col-sm-8"><strong>S/ @Model.SubTotal</strong></dd>
+        </dl>
+    </div>
+
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.CarritoDetalleId" class="btn btn-primary me-2">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>

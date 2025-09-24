@@ -1,0 +1,98 @@
+﻿@model IEnumerable<AgropRamirez.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<!-- Page Header Start -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Usuarios</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item"><a href="#">Pages</a></li>
+                <li class="breadcrumb-item active" aria-current="page">About</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<!-- Page Header End -->
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Apellido)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Dni)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Direccion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Imagen)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PasswordHash)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rol)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaRegistro)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Apellido)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Dni)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Direccion)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Imagen)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PasswordHash)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Rol)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaRegistro)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.UsuarioId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.UsuarioId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.UsuarioId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

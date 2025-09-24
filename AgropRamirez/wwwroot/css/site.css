@@ -1,0 +1,53 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/*Arreglo plantilla*/
+/* Anular sticky-footer del template */
+body {
+    margin-bottom: 0 !important;
+}
+
+/* Por si tienes reglas antiguas para .footer */
+.footer {
+    position: static !important;
+    line-height: normal !important;
+}
+
+/* Si tu main tenía padding extra abajo */
+main[role="main"] {
+    padding-bottom: 0 !important;
+}
+
+/*** Spinner ***/
+/*#spinner {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .5s ease-out, visibility 0s linear .5s;
+    z-index: 99999;
+}
+
+    #spinner.show {
+        transition: opacity .5s ease-out, visibility 0s linear 0s;
+        visibility: visible;
+        opacity: 1;
+    }*/

@@ -1,0 +1,79 @@
+﻿@model AgropRamirez.ViewModels.UsuarioCreateVM
+
+@{
+    ViewData["Title"] = "Nuevo Usuario";
+}
+
+<!-- Page Header Start -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Usuarios</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item"><a href="#">Pages</a></li>
+                <li class="breadcrumb-item active" aria-current="page">About</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<!-- Page Header End -->
+
+<h2>Registrar nuevo usuario</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Nombre"></label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Apellido"></label>
+            <input asp-for="Apellido" class="form-control" />
+            <span asp-validation-for="Apellido" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Dni"></label>
+            <input asp-for="Dni" class="form-control" />
+            <span asp-validation-for="Dni" class="text-danger"></span>
+        </div>
+        <div class="col-md-8">
+            <label asp-for="Direccion"></label>
+            <input asp-for="Direccion" class="form-control" />
+            <span asp-validation-for="Direccion" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" type="password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Rol"></label>
+            <select asp-for="Rol" asp-items="new SelectList(ViewBag.Roles)" class="form-select"></select>
+            <span asp-validation-for="Rol" class="text-danger"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="ImagenFile">Foto (opcional)</label>
+            <input asp-for="ImagenFile" type="file" class="form-control" />
+            <span asp-validation-for="ImagenFile" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

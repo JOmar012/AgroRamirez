@@ -1,0 +1,63 @@
+﻿@model AgropRamirez.ViewModels.Auth.RegistrarVM
+
+@{
+    ViewData["Title"] = "Registro de nuevo usuario";
+}
+
+<h2 class="mb-4">Registrarse como Cliente</h2>
+
+<form asp-action="Registrar" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Nombre" class="form-label"></label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Apellido" class="form-label"></label>
+            <input asp-for="Apellido" class="form-control" />
+            <span asp-validation-for="Apellido" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Dni" class="form-label"></label>
+            <input asp-for="Dni" class="form-control" />
+            <span asp-validation-for="Dni" class="text-danger"></span>
+        </div>
+        <div class="col-md-8">
+            <label asp-for="Direccion" class="form-label"></label>
+            <input asp-for="Direccion" class="form-control" />
+            <span asp-validation-for="Direccion" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="ConfirmPassword" class="form-label"></label>
+            <input asp-for="ConfirmPassword" class="form-control" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="ImagenFile" class="form-label">Imagen de perfil (opcional)</label>
+            <input asp-for="ImagenFile" type="file" class="form-control" />
+            <span asp-validation-for="ImagenFile" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-success">Registrarse</button>
+        <a asp-action="Login" class="btn btn-link">¿Ya tienes cuenta?</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,67 @@
+﻿@model AgropRamirez.Models.Cotizacion
+
+@{
+    ViewData["Title"] = "Eliminar Cotización";
+}
+
+<!-- Encabezado -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Eliminar Cotización</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Cotizaciones</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-danger text-white text-center">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h4>
+                </div>
+                <div class="card-body p-4">
+
+                    <p class="text-center text-muted">
+                        ¿Estás seguro de que deseas eliminar esta cotización?
+                    </p>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Fecha de Cotización</dt>
+                        <dd class="col-sm-8">@Model.FechaCotizacion.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">Válido Hasta</dt>
+                        <dd class="col-sm-8">@Model.ValidoHasta?.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">Total</dt>
+                        <dd class="col-sm-8">S/ @Model.Total.ToString("0.00")</dd>
+
+                        <dt class="col-sm-4">Estado</dt>
+                        <dd class="col-sm-8">@Model.Estado</dd>
+
+                        <dt class="col-sm-4">Usuario</dt>
+                        <dd class="col-sm-8">@($"{Model.Usuario?.Nombre} {Model.Usuario?.Apellido}")</dd>
+                    </dl>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="CotizacionId" />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

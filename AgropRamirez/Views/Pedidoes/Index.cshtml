@@ -1,0 +1,65 @@
+﻿@model IEnumerable<AgropRamirez.Models.Pedido>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<!-- Encabezado -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Eliminar Pedido</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Pedidos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaPedido)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Total)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Usuario)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaPedido)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estado)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Total)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Usuario.UsuarioId)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.PedidoId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.PedidoId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.PedidoId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

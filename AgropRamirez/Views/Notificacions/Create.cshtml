@@ -1,0 +1,85 @@
+﻿@model AgropRamirez.Models.Notificacion
+
+@{
+    ViewData["Title"] = "Registrar Notificación";
+}
+
+<!-- Encabezado -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Nueva Notificación</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Notificaciones</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Crear</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0"><i class="bi bi-bell"></i> Registrar Notificación</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Usuario -->
+                        <div class="mb-3">
+                            <label asp-for="UsuarioId" class="form-label"></label>
+                            <select asp-for="UsuarioId" class="form-select" asp-items="ViewBag.UsuarioId"></select>
+                            <span asp-validation-for="UsuarioId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Título -->
+                        <div class="mb-3">
+                            <label asp-for="Titulo" class="form-label"></label>
+                            <input asp-for="Titulo" class="form-control" placeholder="Ej. Recordatorio de pago" />
+                            <span asp-validation-for="Titulo" class="text-danger"></span>
+                        </div>
+
+                        <!-- Mensaje -->
+                        <div class="mb-3">
+                            <label asp-for="Mensaje" class="form-label"></label>
+                            <textarea asp-for="Mensaje" class="form-control" rows="3" placeholder="Escriba el contenido de la notificación..."></textarea>
+                            <span asp-validation-for="Mensaje" class="text-danger"></span>
+                        </div>
+
+                        <!-- Fecha -->
+                        <div class="mb-3">
+                            <label asp-for="Fecha" class="form-label"></label>
+                            <input asp-for="Fecha" class="form-control" />
+                            <span asp-validation-for="Fecha" class="text-danger"></span>
+                        </div>
+
+                        <!-- Leído -->
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" asp-for="Leido" type="checkbox" />
+                            <label class="form-check-label" asp-for="Leido"></label>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left-circle"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

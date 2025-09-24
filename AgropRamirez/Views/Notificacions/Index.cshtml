@@ -1,0 +1,75 @@
+﻿@model IEnumerable<AgropRamirez.Models.Notificacion>
+
+@{
+    ViewData["Title"] = "Listado de Notificaciones";
+}
+
+<!-- Encabezado -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Notificaciones</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Notificaciones</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Listado</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container">
+    <p class="text-end">
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Nueva Notificación
+        </a>
+    </p>
+
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body">
+            <table class="table table-striped table-hover table-bordered align-middle">
+                <thead class="table-primary text-center">
+                    <tr>
+                        <th>Título</th>
+                        <th>Mensaje</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Usuario</th>
+                        <th style="width: 180px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Titulo</td>
+                            <td>@item.Mensaje</td>
+                            <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">
+                                @if (item.Leido)
+                                {
+                                    <span class="badge bg-success">Leído</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No leído</span>
+                                }
+                            </td>
+                            <td>@($"{item.Usuario?.Nombre} {item.Usuario?.Apellido}")</td>
+                            <td class="text-center">
+                                <a asp-action="Edit" asp-route-id="@item.NotificacionId" class="btn btn-sm btn-warning text-white me-1">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.NotificacionId" class="btn btn-sm btn-info text-white me-1">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.NotificacionId" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,65 @@
+﻿@model AgropRamirez.Models.Promocion
+
+@{
+    ViewData["Title"] = "Detalles de la Promoción";
+}
+
+<!-- Page Header -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Promociones</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Promociones</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Detalles</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<h1 class="mb-4">Detalles de la promoción</h1>
+
+<div class="container">
+    <div class="card shadow-sm p-4 mb-4">
+        <div class="row">
+            <!-- Imagen -->
+            <div class="col-md-4 text-center">
+                @if (!string.IsNullOrEmpty(Model.Imagen))
+                {
+                    <img src="@Model.Imagen" alt="Imagen de la promoción"
+                         style="max-width:250px; border:1px solid #ccc; padding:5px; border-radius:6px;" />
+                }
+                else
+                {
+                    <img src="~/img/no-image.png" alt="Sin imagen"
+                         style="max-width:250px; opacity:0.5;" />
+                }
+            </div>
+
+            <!-- Información -->
+            <div class="col-md-8">
+                <h3 class="mb-3">@Model.Nombre</h3>
+                <p class="text-muted">@Model.Descripcion</p>
+
+                <dl class="row">
+                    <dt class="col-sm-4">Fecha Inicio</dt>
+                    <dd class="col-sm-8">@Model.FechaInicio.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    <dt class="col-sm-4">Fecha Fin</dt>
+                    <dd class="col-sm-8">@Model.FechaFin.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    <dt class="col-sm-4">Descuento</dt>
+                    <dd class="col-sm-8">@Model.Descuento %</dd>
+
+                    <dt class="col-sm-4">Producto</dt>
+                    <dd class="col-sm-8">@Model.Producto?.Nombre</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.PromocionId" class="btn btn-primary me-2">Editar</a>
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </div>
+</div>
