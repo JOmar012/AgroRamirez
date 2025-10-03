@@ -48,11 +48,11 @@ namespace AgropRamirez.Data
                 .HasForeignKey(p => p.CategoriaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Relación muchos a muchos entre Promocion y Producto
             modelBuilder.Entity<Promocion>()
-                .HasOne(p => p.Producto)
+                .HasMany(p => p.Productos)
                 .WithMany(p => p.Promociones)
-                .HasForeignKey(p => p.ProductoId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .UsingEntity(j => j.ToTable("PromocionProductos"));
 
             modelBuilder.Entity<Carrito>()
                 .HasOne(c => c.Usuario)

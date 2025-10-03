@@ -7,7 +7,7 @@
 <!-- Page Header -->
 <div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
     <div class="container text-center py-5">
-        <h1 class="display-3 text-white mb-4 animated slideInDown">Promociones</h1>
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Eliminar Promoción</h1>
         <nav aria-label="breadcrumb animated slideInDown">
             <ol class="breadcrumb justify-content-center mb-0">
                 <li class="breadcrumb-item"><a asp-action="Index">Promociones</a></li>
@@ -17,55 +17,105 @@
     </div>
 </div>
 
-<h1 class="mb-4">Eliminar la promoción</h1>
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <!-- Card -->
+            <div class="card shadow-lg border-0 rounded-3 p-4">
 
-<div class="container">
-    <h3 class="text-danger mb-4">¿Está seguro de que desea eliminar esta promoción?</h3>
+                <!-- Encabezado -->
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <h4 class="mb-0 text-danger">
+                        <i class="bi bi-trash-fill me-2"></i> Eliminar promoción
+                    </h4>
+                </div>
 
-    <div class="card shadow-sm p-4 mb-4">
-        <div class="row">
-            <div class="col-md-4 text-center">
-                @if (!string.IsNullOrEmpty(Model.Imagen))
-                {
-                    <img src="@Model.Imagen" alt="Imagen de la promoción"
-                         style="max-width:200px; border:1px solid #ccc; padding:5px; border-radius:6px;" />
-                }
-                else
-                {
-                    <img src="~/img/no-image.png" alt="Sin imagen"
-                         style="max-width:200px; opacity:0.5;" />
-                }
-            </div>
+                <div class="row g-4">
+                    <!-- Imagen grande -->
+                    <div class="col-md-5 text-center">
+                        @if (!string.IsNullOrEmpty(Model.Imagen))
+                        {
+                            <img src="@Model.Imagen" alt="Imagen de la promoción"
+                                 class="img-fluid rounded shadow-sm"
+                                 style="width:100%; height:auto; object-fit:contain;" />
+                        }
+                        else
+                        {
+                            <img src="~/img/no-image.png" alt="Sin imagen"
+                                 class="img-fluid rounded shadow-sm"
+                                 style="width:100%; height:auto; opacity:0.5; object-fit:contain;" />
+                        }
+                    </div>
 
-            <div class="col-md-8">
-                <dl class="row">
-                    <dt class="col-sm-4">Nombre</dt>
-                    <dd class="col-sm-8">@Model.Nombre</dd>
+                    <!-- Información -->
+                    <div class="col-md-7 d-flex flex-column">
+                        <div class="mb-3">
+                            <h3 class="fw-bold">@Model.Nombre</h3>
+                            <p class="text-muted">@Model.Descripcion</p>
+                        </div>
 
-                    <dt class="col-sm-4">Descripción</dt>
-                    <dd class="col-sm-8">@Model.Descripcion</dd>
+                        <dl class="row">
+                            <dt class="col-sm-4 fw-bold">Fecha Inicio</dt>
+                            <dd class="col-sm-8">@Model.FechaInicio.ToString("dd/MM/yyyy HH:mm")</dd>
 
-                    <dt class="col-sm-4">Fecha Inicio</dt>
-                    <dd class="col-sm-8">@Model.FechaInicio.ToString("dd/MM/yyyy HH:mm")</dd>
+                            <dt class="col-sm-4 fw-bold">Fecha Fin</dt>
+                            <dd class="col-sm-8">@Model.FechaFin.ToString("dd/MM/yyyy HH:mm")</dd>
 
-                    <dt class="col-sm-4">Fecha Fin</dt>
-                    <dd class="col-sm-8">@Model.FechaFin.ToString("dd/MM/yyyy HH:mm")</dd>
+                            <dt class="col-sm-4 fw-bold">Descuento</dt>
+                            <dd class="col-sm-8">@Model.Descuento %</dd>
+                        </dl>
+                    </div>
+                </div>
 
-                    <dt class="col-sm-4">Descuento</dt>
-                    <dd class="col-sm-8">@Model.Descuento %</dd>
+                <!-- Lista de productos incluidos -->
+                <div class="mt-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-box-seam"></i> Productos incluidos
+                    </h5>
 
-                    <dt class="col-sm-4">Producto</dt>
-                    <dd class="col-sm-8">@Model.Producto?.Nombre</dd>
-                </dl>
+                    @if (Model.Productos != null && Model.Productos.Any())
+                    {
+                        <ul class="list-group shadow-sm">
+                            @foreach (var prod in Model.Productos)
+                            {
+                                <li class="list-group-item d-flex align-items-center">
+                                    <img src="@prod.Imagen" alt="@prod.Nombre"
+                                         class="rounded-circle me-3"
+                                         style="width:50px; height:50px; object-fit:cover;" />
+                                    <div>
+                                        <strong>@prod.Nombre</strong><br />
+                                        <span class="text-muted">S/ @prod.Precio</span>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted fst-italic">No hay productos asociados a esta promoción.</p>
+                    }
+                </div>
+
+                <!-- Advertencia -->
+                <div class="alert alert-danger d-flex align-items-center mt-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>
+                        ¿Estás seguro de que deseas eliminar esta promoción? <br />
+                        <strong>Esta acción no se puede deshacer.</strong>
+                    </div>
+                </div>
+
+                <!-- Botones centrados -->
+                <form asp-action="Delete" method="post" class="mt-2 d-flex justify-content-center gap-2">
+                    <input type="hidden" asp-for="PromocionId" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash-fill"></i> Eliminar
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Cancelar
+                    </a>
+                </form>
             </div>
         </div>
     </div>
-
-    <form asp-action="Delete" method="post">
-        <input type="hidden" asp-for="PromocionId" />
-        <button type="submit" class="btn btn-danger me-2">
-            <i class="bi bi-trash"></i> Confirmar eliminación
-        </button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-    </form>
 </div>

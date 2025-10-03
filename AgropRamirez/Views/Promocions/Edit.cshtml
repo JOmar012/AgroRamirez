@@ -1,12 +1,14 @@
-﻿@model AgropRamirez.Models.Promocion
+﻿
+@model AgropRamirez.ViewModels.PromocionCreateViewModel
 
 @{
     ViewData["Title"] = "Editar Promoción";
 }
+
 <!-- Page Header Start -->
 <div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
     <div class="container text-center py-5">
-        <h1 class="display-3 text-white mb-4 animated slideInDown">Promociones</h1>
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Editar Promoción</h1>
         <nav aria-label="breadcrumb animated slideInDown">
             <ol class="breadcrumb justify-content-center mb-0">
                 <li class="breadcrumb-item"><a asp-action="Index">Promociones</a></li>
@@ -17,111 +19,162 @@
 </div>
 <!-- Page Header End -->
 
-<h1 class="mb-4">Editar la promoción</h1>
-
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Edit" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="PromocionId" />
-
-            <!-- Nombre -->
-            <div class="form-group mb-3">
-                <label asp-for="Nombre" class="form-label"></label>
-                <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
-
-            <!-- Imagen actual -->
-            @if (!string.IsNullOrEmpty(Model.Imagen))
-            {
-                <div class="form-group mb-3">
-                    <label>Imagen actual</label><br />
-                    <img src="@Model.Imagen" alt="Imagen actual" style="max-width:200px; border:1px solid #ccc; padding:5px; border-radius:6px;" />
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <!-- Header con ícono -->
+                <div class="card-header text-center bg-white">
+                    <h4 class="mb-0 fw-bold text-primary">Editar Promoción</h4>
+                    <div class="avatar-preview mx-auto d-flex align-items-center justify-content-center rounded-circle shadow mb-3"
+                         style="width:120px; height:120px; background-color:#fff; border:3px solid #0d6efd; color:#0d6efd;">
+                        <i class="bi bi-gift-fill" style="font-size:48px;"></i>
+                    </div>
                 </div>
-            }
 
-            <!-- Nueva imagen -->
-            <div class="form-group mb-3">
-                <label asp-for="Imagen" class="form-label">Nueva imagen (opcional)</label>
-                <input asp-for="Imagen" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" />
-                <span asp-validation-for="Imagen" class="text-danger"></span>
-            </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="PromocionId" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <!-- Preview de nueva imagen -->
-            <div class="form-group mb-3 text-center">
-                <img id="preview" src="#" alt="Vista previa de la nueva imagen" style="max-width:200px; display:none; border:1px solid #ccc; padding:5px; border-radius:6px;" />
-            </div>
+                        <!-- Nombre -->
+                        <div class="mb-3">
+                            <label asp-for="Nombre" class="form-label">
+                                <i class="bi bi-type"></i> Nombre
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-type"></i></span>
+                                <input asp-for="Nombre" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
 
-            <!-- Descripción -->
-            <div class="form-group mb-3">
-                <label asp-for="Descripcion" class="form-label"></label>
-                <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
+                        <!-- Imagen actual -->
+                        @if (!string.IsNullOrEmpty(Model.Imagen))
+                        {
+                            <div class="mb-3 text-center">
+                                <label class="form-label">Imagen actual</label><br />
+                                <img src="@Model.Imagen" alt="Imagen actual"
+                                     style="max-width:200px; border:1px solid #ccc; padding:5px; border-radius:6px;" />
+                            </div>
+                        }
 
-            <!-- Fecha Inicio -->
-            <div class="form-group mb-3">
-                <label asp-for="FechaInicio" class="form-label"></label>
-                <input asp-for="FechaInicio"
-                       class="form-control"
-                       type="datetime-local"
-                       value="@(Model?.FechaInicio.ToString("yyyy-MM-ddTHH:mm"))" />
-                <span asp-validation-for="FechaInicio" class="text-danger"></span>
-            </div>
+                        <!-- Nueva imagen -->
+                        <div class="mb-3">
+                            <label asp-for="ImagenFile" class="form-label">
+                                <i class="bi bi-image"></i> Nueva imagen (opcional)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-upload"></i></span>
+                                <input asp-for="ImagenFile" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" />
+                            </div>
+                            <span asp-validation-for="ImagenFile" class="text-danger"></span>
+                        </div>
 
-            <!-- Fecha Fin -->
-            <div class="form-group mb-3">
-                <label asp-for="FechaFin" class="form-label"></label>
-                <input asp-for="FechaFin"
-                       class="form-control"
-                       type="datetime-local"
-                       value="@(Model?.FechaFin.ToString("yyyy-MM-ddTHH:mm"))" />
-                <span asp-validation-for="FechaFin" class="text-danger"></span>
-            </div>
+                        <!-- Preview de nueva imagen -->
+                        <div class="text-center mb-3">
+                            <img id="preview" src="#" alt="Vista previa"
+                                 style="max-width:200px; display:none; border:1px solid #ccc; border-radius:6px; padding:4px;" />
+                        </div>
 
-            <!-- Descuento -->
-            <div class="form-group mb-3">
-                <label asp-for="Descuento" class="form-label"></label>
-                <input asp-for="Descuento" class="form-control" type="number" step="0.01" placeholder="Ej: 15 (%)" />
-                <span asp-validation-for="Descuento" class="text-danger"></span>
-            </div>
+                        <!-- Descripción -->
+                        <div class="mb-3">
+                            <label asp-for="Descripcion" class="form-label">
+                                <i class="bi bi-card-text"></i> Descripción
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                            </div>
+                            <span asp-validation-for="Descripcion" class="text-danger"></span>
+                        </div>
 
-            <!-- Producto con nombre -->
-            <div class="form-group mb-3">
-                <label asp-for="ProductoId" class="form-label">Producto</label>
-                <select asp-for="ProductoId" class="form-control">
-                    @foreach (var prod in (IEnumerable<AgropRamirez.Models.Producto>)ViewBag.Productos)
-                    {
-                        <option value="@prod.ProductoId"
-                                data-img="@prod.Imagen"
-                                selected="@(prod.ProductoId == Model.ProductoId)">
-                            @prod.Nombre (@prod.Precio.ToString("C"))
-                        </option>
-                    }
-                </select>
-                <span asp-validation-for="ProductoId" class="text-danger"></span>
-            </div>
+                        <!-- Fecha Inicio -->
+                        <div class="mb-3">
+                            <label asp-for="FechaInicio" class="form-label">
+                                <i class="bi bi-calendar-event"></i> Fecha Inicio
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                                <input asp-for="FechaInicio" class="form-control" type="datetime-local"
+                                       value="@(Model?.FechaInicio.ToString("yyyy-MM-ddTHH:mm"))" />
+                            </div>
+                            <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                        </div>
 
-            <!-- Preview de producto -->
-            <div class="form-group mb-3 text-center">
-                <img id="previewProducto" src="@Model.Producto?.Imagen" alt="Imagen del producto" style="max-width:200px; border:1px solid #ccc; padding:5px; border-radius:6px;" />
-            </div>
+                        <!-- Fecha Fin -->
+                        <div class="mb-3">
+                            <label asp-for="FechaFin" class="form-label">
+                                <i class="bi bi-calendar-event-fill"></i> Fecha Fin
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar-event-fill"></i></span>
+                                <input asp-for="FechaFin" class="form-control" type="datetime-local"
+                                       value="@(Model?.FechaFin.ToString("yyyy-MM-ddTHH:mm"))" />
+                            </div>
+                            <span asp-validation-for="FechaFin" class="text-danger"></span>
+                        </div>
 
-            <!-- Botones -->
-            <div class="form-group">
-                <input type="submit" value="Guardar cambios" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary ms-2">Volver</a>
+                        <!-- Descuento -->
+                        <div class="mb-3">
+                            <label asp-for="Descuento" class="form-label">
+                                <i class="bi bi-percent"></i> Descuento
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-percent"></i></span>
+                                <input asp-for="Descuento" class="form-control" type="number" step="0.01" placeholder="Ej: 15 (%)" />
+                            </div>
+                            <span asp-validation-for="Descuento" class="text-danger"></span>
+                        </div>
+
+                        <!-- Productos -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-box"></i> Seleccionar Productos
+                            </label>
+                            <div class="list-group" style="max-height: 220px; overflow-y: auto;">
+                                @foreach (var prod in (IEnumerable<AgropRamirez.Models.Producto>)ViewBag.Productos)
+                                {
+                                    <label class="list-group-item d-flex align-items-center">
+                                        <input type="checkbox"
+                                               name="ProductosSeleccionados"
+                                               value="@prod.ProductoId"
+                                               class="form-check-input me-2"
+                                               @(Model.ProductosSeleccionados.Contains(prod.ProductoId) ? "checked" : "") />
+
+                                        <img src="@prod.Imagen" alt="@prod.Nombre"
+                                             class="rounded-circle me-2"
+                                             style="width:40px; height:40px; object-fit:cover;" />
+
+                                        <span>@prod.Nombre (@prod.Precio.ToString("C"))</span>
+                                    </label>
+                                }
+                            </div>
+                            <span asp-validation-for="ProductosSeleccionados" class="text-danger"></span>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left-circle"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Guardar cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
     <script>
-        // Preview de la nueva imagen de promoción
         function previewImage(event) {
             var reader = new FileReader();
             reader.onload = function () {
@@ -131,19 +184,5 @@
             };
             reader.readAsDataURL(event.target.files[0]);
         }
-
-        // Preview de producto seleccionado
-        document.querySelector("select[name='ProductoId']").addEventListener("change", function () {
-            var selected = this.options[this.selectedIndex];
-            var imgUrl = selected.getAttribute("data-img");
-            var preview = document.getElementById("previewProducto");
-
-            if (imgUrl) {
-                preview.src = imgUrl;
-                preview.style.display = "block";
-            } else {
-                preview.style.display = "none";
-            }
-        });
     </script>
 }

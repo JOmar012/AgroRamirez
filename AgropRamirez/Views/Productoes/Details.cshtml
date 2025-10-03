@@ -16,53 +16,75 @@
         </nav>
     </div>
 </div>
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg border-0 rounded-3 p-4">
 
-<div class="container">
-    <div class="card shadow-sm p-4 mb-4">
-        <div class="row">
-            <!-- Imagen -->
-            <div class="col-md-4 text-center">
-                @if (!string.IsNullOrEmpty(Model.Imagen))
-                {
-                    <img src="@Model.Imagen" alt="Imagen del producto" style="max-width:250px; border:1px solid #ccc; padding:5px; border-radius:6px;" />
-                }
-                else
-                {
-                    <img src="~/img/no-image.png" alt="Sin imagen" style="max-width:250px; opacity:0.5;" />
-                }
-            </div>
+                <!-- Encabezado con línea -->
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <h4 class="mb-0">
+                        <i class="bi bi-people-fill text-primary"></i> Detalles del producto
+                    </h4>
+                </div>
 
-            <!-- Información -->
-            <div class="col-md-8">
-                <h3 class="mb-3">@Model.Nombre</h3>
-                <p class="text-muted">@Model.Descripcion</p>
+                <div class="row g-4">
+                    <!-- Imagen -->
+                    <div class="col-md-4 text-center">
+                        @if (!string.IsNullOrEmpty(Model.Imagen))
+                        {
+                            <img src="@Model.Imagen" alt="Imagen del producto"
+                                 class="img-fluid rounded shadow-sm"
+                                 style="width:100%; height:auto; object-fit:contain;" />
+                        }
+                        else
+                        {
+                            <img src="~/img/no-image.png" alt="Sin imagen"
+                                 class="img-fluid rounded shadow-sm"
+                                 style="width:100%; height:auto; opacity:0.5; object-fit:contain;" />
+                        }
+                    </div>
 
-                <dl class="row">
-                    <dt class="col-sm-4">Precio Unitario</dt>
-                    <dd class="col-sm-8">S/ @Model.Precio</dd>
+                    <!-- Información -->
+                    <div class="col-md-8 d-flex flex-column">
+                        <div class="mb-3">
+                            <h3 class="fw-bold">@Model.Nombre</h3>
+                            <p class="text-muted">@Model.Descripcion</p>
+                        </div>
 
-                    <dt class="col-sm-4">Precio por Mayor</dt>
-                    <dd class="col-sm-8">
-                        @(Model.PrecioPorMayor.HasValue ? $"S/ {Model.PrecioPorMayor}" : "-")
-                    </dd>
+                        <dl class="row">
+                            <dt class="col-sm-4 fw-bold">Precio Unitario</dt>
+                            <dd class="col-sm-8">S/ @Model.Precio</dd>
 
-                    <dt class="col-sm-4">Umbral Mayorista</dt>
-                    <dd class="col-sm-8">
-                        @(Model.UmbralMayorista.HasValue? Model.UmbralMayorista.ToString() + " unidades" : "-")
-                    </dd>
+                            <dt class="col-sm-4 fw-bold">Precio por Mayor</dt>
+                            <dd class="col-sm-8">
+                                @(Model.PrecioPorMayor.HasValue ? $"S/ {Model.PrecioPorMayor}" : "-")
+                            </dd>
 
-                    <dt class="col-sm-4">Stock</dt>
-                    <dd class="col-sm-8">@Model.Stock</dd>
+                            <dt class="col-sm-4 fw-bold">Umbral Mayorista</dt>
+                            <dd class="col-sm-8">
+                                @(Model.UmbralMayorista.HasValue? Model.UmbralMayorista + " unidades" : "-")
+                            </dd>
 
-                    <dt class="col-sm-4">Categoría</dt>
-                    <dd class="col-sm-8">@Model.Categoria?.Nombre</dd>
-                </dl>
+                            <dt class="col-sm-4 fw-bold">Stock</dt>
+                            <dd class="col-sm-8">@Model.Stock</dd>
+
+                            <dt class="col-sm-4 fw-bold">Categoría</dt>
+                            <dd class="col-sm-8">@Model.Categoria?.Nombre</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Botones centrados -->
+                <div class="mt-4 d-flex justify-content-center gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.ProductoId" class="btn btn-warning text-white">
+                        <i class="bi bi-pencil-square"></i> Editar
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Volver
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div>
-        <a asp-action="Edit" asp-route-id="@Model.ProductoId" class="btn btn-primary me-2">Editar</a>
-        <a asp-action="Index" class="btn btn-secondary">Volver</a>
     </div>
 </div>

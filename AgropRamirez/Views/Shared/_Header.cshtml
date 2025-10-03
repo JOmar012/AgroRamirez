@@ -63,12 +63,29 @@
         <div class="navbar-nav ms-auto p-4 p-lg-0">
             <a asp-controller="Home" asp-action="Index" class="nav-item nav-link @active("Home", "Index")">Inicio</a>
             <a asp-controller="Home" asp-action="Nosotros" class="nav-item nav-link @active("Home", "Nosotros")">Nosotros</a>
-            <a asp-controller="Home" asp-action="" class="nav-item nav-link @active("Home", "Service")">Servicios</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle @active("Home", "Service")" href="#" id="navbarDropdownServicios"
+                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-gear-fill"></i> Servicios
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdownServicios">
+                    <li>
+                        <a asp-controller="Productoes" asp-action="Index" class="dropdown-item">
+                            <i class="bi bi-box"></i> Productos
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Promocions" asp-action="Index" class="dropdown-item">
+                            <i class="bi bi-gift-fill"></i> Promociones
+                        </a>
+                    </li>
+                </ul>
+            </li>
             @* <a asp-controller="Home" asp-action="" class="nav-item nav-link @active("Home", "Project")">Projectos</a> *@
             <a asp-controller="Home" asp-action="Contacto" class="nav-item nav-link @active("Home", "Contacto")">Contacto</a>
 
-            @if (User.Identity.IsAuthenticated && User.IsInRole("Administrador"))
-            {
+            @* @if (User.Identity.IsAuthenticated && User.IsInRole("Administrador"))
+            { *@
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Gestionar</a>
                     <div class="dropdown-menu bg-light m-0">
@@ -94,9 +111,19 @@
                     </div>
                 </div>
 
-            }
+            @* } *@
             
-
+            @* Carrito *@
+            <li class="nav-item">
+                <a class="nav-link position-relative" asp-controller="Carritoes" asp-action="MiCarrito">
+                    <i class="bi bi-cart4 fs-5"></i>
+                    <span id="cartCount"
+                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
+                          style="display:none;">
+                        0
+                    </span>
+                </a>
+            </li>
            
         </div>
 

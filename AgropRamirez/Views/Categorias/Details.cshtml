@@ -1,44 +1,61 @@
 ﻿@model AgropRamirez.Models.Categoria
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles de Categoría";
 }
+
 <!-- Page Header Start -->
 <div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
     <div class="container text-center py-5">
-        <h1 class="display-3 text-white mb-4 animated slideInDown">Usuarios</h1>
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Detalles de Categoría</h1>
         <nav aria-label="breadcrumb animated slideInDown">
             <ol class="breadcrumb justify-content-center mb-0">
-                <li class="breadcrumb-item"><a href="#">Inicio</a></li>
-                <li class="breadcrumb-item active" aria-current="page">About</li>
-                <li class="breadcrumb-item"><a href="#">Pages</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Categorías</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Detalles</li>
             </ol>
         </nav>
     </div>
 </div>
 <!-- Page Header End -->
 
-<h1>Details</h1>
+<div class="container my-5">
+    <div class="card shadow-lg border-0 rounded-3 p-4">
+        <div class="row g-4 align-items-center">
 
-<div>
-    <h4>Categoria</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descripcion)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.CategoriaId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+            <!-- Avatar a la izquierda -->
+            <div class="col-md-3 text-center">
+                <i class="fas fa-horse" style="font-size:100px; color:#20c997;"></i>
+            </div>
+
+            <!-- Datos a la derecha -->
+            <div class="col-md-9">
+                <h4 class="mb-3"><i class="bi bi-journal-text"></i> Información de la Categoría</h4>
+                <dl class="row">
+                    <dt class="col-sm-3">
+                        @Html.DisplayNameFor(model => model.Nombre)
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.Nombre)
+                    </dd>
+
+                    <dt class="col-sm-3">
+                        @Html.DisplayNameFor(model => model.Descripcion)
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.Descripcion)
+                    </dd>
+                </dl>
+
+                <!-- Botones -->
+                <div class="d-flex justify-content-start mt-3">
+                    <a asp-action="Edit" asp-route-id="@Model?.CategoriaId" class="btn btn-warning me-2">
+                        <i class="bi bi-pencil-square"></i> Editar
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

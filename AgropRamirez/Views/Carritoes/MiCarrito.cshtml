@@ -1,0 +1,114 @@
+﻿@model AgropRamirez.Models.Carrito
+
+@{
+    ViewData["Title"] = "Mi Carrito";
+}
+
+<!-- Page Header -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s"
+     style="background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)), url('/img/Campos.jpg') center center/cover no-repeat;">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-3 animated slideInDown">
+            <i class="bi bi-cart4"></i> Mi Carrito
+        </h1>
+    </div>
+</div>
+
+<div class="container mb-5">
+    @if (Model != null && Model.CarritoDetalles != null && Model.CarritoDetalles.Any())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="card shadow-lg border-0 rounded-3">
+            <div class="card-body p-4">
+
+
+                <!-- 🔹 Botón Seguir Comprando -->
+                <div class="mb-3">
+                    <a asp-controller="Productoes" asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Seguir comprando
+                    </a>
+                </div>
+
+
+                <table class="table table-hover align-middle">
+                    <thead class="table-warning">
+                        <tr>
+                            <th></th>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.CarritoDetalles)
+                        {
+                            <tr data-id="@item.CarritoDetalleId" data-precio="@item.PrecioUnitario">
+                                <td>
+                                    <img src="@item.Producto?.Imagen" alt="@item.Producto?.Nombre"
+                                         style="width:60px; height:60px; object-fit:cover; border-radius:8px;" />
+                                </td>
+                                <td>@item.Producto?.Nombre</td>
+
+                                <td>
+                                    <div class="input-group input-group-sm justify-content-center" style="max-width:120px;">
+                                        <button type="button" class="btn btn-outline-primary btn-sm btn-restar"
+                                                data-id="@item.CarritoDetalleId">
+                                            −
+                                        </button>
+
+                                        <input type="text" class="form-control text-center cantidad-input"
+                                               value="@item.Cantidad" data-id="@item.CarritoDetalleId" readonly />
+
+                                        <button type="button" class="btn btn-outline-primary btn-sm btn-sumar"
+                                                data-id="@item.CarritoDetalleId">
+                                            +
+                                        </button>
+                                    </div>
+                                </td>
+
+                                <td>S/ @item.PrecioUnitario</td>
+                                <td class="subtotal">S/ @item.SubTotal</td>
+
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-danger btn-eliminar"
+                                            data-id="@item.CarritoDetalleId">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" class="text-end fw-bold">Total:</td>
+                            <td id="totalCarrito">S/ @Model.CarritoDetalles.Sum(cd => cd.SubTotal)</td>
+                        </tr>
+                    </tfoot>
+
+                </table>
+                <div class="text-end mt-3">
+                    <a asp-controller="Pedidos" asp-action="Checkout" class="btn btn-success fw-bold">
+                        <i class="bi bi-bag-check-fill"></i> Proceder al Pago
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning text-center shadow-sm">
+            <i class="bi bi-exclamation-circle"></i> Tu carrito está vacío.
+        </div>
+
+        <!-- 🔹 Botón Ir a Comprar -->
+        <div class="text-center mt-3">
+            <a asp-controller="Productoes" asp-action="Index" class="btn btn-primary fw-bold">
+                <i class="bi bi-shop"></i> Ir a comprar
+            </a>
+        </div>
+    }
+</div>

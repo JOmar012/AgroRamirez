@@ -1,4 +1,4 @@
-html {
+﻿html {
   font-size: 14px;
 }
 
@@ -33,21 +33,205 @@ body {
     line-height: normal !important;
 }
 
-/* Si tu main ten�a padding extra abajo */
+/* Si tu main tenía padding extra abajo */
 main[role="main"] {
     padding-bottom: 0 !important;
 }
 
-/*** Spinner ***/
-/*#spinner {
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .5s ease-out, visibility 0s linear .5s;
-    z-index: 99999;
+
+/* ===== Estilo general de tablas en tarjetas ===== */
+.table-custom {
+    border-radius: 18px; /* Bordes redondeados externos */
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    font-size: 0.9rem; /* texto un poco más pequeño */
+}
+    /* Cabecera con esquinas superiores redondeadas */
+    .table-custom thead tr:first-child th:first-child {
+        border-top-left-radius: 18px;
+    }
+
+    .table-custom thead tr:first-child th:last-child {
+        border-top-right-radius: 18px;
+    }
+
+    /* Última fila con esquinas inferiores redondeadas */
+    .table-custom tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 18px;
+    }
+
+    .table-custom tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 18px;
+    }
+
+    /* Cabecera con fondo verde oscuro y letras blancas */
+    .table-custom thead {
+        background-color: #0F4229; /* Verde oscuro */
+        color: #fff;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    /* Filas intercaladas */
+    .table-custom tbody tr:nth-child(odd) {
+        background-color: #f1f8f4; /* Verde muy claro */
+    }
+
+    .table-custom tbody tr:nth-child(even) {
+        background-color: #e6f4ea; /* Verde claro */
+    }
+
+    /* Hover en las filas */
+    .table-custom tbody tr:hover {
+        background-color: #c8e6c9; /* Verde suave al pasar mouse */
+        transition: background-color 0.3s ease;
+    }
+
+    /* Bordes de la tabla */
+    .table-custom td,
+    .table-custom th {
+        border: 1px solid #c5e1a5; /* Verde clarito */
+        padding: 6px 10px; /* 👈 compacta filas (menos padding vertical) */
+        vertical-align: middle;
+    }
+        /* Íconos de encabezado */
+        .table-custom th i {
+            margin-right: 4px;
+            color: #aed581;
+        }
+
+    /* Botones más compactos */
+    .table-custom .btn {
+        margin: 1px;
+        padding: 3px 8px;
+        font-size: 0.8rem;
+    }
+/* ===== Fin de Estilo general de tablas en tarjetas ===== */
+
+/* ===== Botones acciones ===== */
+/* Avatar redondeado */
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    object-fit: cover;
+    border-radius: 50%; /* 👈 hace la imagen circular */
+    border: 2px solid #ddd;
 }
 
-    #spinner.show {
-        transition: opacity .5s ease-out, visibility 0s linear 0s;
-        visibility: visible;
-        opacity: 1;
-    }*/
+/* Botones de acción como iconos */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    margin: 0 2px;
+    font-size: 1rem;
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.2s;
+}
+
+    .btn-icon:hover {
+        transform: scale(1.1);
+    }
+
+/* Colores personalizados */
+.btn-edit {
+    background-color: #ff9900; /* Amarillo */
+}
+
+.btn-details {
+    background-color: #00cc99; /* Turquesa */
+}
+
+.btn-delete {
+    background-color: #9A6735; /* Marrón claro */
+}
+/* ===== fin Botones acciones ===== */
+
+/* ===== Estilos tarjetas crear, editar, detalles ... ===== */
+.custom-header {
+    background-color: #28a745; /* Verde */
+    padding: 1rem;
+    border-radius: 0.5rem 0.5rem 0 0; /* Bordes superiores redondeados */
+    text-align: center;
+}
+
+    .custom-header h4 {
+        color: #fff !important; /* Forzamos letras blancas */
+        font-weight: bold;
+        letter-spacing: 1px;
+        margin: 0;
+    }
+
+.custom-header i {
+    color: #fff;
+}
+
+/*edit*/
+.custom-header-edit {
+    background-color: #ffc107; /* Amarillo Bootstrap */
+    color: #fff;
+    padding: 1rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.custom-header-edit h4,
+.custom-header-edit i {
+    color: #fff !important; /* Letras e iconos blancos */
+}
+
+/*eliminar*/
+.custom-header-delete {
+    background-color: #dc3545; /* Rojo Bootstrap */
+    color: #fff;
+    padding: 1rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+    .custom-header-delete h4,
+    .custom-header-delete i {
+        color: #fff !important; /* Forzar letras e íconos blancos */
+    }
+
+/*detalles*/
+.custom-header-details {
+    background-color: #20c997; /* Turquesa Bootstrap */
+    color: #fff;
+    padding: 1rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+    .custom-header-details h4,
+    .custom-header-details i {
+        color: #fff !important;
+    }
+
+/*<!-- card de productos -->*/
+
+.product-card {
+    transition: all 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.product-card img {
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover img {
+    transform: scale(1.05);
+}
+
+/*Carrito contador*/
+/* Ajuste para el badge del carrito */
+#cartCount {
+    transform: translate(-50%, 50%) !important; /* mueve hacia abajo */
+    font-size: 0.75rem; /* opcional: ajustar tamaño */
+    padding: 0.4em 0.5em; /* opcional: más uniforme */
+}

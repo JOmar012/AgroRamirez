@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AgropRamirez.Data;
+using AgropRamirez.Models;
+using AgropRamirez.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using AgropRamirez.Data;
-using AgropRamirez.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace AgropRamirez.Controllers
 {
@@ -189,5 +191,104 @@ namespace AgropRamirez.Controllers
         {
             return _context.Pedidos.Any(e => e.PedidoId == id);
         }
+
+
+        //ver pedidos cliente
+        [HttpGet]
+        public async Task<IActionResult> Checkout()
+        {
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var carrito = await _context.Carritos
+                .Include(c => c.CarritoDetalles)
+                    .ThenInclude(cd => cd.Producto)
+                .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+
+            if (carrito == null || !carrito.CarritoDetalles.Any())
+            {
+                TempData["Warn"] = "Tu carrito está vacío.";
+                return RedirectToAction("MiCarrito", "Carritoes");
+            }
+
+            var vm = new CheckoutVM
+            {
+                Items = carrito.CarritoDetalles.Select(cd => new CheckoutItemVM
+                {
+                    ProductoId = cd.ProductoId,
+                    Nombre = cd.Producto!.Nombre,
+                    Imagen = cd.Producto.Imagen, // ajusta si usas ImagenRuta
+                    Cantidad = cd.Cantidad,
+                    PrecioUnitario = cd.PrecioUnitario,
+                    StockDisponible = cd.Producto.Stock
+                }).ToList()
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmarPedido()
+        {
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var carrito = await _context.Carritos
+                .Include(c => c.CarritoDetalles)
+                .ThenInclude(cd => cd.Producto)
+                .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+
+            if (carrito == null || !carrito.CarritoDetalles.Any())
+            {
+                TempData["Warn"] = "Tu carrito está vacío.";
+                return RedirectToAction("MiCarrito", "Carritoes");
+            }
+
+            // ⚠️ Revalidar stock por seguridad
+            foreach (var item in carrito.CarritoDetalles)
+            {
+                if (item.Cantidad > item.Producto.Stock)
+                {
+                    TempData["Warn"] = $"El producto {item.Producto.Nombre} no tiene suficiente stock. Disponible: {item.Producto.Stock}";
+                    return RedirectToAction("Checkout");
+                }
+            }
+
+            // Calcular total del pedido
+            var totalPedido = carrito.CarritoDetalles.Sum(cd => cd.Cantidad * cd.PrecioUnitario);
+
+            // Crear Pedido
+            var pedido = new Pedido
+            {
+                UsuarioId = usuarioId,
+                FechaPedido = DateTime.Now,
+                Estado = "Pendiente",   // 👈 estado inicial
+                Total = totalPedido,    // 👈 total general del pedido
+                PedidoDetalles = new List<PedidoDetalle>()
+            };
+
+            foreach (var item in carrito.CarritoDetalles)
+            {
+                // Descontar stock
+                item.Producto.Stock -= item.Cantidad;
+
+                pedido.PedidoDetalles.Add(new PedidoDetalle
+                {
+                    ProductoId = item.ProductoId,
+                    Cantidad = item.Cantidad,
+                    PrecioUnitario = item.PrecioUnitario
+                });
+            }
+
+            _context.Pedidos.Add(pedido);
+
+            // Vaciar carrito
+            _context.CarritoDetalles.RemoveRange(carrito.CarritoDetalles);
+
+            await _context.SaveChangesAsync();
+
+            // Redirigir al registro de pago
+            return RedirectToAction("Registrar", "Pagos", new { pedidoId = pedido.PedidoId });
+        }
+
     }
 }

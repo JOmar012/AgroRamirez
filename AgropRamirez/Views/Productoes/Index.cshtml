@@ -4,76 +4,121 @@
     ViewData["Title"] = "Productos";
 }
 
-<!-- Page Header -->
-<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+<!-- Page Header Productos -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s"
+     style="background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.6)), url('/img/Campos.jpg') center center/cover no-repeat;">
     <div class="container text-center py-5">
-        <h1 class="display-3 text-white mb-4 animated slideInDown">Productos</h1>
+        <h1 class="display-3 text-white mb-3 animated slideInDown">
+            <i class="bi bi-box-seam"></i> Catálogo de Productos
+        </h1>
+        <p class="text-white-50 fs-5 animated fadeIn">
+            <i class="bi bi-bag-check"></i> Encuentra lo que necesitas al mejor precio
+        </p>
         <nav aria-label="breadcrumb animated slideInDown">
             <ol class="breadcrumb justify-content-center mb-0">
-                <li class="breadcrumb-item"><a asp-action="Index">Productos</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Detalles</li>
+                <li class="breadcrumb-item"><a asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Productos</li>
             </ol>
         </nav>
     </div>
 </div>
 
+<div class="container mb-5">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a asp-action="Create" class="btn btn-warning text-dark">
+            <i class="bi bi-plus-circle-fill"></i> Nuevo
+        </a>
+        <h3 class="mb-0 text-center flex-grow-1">
+            <i class="bi bi-box-seam"></i> Catálogo de Productos
+        </h3>
+        <div style="width:80px"></div> <!-- espacio para balancear -->
+    </div>
 
-<h1>Index</h1>
+    <!-- 🔹 Token antiforgery disponible para todo el JS -->
+    @Html.AntiForgeryToken()
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Descripcion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Precio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Stock)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Imagen)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Categoria)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Descripcion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Precio)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Stock)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Imagen)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Categoria.CategoriaId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ProductoId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ProductoId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ProductoId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <!-- Grid -->
+    <div class="row justify-content-center g-4 mt-3">
+        @foreach (var item in Model)
+        {
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card h-100 shadow-lg border-0 rounded-3 product-card">
+
+                    <!-- Imagen con etiqueta -->
+                    <a asp-action="Details" asp-route-id="@item.ProductoId" class="text-decoration-none text-dark">
+                        <div class="position-relative bg-light" style="height:200px; overflow:hidden; border-radius:0.5rem 0.5rem 0 0;">
+                            <img src="@item.Imagen" alt="@item.Nombre"
+                                 class="w-100 h-100"
+                                 style="object-fit:cover;" />
+
+                            <!-- Etiqueta amarilla -->
+                            <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2">
+                                @item.Categoria?.Nombre
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- Body -->
+                    <div class="card-body d-flex flex-column text-start flex-grow-1">
+                        <h5 class="card-title fw-bold text-center w-100">
+                            <span class="badge bg-primary text-white w-100 py-2" style="font-size:1rem; border-radius:0;">
+                                @item.Nombre
+                            </span>
+                        </h5>
+                        <p class="card-text text-muted flex-grow-1 mb-2" style="font-size:0.9rem; min-height:40px;">
+                            @(item.Descripcion?.Length > 60 ? item.Descripcion.Substring(0, 60) + "..." : item.Descripcion)
+                        </p>
+
+                        <div>
+                            <p class="fw-bold mb-1 text-success">S/ @item.Precio</p>
+                            <small class="text-muted">Stock: @item.Stock</small>
+                        </div>
+                    </div>
+
+                    <!-- Botón agregar al carrito -->
+                    @* <form asp-controller="Carritoes" asp-action="Agregar" method="post" class="d-inline">
+                        <input type="hidden" name="productoId" value="@item.ProductoId" />
+                        <input type="hidden" name="cantidad" value="1" />
+                        <button class="btn btn-warning text-dark fw-bold add-to-cart"
+                                data-id="@item.ProductoId" data-cantidad="1">
+                            <i class="bi bi-cart-plus"></i> Agregar
+                        </button>
+                    </form> *@
+
+                   @*  Cantidad dinamico *@
+
+                    <!-- Controles de cantidad -->
+                    @* <div class="d-flex justify-content-center align-items-center mb-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-restar" data-id="@item.ProductoId">−</button>
+                        <input type="text" class="form-control text-center cantidad-input"
+                               value="1" data-id="@item.ProductoId" style="max-width:60px;" readonly />
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-sumar" data-id="@item.ProductoId">+</button>
+                    </div> *@
+
+                    <!-- Botón agregar al carrito -->
+                    <button type="button"
+                            class="btn btn-warning text-dark fw-bold add-to-cart"
+                            data-id="@item.ProductoId" data-cantidad="1">
+                        <i class="bi bi-cart-plus"></i> Agregar
+                    </button>
+
+
+                    <!-- Footer -->
+                    <div class="card-footer bg-white border-0 d-flex justify-content-center gap-2 mt-auto">
+                        <a asp-action="Details" asp-route-id="@item.ProductoId" class="btn btn-outline-info btn-sm" title="Detalles">
+                            <i class="bi bi-eye-fill"></i>
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@item.ProductoId" class="btn btn-outline-warning btn-sm" title="Editar">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.ProductoId" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+                }
+    </div>
+</div>
+

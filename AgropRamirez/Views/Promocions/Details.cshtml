@@ -7,7 +7,7 @@
 <!-- Page Header -->
 <div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
     <div class="container text-center py-5">
-        <h1 class="display-3 text-white mb-4 animated slideInDown">Promociones</h1>
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Detalles de la Promoción</h1>
         <nav aria-label="breadcrumb animated slideInDown">
             <ol class="breadcrumb justify-content-center mb-0">
                 <li class="breadcrumb-item"><a asp-action="Index">Promociones</a></li>
@@ -17,49 +17,94 @@
     </div>
 </div>
 
-<h1 class="mb-4">Detalles de la promoción</h1>
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg border-0 rounded-3 p-4">
 
-<div class="container">
-    <div class="card shadow-sm p-4 mb-4">
-        <div class="row">
-            <!-- Imagen -->
-            <div class="col-md-4 text-center">
-                @if (!string.IsNullOrEmpty(Model.Imagen))
-                {
-                    <img src="@Model.Imagen" alt="Imagen de la promoción"
-                         style="max-width:250px; border:1px solid #ccc; padding:5px; border-radius:6px;" />
-                }
-                else
-                {
-                    <img src="~/img/no-image.png" alt="Sin imagen"
-                         style="max-width:250px; opacity:0.5;" />
-                }
-            </div>
+                <!-- Encabezado con línea -->
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <h4 class="mb-0">
+                        <i class="bi bi-gift-fill text-danger"></i> Detalles de la promoción
+                    </h4>
+                </div>
 
-            <!-- Información -->
-            <div class="col-md-8">
-                <h3 class="mb-3">@Model.Nombre</h3>
-                <p class="text-muted">@Model.Descripcion</p>
+                <div class="row g-4">
+                    <!-- Imagen -->
+                    <div class="col-md-4 text-center">
+                        @if (!string.IsNullOrEmpty(Model.Imagen))
+                        {
+                            <img src="@Model.Imagen" alt="Imagen de la promoción"
+                                 class="img-fluid rounded shadow-sm"
+                                 style="width:100%; height:auto; object-fit:contain;" />
+                        }
+                        else
+                        {
+                            <img src="~/img/no-image.png" alt="Sin imagen"
+                                 class="img-fluid rounded shadow-sm"
+                                 style="width:100%; height:auto; opacity:0.5; object-fit:contain;" />
+                        }
+                    </div>
 
-                <dl class="row">
-                    <dt class="col-sm-4">Fecha Inicio</dt>
-                    <dd class="col-sm-8">@Model.FechaInicio.ToString("dd/MM/yyyy HH:mm")</dd>
+                    <!-- Información -->
+                    <div class="col-md-8 d-flex flex-column">
+                        <div class="mb-3">
+                            <h3 class="fw-bold">@Model.Nombre</h3>
+                            <p class="text-muted">@Model.Descripcion</p>
+                        </div>
 
-                    <dt class="col-sm-4">Fecha Fin</dt>
-                    <dd class="col-sm-8">@Model.FechaFin.ToString("dd/MM/yyyy HH:mm")</dd>
+                        <dl class="row">
+                            <dt class="col-sm-4 fw-bold">Fecha Inicio</dt>
+                            <dd class="col-sm-8">@Model.FechaInicio.ToString("dd/MM/yyyy HH:mm")</dd>
 
-                    <dt class="col-sm-4">Descuento</dt>
-                    <dd class="col-sm-8">@Model.Descuento %</dd>
+                            <dt class="col-sm-4 fw-bold">Fecha Fin</dt>
+                            <dd class="col-sm-8">@Model.FechaFin.ToString("dd/MM/yyyy HH:mm")</dd>
 
-                    <dt class="col-sm-4">Producto</dt>
-                    <dd class="col-sm-8">@Model.Producto?.Nombre</dd>
-                </dl>
+                            <dt class="col-sm-4 fw-bold">Descuento</dt>
+                            <dd class="col-sm-8">@Model.Descuento %</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Productos incluidos -->
+                <div class="mt-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-box-seam"></i> Productos incluidos
+                    </h5>
+
+                    @if (Model.Productos != null && Model.Productos.Any())
+                    {
+                        <ul class="list-group shadow-sm">
+                            @foreach (var prod in Model.Productos)
+                            {
+                                <li class="list-group-item d-flex align-items-center">
+                                    <img src="@prod.Imagen" alt="@prod.Nombre"
+                                         class="rounded-circle me-3"
+                                         style="width:50px; height:50px; object-fit:cover;" />
+                                    <div>
+                                        <strong>@prod.Nombre</strong><br />
+                                        <span class="text-muted">S/ @prod.Precio</span>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted fst-italic">No hay productos asociados a esta promoción.</p>
+                    }
+                </div>
+
+                <!-- Botones centrados -->
+                <div class="mt-4 d-flex justify-content-center gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.PromocionId" class="btn btn-warning text-white">
+                        <i class="bi bi-pencil-square"></i> Editar
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Volver
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div>
-        <a asp-action="Edit" asp-route-id="@Model.PromocionId" class="btn btn-primary me-2">Editar</a>
-        <a asp-action="Index" class="btn btn-secondary">Volver</a>
     </div>
 </div>

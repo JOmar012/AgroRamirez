@@ -77,6 +77,39 @@ namespace AgropRamirez.Controllers
                 return View(vm);
             }
 
+
+            // 🔹 Validaciones de unicidad
+            if (await _context.Usuarios.AnyAsync(u => u.Dni == vm.Dni))
+            {
+                ModelState.AddModelError("Dni", "El DNI ya está registrado.");
+                ViewBag.Roles = new List<string> { "Administrador", "Empleado", "Cliente" };
+                return View(vm);
+            }
+
+            //FALTA AGREGAR ATRIBUTO EN LA BASE DE DATOS
+
+            //Teléfono
+
+            //if (!string.IsNullOrWhiteSpace(vm.Telefono) &&
+            //    await _context.Usuarios.AnyAsync(u => u.Telefono == vm.Telefono))
+            //{
+            //    ModelState.AddModelError("Telefono", "El teléfono ya está registrado.");
+            //    ViewBag.Roles = new List<string> { "Administrador", "Empleado", "Cliente" };
+            //    return View(vm);
+            //}
+
+            //Sexo
+
+            if (await _context.Usuarios.AnyAsync(u => u.Email == vm.Email))
+            {
+                ModelState.AddModelError("Email", "El correo ya está registrado.");
+                ViewBag.Roles = new List<string> { "Administrador", "Empleado", "Cliente" };
+                return View(vm);
+            }
+
+
+            // 🔹 Guardar imagen
+
             string? rutaImagen = null;
             if (vm.ImagenFile != null && vm.ImagenFile.Length > 0)
             {
