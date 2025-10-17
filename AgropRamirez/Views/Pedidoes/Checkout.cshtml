@@ -8,7 +8,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Resumen de tu pedido</h2>
-        <a asp-controller="Productos" asp-action="Index" class="btn btn-outline-secondary">
+        <a asp-controller="Productoes" asp-action="Index" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left-circle"></i> Seguir comprando
         </a>
     </div>
@@ -27,7 +27,7 @@
                 <table class="table align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Producto</th>
+                            <th>Producto / Promoción</th>
                             <th class="text-center">Cant.</th>
                             <th class="text-end">Precio</th>
                             <th class="text-end">Subtotal</th>
@@ -35,6 +35,8 @@
                         </tr>
                     </thead>
                     <tbody>
+
+                        <!-- 🟢 Productos normales -->
                         @foreach (var item in Model.Items)
                         {
                             var supera = item.Cantidad > item.StockDisponible;
@@ -43,7 +45,8 @@
                                     <div class="d-flex align-items-center gap-2">
                                         @if (!string.IsNullOrEmpty(item.Imagen))
                                         {
-                                            <img src="@item.Imagen" style="width:48px;height:48px;object-fit:cover;border-radius:6px;" />
+                                            <img src="@item.Imagen"
+                                                 style="width:48px;height:48px;object-fit:cover;border-radius:6px;" />
                                         }
                                         <span>@item.Nombre</span>
                                     </div>
@@ -57,7 +60,41 @@
                                 </td>
                             </tr>
                         }
+
+                        <!-- 🎁 Promociones -->
+                        @if (Model.Promociones != null && Model.Promociones.Any())
+                        {
+                            <tr class="table-success">
+                                <th colspan="5" class="text-center">Promociones</th>
+                            </tr>
+
+                            @foreach (var promo in Model.Promociones)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            @if (!string.IsNullOrEmpty(promo.Imagen))
+                                            {
+                                                <img src="@promo.Imagen"
+                                                     style="width:48px;height:48px;object-fit:cover;border-radius:6px;" />
+                                            }
+                                            <div>
+                                                <strong>@promo.Nombre</strong>
+                                                <div class="small text-muted">
+                                                    @string.Join(", ", promo.ProductosIncluidos)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">@promo.Cantidad</td>
+                                    <td class="text-end">S/ @promo.PrecioTotal.ToString("F2")</td>
+                                    <td class="text-end fw-semibold">S/ @(promo.Cantidad* promo.PrecioTotal).ToString("F2")</td>
+                                    <td class="text-center">—</td>
+                                </tr>
+                            }
+                        }
                     </tbody>
+
                     <tfoot>
                         <tr>
                             <td colspan="3" class="text-end fw-bold">Total</td>
@@ -73,7 +110,7 @@
                     <i class="bi bi-pencil-square"></i> Editar carrito
                 </a>
 
-                <form asp-controller="Pedidos" asp-action="ConfirmarPedido" method="post" class="m-0">
+                <form asp-controller="Pedidoes" asp-action="ConfirmarPedido" method="post" class="m-0">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-success fw-bold" @(Model.HayProblemasDeStock ? "disabled" : "")>
                         <i class="bi bi-check-circle"></i> Confirmar pedido

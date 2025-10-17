@@ -15,5 +15,7 @@ namespace AgropRamirez.Models
         [ValidateNever]
         public Usuario Usuario { get; set; } = null!;
         public ICollection<CarritoDetalle> CarritoDetalles { get; set; } = new List<CarritoDetalle>();
+        public ICollection<CarritoPromocion> CarritoPromociones { get; set; } = new List<CarritoPromocion>(); // 👈 nuevo
+
     }
 }

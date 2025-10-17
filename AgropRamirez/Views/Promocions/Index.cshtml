@@ -64,7 +64,9 @@
                                                  onmouseover="this.style.transform='scale(1.03)';"
                                                  onmouseout="this.style.transform='scale(1)';">
                                                 <!-- Descuento -->
-                                                <span class="badge bg-danger fs-6 mb-2">Hasta @promo.Descuento% OFF</span>
+                                                <span class="badge bg-danger fs-6 mb-2 fw-bold text-uppercase shadow-sm">
+                                                    Hasta @($"{promo.Descuento:0.#}% Descuento")
+                                                </span>
 
                                                 <!-- Imagen -->
                                                 <img src="@promo.Imagen" alt="@promo.Nombre"
@@ -85,6 +87,19 @@
                                                 {
                                                     <p class="text-muted small">Sin productos</p>
                                                 }
+
+                                                @* //Agregar al carrito *@
+                                                @if (promo.Productos.Any())
+                                                {
+                                                    var firstProd = promo.Productos.First();
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-warning mt-2 add-to-cart"
+                                                            data-id="@firstProd.ProductoId"
+                                                            data-cantidad="1">
+                                                        <i class="bi bi-cart-plus"></i> Añadir al carrito
+                                                    </button>
+                                                }
+
                                             </div>
                                         </a>
                                     </div>
@@ -132,59 +147,95 @@
             @foreach (var item in Model)
             {
                 <div class="col-lg-3 col-md-4 col-sm-6">
-                    <a asp-action="Details" asp-route-id="@item.PromocionId" class="text-decoration-none text-dark">
-                        <div class="card h-100 shadow-lg border-0 rounded-3 d-flex flex-column position-relative promo-card"
-                             style="transition: transform 0.2s; cursor: pointer;"
-                             onmouseover="this.style.transform='scale(1.03)';"
-                             onmouseout="this.style.transform='scale(1)';">
+                    <div class="card h-100 shadow-lg border-0 rounded-3 d-flex flex-column position-relative promo-card"
+                         style="transition: transform 0.2s; cursor: pointer;"
+                         onmouseover="this.style.transform='scale(1.03)';"
+                         onmouseout="this.style.transform='scale(1)';">
 
-                            <!-- Badge descuento -->
-                            <span class="badge bg-danger position-absolute top-0 start-0 m-2 p-2">
-                                @item.Descuento% OFF
-                            </span>
+                        <!-- Badge descuento -->
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2 p-2 fw-bold text-uppercase shadow-sm">
+                            @($"{item.Descuento:0.#}% Descuento")
+                        </span>
 
-                            <!-- Imagen -->
-                            <img src="@item.Imagen" alt="@item.Nombre"
-                                 class="card-img-top"
-                                 style="height:200px; object-fit:contain; border-radius: 0.5rem 0.5rem 0 0;" />
 
-                            <!-- Body -->
-                            <div class="card-body text-center flex-grow-1">
-                                <h5 class="fw-bold" style="min-height:48px;">@item.Nombre</h5>
-                                @if (item.Productos != null && item.Productos.Any())
+                        <!-- Imagen -->
+                        <img src="@item.Imagen" alt="@item.Nombre"
+                             class="card-img-top"
+                             style="height:200px; object-fit:contain; border-radius: 0.5rem 0.5rem 0 0;" />
+
+                        <!-- Body -->
+                        <div class="card-body text-center flex-grow-1">
+                            <h5 class="fw-bold" style="min-height:48px;">@item.Nombre</h5>
+                            @if (item.Productos != null && item.Productos.Any())
+                            {
+                                <p class="text-muted mb-1">
+                                    @string.Join(", ", item.Productos.Take(2).Select(p => p.Nombre))
+                                    @(item.Productos.Count > 2 ? "..." : "")
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-1">Sin productos</p>
+                            }
+                            <small class="text-muted d-block mb-2">
+                                <i class="bi bi-calendar-event"></i>
+                                @item.FechaInicio.ToString("dd/MM/yyyy") - @item.FechaFin.ToString("dd/MM/yyyy")
+                            </small>
+
+                            <!-- 🔹 BOTÓN PARA AÑADIR PROMOCIÓN -->
+                            <button type="button"
+                                    class="btn btn-success btn-sm fw-bold btn-add-promo"
+                                    data-id="@item.PromocionId">
+                                <i class="bi bi-cart-plus"></i> Añadir promoción
+                            </button>
+
+                            <!-- 🔹 Botón dinámico según cantidad de productos -->
+                            @if (item.Productos != null && item.Productos.Any())
+                            {
+                                if (item.Productos.Count == 1)
                                 {
-                                    <p class="text-muted mb-1">
-                                        @string.Join(", ", item.Productos.Take(2).Select(p => p.Nombre))
-                                        @(item.Productos.Count > 2 ? "..." : "")
-                                    </p>
+                                    var prod = item.Productos.First();
+                                    <button type="button"
+                                            class="btn btn-warning btn-sm add-to-cart fw-bold"
+                                            data-id="@prod.ProductoId"
+                                            data-cantidad="1">
+                                        <i class="bi bi-cart-plus"></i> Añadir al carrito
+                                    </button>
                                 }
-                                else
+                                @* else
                                 {
-                                    <p class="text-muted mb-1">Sin productos</p>
-                                }
-                                <small class="text-muted d-block">
-                                    <i class="bi bi-calendar-event"></i>
-                                    @item.FechaInicio.ToString("dd/MM/yyyy") - @item.FechaFin.ToString("dd/MM/yyyy")
-                                </small>
-                            </div>
-
-                            <!-- Footer con acciones --> 
-                            <div class="card-footer bg-white border-0 d-flex justify-content-center gap-2"> 
-                                <a asp-action="Details" asp-route-id="@item.PromocionId" 
-                                class="btn btn-outline-info btn-sm" title="Detalles"> 
-                                <i class="bi bi-eye-fill"></i> 
-
-                                </a> <a asp-action="Edit" asp-route-id="@item.PromocionId" 
-                                class="btn btn-outline-warning btn-sm" title="Editar"> 
-                                <i class="bi bi-pencil-square"></i> 
-                            
-                                </a> <a asp-action="Delete" asp-route-id="@item.PromocionId" 
-                                class="btn btn-outline-danger btn-sm" title="Eliminar"> 
-                                <i class="bi bi-trash-fill"></i> </a> 
-                            </div>
-
+                                    <a asp-controller="Promocions"
+                                       asp-action="Details"
+                                       asp-route-id="@item.PromocionId"
+                                       class="btn btn-outline-success btn-sm fw-bold">
+                                        <i class="bi bi-box-seam"></i> Ver productos
+                                    </a>
+                                } *@
+                                <a asp-controller="Promocions"
+                                   asp-action="Details"
+                                   asp-route-id="@item.PromocionId"
+                                   class="btn btn-outline-success btn-sm fw-bold">
+                                    <i class="bi bi-box-seam"></i> Ver productos
+                                </a>
+                            }
                         </div>
-                    </a>
+
+                        <!-- Footer con acciones -->
+                        <div class="card-footer bg-white border-0 d-flex justify-content-center gap-2">
+                            <a asp-action="Details" asp-route-id="@item.PromocionId"
+                               class="btn btn-outline-info btn-sm" title="Detalles">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.PromocionId"
+                               class="btn btn-outline-warning btn-sm" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.PromocionId"
+                               class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                <i class="bi bi-trash-fill"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             }
         </div>

@@ -243,5 +243,150 @@ namespace AgropRamirez.Controllers
         {
             return _context.Pagos.Any(e => e.PagoId == id);
         }
+
+        //Pagos create cliente
+
+        // GET: Pagoes/CreatePagoCliente
+        public async Task<IActionResult> CreatePagoCliente(int pedidoId)
+        {
+            var pedido = await _context.Pedidos
+                .Include(p => p.Usuario)
+                .Include(p => p.PedidoDetalles)
+                    .ThenInclude(pd => pd.Producto)
+                .FirstOrDefaultAsync(p => p.PedidoId == pedidoId);
+
+            if (pedido == null)
+                return NotFound();
+
+            // 🧮 Calcular monto total del pedido (productos + promociones)
+            // Las promociones ya están sumadas en el campo Total del pedido
+            var montoTotal = pedido.Total;
+
+            var pago = new Pago
+            {
+                PedidoId = pedido.PedidoId,
+                UsuarioId = pedido.UsuarioId,
+                FechaPago = DateTime.Now,
+                Monto = montoTotal,
+                Estado = "Pendiente"
+            };
+
+            return View(pago);
+        }
+
+        // POST: Pagoes/CreatePagoCliente
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreatePagoCliente([Bind("PedidoId,UsuarioId,FechaPago,Monto,MetodoPago,Estado")] Pago pago)
+        {
+            if (!ModelState.IsValid)
+                return Json(new { success = false, mensaje = "Datos inválidos." });
+
+            try
+            {
+                // ✅ Buscar el pedido y verificar que exista
+                var pedido = await _context.Pedidos
+                    .Include(p => p.PedidoDetalles)
+                        .ThenInclude(pd => pd.Producto)
+                    .FirstOrDefaultAsync(p => p.PedidoId == pago.PedidoId);
+
+                if (pedido == null)
+                    return Json(new { success = false, mensaje = "No se encontró el pedido asociado." });
+
+                // ✅ Verificar stock de cada producto del pedido antes de pagar
+                foreach (var det in pedido.PedidoDetalles)
+                {
+                    if (det.Producto == null)
+                        continue;
+
+                    if (det.Producto.Stock < det.Cantidad)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            warning = true,
+                            mensaje = $"El producto '{det.Producto.Nombre}' no tiene stock suficiente. Disponible: {det.Producto.Stock}, solicitado: {det.Cantidad}."
+                        });
+                    }
+                }
+
+                // ✅ Verificar stock de productos incluidos en promociones
+                var carritoPromos = await _context.CarritoPromociones
+                    .Include(cp => cp.Promocion)
+                        .ThenInclude(p => p.Productos)
+                    .Where(cp => cp.Carrito.UsuarioId == pago.UsuarioId)
+                    .ToListAsync();
+
+                foreach (var cp in carritoPromos)
+                {
+                    foreach (var prod in cp.Promocion.Productos)
+                    {
+                        if (prod.Stock < cp.Cantidad)
+                        {
+                            return Json(new
+                            {
+                                success = false,
+                                warning = true,
+                                mensaje = $"El producto '{prod.Nombre}' de la promoción '{cp.Promocion.Nombre}' no tiene stock suficiente."
+                            });
+                        }
+                    }
+                }
+
+                // ✅ Si todo tiene stock, registrar el pago
+                _context.Pagos.Add(pago);
+                await _context.SaveChangesAsync();
+
+                // ✅ Actualizar estado del pedido
+                pedido.Estado = "Pagado";
+
+                // ✅ Descontar stock de productos individuales
+                foreach (var det in pedido.PedidoDetalles)
+                {
+                    if (det.Producto != null)
+                        det.Producto.Stock -= det.Cantidad;
+                }
+
+                // ✅ Descontar stock de productos incluidos en promociones
+                foreach (var cp in carritoPromos)
+                {
+                    foreach (var prod in cp.Promocion.Productos)
+                    {
+                        prod.Stock -= cp.Cantidad;
+                    }
+                }
+
+                // ✅ Vaciar carrito del usuario (productos + promociones)
+                var carrito = await _context.Carritos
+                    .Include(c => c.CarritoDetalles)
+                    .Include(c => c.CarritoPromociones)
+                    .FirstOrDefaultAsync(c => c.UsuarioId == pago.UsuarioId);
+
+                if (carrito != null)
+                {
+                    if (carrito.CarritoDetalles.Any())
+                        _context.CarritoDetalles.RemoveRange(carrito.CarritoDetalles);
+
+                    if (carrito.CarritoPromociones.Any())
+                        _context.CarritoPromociones.RemoveRange(carrito.CarritoPromociones);
+                }
+
+                await _context.SaveChangesAsync();
+
+                // ✅ Respuesta AJAX
+                return Json(new
+                {
+                    success = true,
+                    mensaje = $"Tu pago de S/ {pago.Monto:0.00} con {pago.MetodoPago} fue registrado correctamente. ¡Gracias por tu compra! 🎉",
+                    total = pago.Monto,
+                    metodo = pago.MetodoPago
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, mensaje = "Error al registrar el pago: " + ex.Message });
+            }
+        }
     }
+    
 }

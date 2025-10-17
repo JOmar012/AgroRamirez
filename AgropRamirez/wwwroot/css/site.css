@@ -235,3 +235,15 @@ main[role="main"] {
     font-size: 0.75rem; /* opcional: ajustar tamaño */
     padding: 0.4em 0.5em; /* opcional: más uniforme */
 }
+
+
+/*Promocion total-detalles*/
+.card.bg-light {
+    border-left: 5px dashed #198754;
+    transition: all 0.2s ease-in-out;
+}
+
+    .card.bg-light:hover {
+        transform: scale(1.01);
+        box-shadow: 0 0 10px rgba(25, 135, 84, 0.3);
+    }

@@ -15,13 +15,15 @@
 </div>
 
 <div class="container mb-5">
-    @if (Model != null && Model.CarritoDetalles != null && Model.CarritoDetalles.Any())
+    @if (
+        (Model != null && Model.CarritoDetalles != null && Model.CarritoDetalles.Any()) ||
+        (Model != null && Model.CarritoPromociones != null && Model.CarritoPromociones.Any())
+        )
     {
         @Html.AntiForgeryToken()
 
         <div class="card shadow-lg border-0 rounded-3">
             <div class="card-body p-4">
-
 
                 <!-- 🔹 Botón Seguir Comprando -->
                 <div class="mb-3">
@@ -30,76 +32,122 @@
                     </a>
                 </div>
 
-
                 <table class="table table-hover align-middle">
                     <thead class="table-warning">
                         <tr>
                             <th></th>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
+                            <th>Producto / Promoción</th>
+                            <th class="text-center">Cantidad</th>
                             <th>Precio Unitario</th>
                             <th>Subtotal</th>
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach (var item in Model.CarritoDetalles)
-                        {
-                            <tr data-id="@item.CarritoDetalleId" data-precio="@item.PrecioUnitario">
-                                <td>
-                                    <img src="@item.Producto?.Imagen" alt="@item.Producto?.Nombre"
-                                         style="width:60px; height:60px; object-fit:cover; border-radius:8px;" />
-                                </td>
-                                <td>@item.Producto?.Nombre</td>
 
-                                <td>
-                                    <div class="input-group input-group-sm justify-content-center" style="max-width:120px;">
-                                        <button type="button" class="btn btn-outline-primary btn-sm btn-restar"
+                    <!-- 🟨 PRODUCTOS -->
+                    @if (Model.CarritoDetalles != null && Model.CarritoDetalles.Any())
+                    {
+                        <tbody class="carrito-productos">
+                            @foreach (var item in Model.CarritoDetalles)
+                            {
+                                <tr data-tipo="producto" data-id="@item.CarritoDetalleId" data-precio="@item.PrecioUnitario">
+                                    <td>
+                                        <img src="@item.Producto?.Imagen" alt="@item.Producto?.Nombre"
+                                             style="width:60px; height:60px; object-fit:cover; border-radius:8px;" />
+                                    </td>
+                                    <td>@item.Producto?.Nombre</td>
+
+                                    <td>
+                                        <div class="input-group input-group-sm justify-content-center" style="max-width:120px;">
+                                            <button type="button" class="btn btn-outline-primary btn-sm btn-restar"
+                                                    data-id="@item.CarritoDetalleId">
+                                                −
+                                            </button>
+
+                                            <input type="text" class="form-control text-center cantidad-input"
+                                                   value="@item.Cantidad" data-id="@item.CarritoDetalleId" readonly />
+
+                                            <button type="button" class="btn btn-outline-primary btn-sm btn-sumar"
+                                                    data-id="@item.CarritoDetalleId">
+                                                +
+                                            </button>
+                                        </div>
+                                    </td>
+
+                                    <td>S/ @item.PrecioUnitario.ToString("0.00")</td>
+                                    <td class="subtotal">S/ @item.SubTotal.ToString("0.00")</td>
+
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger btn-eliminar"
                                                 data-id="@item.CarritoDetalleId">
-                                            −
+                                            <i class="bi bi-trash"></i>
                                         </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    }
 
-                                        <input type="text" class="form-control text-center cantidad-input"
-                                               value="@item.Cantidad" data-id="@item.CarritoDetalleId" readonly />
-
-                                        <button type="button" class="btn btn-outline-primary btn-sm btn-sumar"
-                                                data-id="@item.CarritoDetalleId">
-                                            +
-                                        </button>
-                                    </div>
-                                </td>
-
-                                <td>S/ @item.PrecioUnitario</td>
-                                <td class="subtotal">S/ @item.SubTotal</td>
-
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-danger btn-eliminar"
-                                            data-id="@item.CarritoDetalleId">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-
+                    <!-- 🟩 PROMOCIONES -->
+                    @if (Model.CarritoPromociones != null && Model.CarritoPromociones.Any())
+                    {
+                        <tbody class="carrito-promociones">
+                            <tr class="table-success">
+                                <th colspan="6" class="text-center">Promociones</th>
                             </tr>
-                        }
-                    </tbody>
+
+                            @foreach (var promo in Model.CarritoPromociones)
+                            {
+                                <tr data-tipo="promocion">
+                                    <td>
+                                        <img src="@promo.Promocion.Imagen" alt="@promo.Promocion.Nombre"
+                                             style="width:60px; height:60px; object-fit:cover; border-radius:8px;" />
+                                    </td>
+                                    <td>@promo.Promocion.Nombre</td>
+                                    <td class="text-center">@promo.Cantidad</td>
+                                    <td>S/ @promo.PrecioTotal.ToString("0.00")</td>
+                                    <td>S/ @(promo.Cantidad* promo.PrecioTotal).ToString("0.00")</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger btn-eliminar-promocion"
+                                                data-id="@promo.CarritoPromocionId">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    }
+
+                    <!-- 🧮 TOTAL GENERAL -->
                     <tfoot>
                         <tr>
                             <td colspan="4" class="text-end fw-bold">Total:</td>
-                            <td id="totalCarrito">S/ @Model.CarritoDetalles.Sum(cd => cd.SubTotal)</td>
+                            <td id="totalCarrito">
+                                @{
+                                    decimal totalProductos = Model.CarritoDetalles?.Sum(cd => cd.SubTotal) ?? 0;
+                                    decimal totalPromos = Model.CarritoPromociones?.Sum(cp => cp.Cantidad * cp.PrecioTotal) ?? 0;
+                                    decimal totalGeneral = totalProductos + totalPromos;
+                                }
+                                S/ @totalGeneral.ToString("0.00")
+                            </td>
+                            <td></td>
                         </tr>
                     </tfoot>
-
                 </table>
+
+                <!-- 🔹 Botón Proceder al Pago -->
                 <div class="text-end mt-3">
-                    <a asp-controller="Pedidos" asp-action="Checkout" class="btn btn-success fw-bold">
+                    <a asp-controller="Pedidoes" asp-action="Checkout" class="btn btn-success fw-bold">
                         <i class="bi bi-bag-check-fill"></i> Proceder al Pago
                     </a>
                 </div>
+
             </div>
         </div>
     }
     else
     {
+        <!-- ❌ Carrito vacío -->
         <div class="alert alert-warning text-center shadow-sm">
             <i class="bi bi-exclamation-circle"></i> Tu carrito está vacío.
         </div>

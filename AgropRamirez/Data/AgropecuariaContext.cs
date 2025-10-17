@@ -13,6 +13,7 @@ namespace AgropRamirez.Data
         public DbSet<Promocion> Promociones { get; set; }
         public DbSet<Carrito> Carritos { get; set; }
         public DbSet<CarritoDetalle> CarritoDetalles { get; set; }
+        public DbSet<CarritoPromocion> CarritoPromociones { get; set; } //nuevo
         public DbSet<Pedido> Pedidos { get; set; }
         public DbSet<PedidoDetalle> PedidoDetalles { get; set; }
         public DbSet<Pago> Pagos { get; set; }
@@ -40,6 +41,20 @@ namespace AgropRamirez.Data
             modelBuilder.Entity<Cotizacion>().ToTable("Cotizaciones");
 
             modelBuilder.Entity<CotizacionDetalle>().ToTable("CotizacionDetalles");
+
+            // Tabla personalizada opcional
+            modelBuilder.Entity<CarritoPromocion>()
+                .ToTable("CarritoPromociones");
+
+            modelBuilder.Entity<CarritoPromocion>()
+                .HasOne(cp => cp.Carrito)
+                .WithMany(c => c.CarritoPromociones)
+                .HasForeignKey(cp => cp.CarritoId);
+
+            modelBuilder.Entity<CarritoPromocion>()
+                .HasOne(cp => cp.Promocion)
+                .WithMany()
+                .HasForeignKey(cp => cp.PromocionId);
 
             // Relaciones
             modelBuilder.Entity<Producto>()

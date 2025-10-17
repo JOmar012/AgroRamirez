@@ -1,0 +1,108 @@
+﻿@model AgropRamirez.Models.Pago
+
+@{
+    ViewData["Title"] = "Confirmar Pago";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-warning text-dark fw-bold">
+            <i class="bi bi-wallet2"></i> Confirmar Pago
+        </div>
+
+        <div class="card-body">
+            <form id="formPagoCliente" asp-action="CreatePagoCliente" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="PedidoId" />
+                <input type="hidden" asp-for="UsuarioId" />
+                <input type="hidden" asp-for="FechaPago" />
+                <input type="hidden" asp-for="Estado" />
+                <input type="hidden" asp-for="Monto" />
+
+                <!-- 🔹 Monto total -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Monto total a pagar</label>
+                    <input type="text" class="form-control bg-light" 
+                           value="S/ @Model.Monto.ToString("0.00")" readonly />
+                    <div class="form-text text-muted">
+                        * El monto incluye productos y promociones seleccionadas.
+                    </div>
+                </div>
+
+                <!-- 🔹 Método de pago -->
+                <div class="mb-3">
+                    <label asp-for="MetodoPago" class="form-label fw-bold"></label>
+                    <select asp-for="MetodoPago" class="form-select" required>
+                        <option value="">-- Selecciona un método --</option>
+                        <option value="Yape">Yape</option>
+                        <option value="Plin">Plin</option>
+                        <option value="Transferencia Bancaria">Transferencia Bancaria</option>
+                        <option value="Efectivo">Efectivo</option>
+                    </select>
+                    <span asp-validation-for="MetodoPago" class="text-danger"></span>
+                </div>
+
+                <!-- 🔹 Botones -->
+                <div class="text-end">
+                    <a asp-controller="Carritoes" asp-action="MiCarrito" 
+                       class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-arrow-left-circle"></i> Volver al carrito
+                    </a>
+                    <button type="submit" class="btn btn-success fw-bold" id="btnConfirmarPago">
+                        <i class="bi bi-check2-circle"></i> Confirmar Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        $("#formPagoCliente").on("submit", function (e) {
+            e.preventDefault();
+            const form = $(this);
+
+            $.ajax({
+                url: form.attr("action"),
+                type: "POST",
+                data: form.serialize(),
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "¡Pago exitoso!",
+                            html: `
+                                <p>${res.mensaje}</p>
+                                <hr>
+                                <p><strong>Monto pagado:</strong> S/ ${res.total.toFixed(2)}</p>
+                                <p><strong>Método:</strong> ${res.metodo}</p>
+                            `,
+                            showConfirmButton: false,
+                            timer: 3500
+                        }).then(() => {
+                            // 🔁 Redirigir al catálogo o página principal
+                            window.location.href = "/Productoes/Index";
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Atención",
+                            text: res.mensaje
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "No se pudo procesar el pago. Intenta nuevamente."
+                    });
+                }
+            });
+        });
+    </script>
+}

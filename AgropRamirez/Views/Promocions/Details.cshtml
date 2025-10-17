@@ -17,6 +17,14 @@
     </div>
 </div>
 
+
+@{
+    // Calcular totales
+    var subtotal = Model.Productos.Sum(p => p.Precio);
+    var descuento = subtotal * (Model.Descuento / 100);
+    var totalConDescuento = subtotal - descuento;
+}
+
 <div class="container mb-5">
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
@@ -88,6 +96,29 @@
                                 </li>
                             }
                         </ul>
+
+
+                        <!-- Resumen del total -->
+                        <div class="card mt-4 shadow-sm border-0 bg-light rounded-3">
+                            <div class="card-body py-3 px-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold text-secondary">Subtotal:</span>
+                                    <span class="fw-semibold text-muted">S/ @subtotal.ToString("0.00")</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold text-danger">
+                                        Descuento (@Model.Descuento.ToString("0.#") %):
+                                    </span>
+                                    <span class="fw-semibold text-danger">- S/ @descuento.ToString("0.00")</span>
+                                </div>
+                                <hr class="my-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h5 fw-bold text-success mb-0">Total con descuento:</span>
+                                    <span class="h5 fw-bold text-success mb-0">S/ @totalConDescuento.ToString("0.00")</span>
+                                </div>
+                            </div>
+                        </div>
+
                     }
                     else
                     {
@@ -96,10 +127,32 @@
                 </div>
 
                 <!-- Botones centrados -->
-                <div class="mt-4 d-flex justify-content-center gap-2">
-                    <a asp-action="Edit" asp-route-id="@Model.PromocionId" class="btn btn-warning text-white">
+                <div class="mt-4 d-flex justify-content-center gap-2 flex-wrap">
+                    @* <button type="button"
+                            class="btn btn-warning text-dark fw-bold add-promo-to-cart"
+                            data-promocion-id="@Model.PromocionId">
+                        <i class="bi bi-cart-plus"></i> Añadir promoción al carrito
+                    </button> *@
+
+                    @if (Model.Productos != null && Model.Productos.Any())
+                    {
+                        <div class="mt-4 text-center">
+                            <form asp-controller="Carritoes" asp-action="AgregarPromocionCompacta" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="promocionId" value="@Model.PromocionId" />
+                                <button type="button"
+                                        class="btn btn-success fw-bold btn-add-promo"
+                                        data-id="@Model.PromocionId">
+                                    <i class="bi bi-cart-plus-fill"></i> Añadir promoción al carrito
+                                </button>
+                            </form>
+                        </div>
+                    }
+
+                    <a asp-action="Edit" asp-route-id="@Model.PromocionId" class="btn btn-outline-warning">
                         <i class="bi bi-pencil-square"></i> Editar
                     </a>
+
                     <a asp-action="Index" class="btn btn-secondary">
                         <i class="bi bi-arrow-left-circle"></i> Volver
                     </a>

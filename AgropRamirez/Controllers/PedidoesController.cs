@@ -200,11 +200,13 @@ namespace AgropRamirez.Controllers
             var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             var carrito = await _context.Carritos
-                .Include(c => c.CarritoDetalles)
-                    .ThenInclude(cd => cd.Producto)
+                .Include(c => c.CarritoDetalles).ThenInclude(cd => cd.Producto)
+                .Include(c => c.CarritoPromociones).ThenInclude(cp => cp.Promocion)
+                .ThenInclude(p => p.Productos)
                 .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
 
-            if (carrito == null || !carrito.CarritoDetalles.Any())
+            if (carrito == null ||
+                (!carrito.CarritoDetalles.Any() && !carrito.CarritoPromociones.Any()))
             {
                 TempData["Warn"] = "Tu carrito está vacío.";
                 return RedirectToAction("MiCarrito", "Carritoes");
@@ -216,12 +218,25 @@ namespace AgropRamirez.Controllers
                 {
                     ProductoId = cd.ProductoId,
                     Nombre = cd.Producto!.Nombre,
-                    Imagen = cd.Producto.Imagen, // ajusta si usas ImagenRuta
+                    Imagen = cd.Producto.Imagen,
                     Cantidad = cd.Cantidad,
                     PrecioUnitario = cd.PrecioUnitario,
                     StockDisponible = cd.Producto.Stock
+                }).ToList(),
+
+                // 🔹 Agregar promociones al resumen
+                Promociones = carrito.CarritoPromociones.Select(cp => new CheckoutPromocionVM
+                {
+                    PromocionId = cp.PromocionId,
+                    Nombre = cp.Promocion!.Nombre,
+                    Imagen = cp.Promocion.Imagen,
+                    Cantidad = cp.Cantidad,
+                    PrecioTotal = cp.PrecioTotal,
+                    ProductosIncluidos = cp.Promocion.Productos.Select(p => p.Nombre).ToList()
                 }).ToList()
             };
+
+            
 
             return View(vm);
         }
@@ -234,61 +249,58 @@ namespace AgropRamirez.Controllers
 
             var carrito = await _context.Carritos
                 .Include(c => c.CarritoDetalles)
-                .ThenInclude(cd => cd.Producto)
+                    .ThenInclude(cd => cd.Producto)
+                .Include(c => c.CarritoPromociones)
+                    .ThenInclude(cp => cp.Promocion)
                 .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
 
-            if (carrito == null || !carrito.CarritoDetalles.Any())
+            // ⚠️ Validar si el carrito está vacío
+            if (carrito == null ||
+                (!carrito.CarritoDetalles.Any() && !carrito.CarritoPromociones.Any()))
             {
                 TempData["Warn"] = "Tu carrito está vacío.";
                 return RedirectToAction("MiCarrito", "Carritoes");
             }
 
-            // ⚠️ Revalidar stock por seguridad
+            // ⚠️ Validar stock de productos
             foreach (var item in carrito.CarritoDetalles)
             {
                 if (item.Cantidad > item.Producto.Stock)
                 {
-                    TempData["Warn"] = $"El producto {item.Producto.Nombre} no tiene suficiente stock. Disponible: {item.Producto.Stock}";
+                    TempData["Warn"] = $"El producto {item.Producto.Nombre} no tiene suficiente stock.";
                     return RedirectToAction("Checkout");
                 }
             }
 
-            // Calcular total del pedido
-            var totalPedido = carrito.CarritoDetalles.Sum(cd => cd.Cantidad * cd.PrecioUnitario);
+            // 💰 Calcular total incluyendo promociones
+            var totalPedido =
+                carrito.CarritoDetalles.Sum(cd => cd.Cantidad * cd.PrecioUnitario)
+                + carrito.CarritoPromociones.Sum(cp => cp.Cantidad * cp.PrecioTotal);
 
-            // Crear Pedido
+            // 🧾 Crear pedido (solo con productos)
             var pedido = new Pedido
             {
                 UsuarioId = usuarioId,
                 FechaPedido = DateTime.Now,
-                Estado = "Pendiente",   // 👈 estado inicial
-                Total = totalPedido,    // 👈 total general del pedido
-                PedidoDetalles = new List<PedidoDetalle>()
+                Estado = "Pendiente de pago",
+                Total = totalPedido,
+                PedidoDetalles = carrito.CarritoDetalles.Select(cd => new PedidoDetalle
+                {
+                    ProductoId = cd.ProductoId,
+                    Cantidad = cd.Cantidad,
+                    PrecioUnitario = cd.PrecioUnitario
+                }).ToList()
             };
 
-            foreach (var item in carrito.CarritoDetalles)
-            {
-                // Descontar stock
-                item.Producto.Stock -= item.Cantidad;
-
-                pedido.PedidoDetalles.Add(new PedidoDetalle
-                {
-                    ProductoId = item.ProductoId,
-                    Cantidad = item.Cantidad,
-                    PrecioUnitario = item.PrecioUnitario
-                });
-            }
-
+            // ✅ Guardar el pedido
             _context.Pedidos.Add(pedido);
-
-            // Vaciar carrito
-            _context.CarritoDetalles.RemoveRange(carrito.CarritoDetalles);
-
             await _context.SaveChangesAsync();
 
-            // Redirigir al registro de pago
-            return RedirectToAction("Registrar", "Pagos", new { pedidoId = pedido.PedidoId });
+            // 🚀 Redirigir al pago
+            return RedirectToAction("CreatePagoCliente", "Pagoes", new { pedidoId = pedido.PedidoId });
         }
+
+
 
     }
 }

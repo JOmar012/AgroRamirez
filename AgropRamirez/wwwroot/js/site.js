@@ -69,6 +69,20 @@
                     let total = Number(res.total) || 0;
                     $("#totalCarrito").text("S/ " + total.toFixed(2));
                     actualizarCarrito();
+
+                    // 🟢 NUEVO: Mostrar mensaje informativo (precio mayorista / normal)
+                    if (res.mensaje && res.mensaje.length > 0) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'info',
+                            title: res.mensaje,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    }
+
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -202,7 +216,7 @@
                         if (res.success) {
                             fila.fadeOut(400, function () {
                                 $(this).remove();
-                                if ($("tbody tr").length === 0) {
+                                if ($(".carrito-productos tbody tr").length === 0 && $(".carrito-promociones tbody tr").length === 0) {
                                     $(".card").replaceWith(`
                                         <div class="alert alert-warning text-center shadow-sm">
                                             <i class="bi bi-exclamation-circle"></i> Tu carrito está vacío.
@@ -231,6 +245,118 @@
     // ============================
     $(document).ready(function () {
         actualizarCarrito();
+    });
+
+    //Añadir promocion al carrito
+    $(document).on("click", ".btn-add-promo", function () {
+        const promoId = $(this).data("id");
+
+        $.ajax({
+            url: '/Carritoes/AgregarPromocionCompacta',
+            type: 'POST',
+            data: {
+                promocionId: promoId,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: function (res) {
+                if (res.warning) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Atención',
+                        text: res.mensaje,
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
+
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Promoción añadida',
+                        text: res.mensaje,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    actualizarCarrito(); // 👈 refresca el contador del carrito en el navbar
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: res.mensaje || 'No se pudo agregar la promoción.'
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error del servidor',
+                    text: 'No se pudo procesar tu solicitud.'
+                });
+            }
+        });
+    });
+
+    //Eliminar promocion 
+
+    $(document).on("click", ".btn-eliminar-promocion", function () {
+        const promoRow = $(this).closest("tr");
+        const carritoPromocionId = $(this).data("id");
+
+        Swal.fire({
+            title: "¿Eliminar promoción?",
+            text: "Esta promoción será eliminada del carrito.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            $.ajax({
+                url: '/Carritoes/EliminarPromocion',
+                type: 'POST',
+                data: {
+                    carritoPromocionId: carritoPromocionId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (res) {
+                    if (!res || !res.success) {
+                        Swal.fire({ icon: 'error', title: 'Error', text: res?.message || 'No se pudo eliminar la promoción.' });
+                        return;
+                    }
+
+                    promoRow.fadeOut(300, function () {
+                        $(this).remove();
+
+                        // ✅ Mostrar "carrito vacío" si ya no quedan productos ni promociones
+                        if (!hayItemsEnCarrito()) {
+                            $(".card").replaceWith(`
+              <div class="alert alert-warning text-center shadow-sm">
+                <i class="bi bi-exclamation-circle"></i> Tu carrito está vacío.
+              </div>
+            `);
+                        }
+                    });
+
+                    // 🔹 Actualizar total y contador del navbar
+                    const total = Number(res.total || 0);
+                    $("#totalCarrito").text("S/ " + total.toFixed(2));
+                    actualizarCarrito();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Eliminado',
+                        text: 'La promoción fue eliminada del carrito.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Error del servidor', text: 'No se pudo procesar tu solicitud.' });
+                }
+            });
+        });
     });
 
 })(jQuery);

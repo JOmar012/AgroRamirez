@@ -212,6 +212,7 @@ namespace AgropRamirez.Controllers
         {
             var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
+            // 🛒 Buscar carrito del usuario
             var carrito = await _context.Carritos
                 .Include(c => c.CarritoDetalles)
                 .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
@@ -227,13 +228,33 @@ namespace AgropRamirez.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            var producto = await _context.Productos.FindAsync(productoId);
-            if (producto == null) return NotFound();
+            // 🔎 Buscar producto
+            var producto = await _context.Productos.FirstOrDefaultAsync(p => p.ProductoId == productoId);
+            if (producto == null)
+                return NotFound();
 
+            // ⚙️ Calcular precio base
+            var precioFinal = producto.Precio;
+
+            // 🟢 Verificar si aplica precio mayorista
+            if (producto.UmbralMayorista.HasValue && producto.PrecioPorMayor.HasValue)
+            {
+                // Cantidad total en carrito (actual + nueva)
+                var detalleExistente = carrito.CarritoDetalles.FirstOrDefault(cd => cd.ProductoId == productoId);
+                int cantidadTotal = detalleExistente != null ? detalleExistente.Cantidad + cantidad : cantidad;
+
+                if (cantidadTotal >= producto.UmbralMayorista.Value)
+                {
+                    precioFinal = producto.PrecioPorMayor.Value;
+                }
+            }
+
+            // ⚠️ Verificar si ya existe en el carrito
             var detalle = carrito.CarritoDetalles.FirstOrDefault(cd => cd.ProductoId == productoId);
 
             if (detalle != null)
             {
+                // 🧮 Validar stock antes de sumar
                 if (detalle.Cantidad + cantidad > producto.Stock)
                 {
                     return Json(new
@@ -245,9 +266,11 @@ namespace AgropRamirez.Controllers
                 }
 
                 detalle.Cantidad += cantidad;
+                detalle.PrecioUnitario = precioFinal; // 🔄 actualiza el precio (normal o mayorista)
             }
             else
             {
+                // 🧮 Validar stock inicial
                 if (cantidad > producto.Stock)
                 {
                     return Json(new
@@ -262,16 +285,21 @@ namespace AgropRamirez.Controllers
                 {
                     ProductoId = producto.ProductoId,
                     Cantidad = cantidad,
-                    PrecioUnitario = producto.Precio
+                    PrecioUnitario = precioFinal // ✅ Aplica precio normal o mayorista
                 });
             }
 
             await _context.SaveChangesAsync();
 
+            // 🔔 Mensaje adaptado
+            string mensajeFinal = (producto.UmbralMayorista.HasValue && cantidad >= producto.UmbralMayorista.Value)
+                ? $"{producto.Nombre} añadido al carrito con precio mayorista 🛒"
+                : $"{producto.Nombre} añadido al carrito 🛒";
+
             return Json(new
             {
                 success = true,
-                mensaje = $"{producto.Nombre} añadido al carrito 🛒"
+                mensaje = mensajeFinal
             });
         }
 
@@ -282,11 +310,20 @@ namespace AgropRamirez.Controllers
         {
             var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
-            var cantidad = await _context.CarritoDetalles
+            // Sumar productos
+            var cantidadProductos = await _context.CarritoDetalles
                 .Where(cd => cd.Carrito.UsuarioId == usuarioId)
-                .SumAsync(cd => cd.Cantidad);
+                .SumAsync(cd => (int?)cd.Cantidad) ?? 0;
 
-            return Json(cantidad);
+            // Sumar promociones
+            var cantidadPromociones = await _context.CarritoPromociones
+                .Where(cp => cp.Carrito.UsuarioId == usuarioId)
+                .SumAsync(cp => (int?)cp.Cantidad) ?? 0;
+
+            var cantidadTotal = cantidadProductos + cantidadPromociones;
+
+            return Json(cantidadTotal);
+
         }
 
         public async Task<IActionResult> MiCarrito()
@@ -297,7 +334,10 @@ namespace AgropRamirez.Controllers
             // Busca el carrito del usuario con los detalles
             var carrito = await _context.Carritos
                 .Include(c => c.CarritoDetalles)
-                .ThenInclude(cd => cd.Producto)
+                    .ThenInclude(cd => cd.Producto)
+                .Include(c => c.CarritoPromociones)
+                    .ThenInclude(cp => cp.Promocion)
+                        .ThenInclude(p => p.Productos)
                 .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
 
             if (carrito == null)
@@ -307,7 +347,8 @@ namespace AgropRamirez.Controllers
                 {
                     UsuarioId = usuarioId,
                     FechaCreacion = DateTime.Now,
-                    CarritoDetalles = new List<CarritoDetalle>()
+                    CarritoDetalles = new List<CarritoDetalle>(),
+                    CarritoPromociones = new List<CarritoPromocion>()
                 };
                 _context.Carritos.Add(carrito);
                 await _context.SaveChangesAsync();
@@ -316,15 +357,15 @@ namespace AgropRamirez.Controllers
             return View(carrito);
         }
 
-        //Actualizar cantidad al carrito
+        // Actualizar cantidad al carrito
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ActualizarCantidad(int detalleId, int cantidad)
         {
             var detalle = await _context.CarritoDetalles
-        .Include(cd => cd.Carrito)
-        .Include(cd => cd.Producto)
-        .FirstOrDefaultAsync(cd => cd.CarritoDetalleId == detalleId);
+                .Include(cd => cd.Carrito)
+                .Include(cd => cd.Producto)
+                .FirstOrDefaultAsync(cd => cd.CarritoDetalleId == detalleId);
 
             if (detalle == null)
                 return Json(new { success = false, message = "Detalle no encontrado" });
@@ -340,44 +381,68 @@ namespace AgropRamirez.Controllers
                 });
             }
 
+            var usuarioId = detalle.Carrito.UsuarioId;
+
             if (cantidad <= 0)
             {
-                var usuarioId = detalle.Carrito.UsuarioId;
-
+                // 🔹 Eliminar producto si la cantidad llega a 0
                 _context.CarritoDetalles.Remove(detalle);
                 await _context.SaveChangesAsync();
-
-                var totalDespues = await _context.CarritoDetalles
-                    .Where(cd => cd.Carrito.UsuarioId == usuarioId)
-                    .SumAsync(cd => (decimal?)(cd.Cantidad * cd.PrecioUnitario)) ?? 0;
-
-                return Json(new
-                {
-                    success = true,
-                    eliminado = true,
-                    subtotal = 0m,
-                    total = totalDespues
-                });
             }
             else
             {
+                // 🔹 Actualizar cantidad
                 detalle.Cantidad = cantidad;
                 await _context.SaveChangesAsync();
 
-                var subtotalActual = detalle.Cantidad * detalle.PrecioUnitario;
+                // 🧮 Verificar si aplica precio mayorista
+                var producto = detalle.Producto;
+                decimal precioFinal = producto.Precio;
 
-                var totalDespues = await _context.CarritoDetalles
-                    .Where(cd => cd.Carrito.UsuarioId == detalle.Carrito.UsuarioId)
-                    .SumAsync(cd => (decimal?)(cd.Cantidad * cd.PrecioUnitario)) ?? 0;
-
-                return Json(new
+                if (producto.UmbralMayorista.HasValue && producto.PrecioPorMayor.HasValue &&
+                        cantidad >= producto.UmbralMayorista.Value)
                 {
-                    success = true,
-                    eliminado = false,
-                    subtotal = subtotalActual,
-                    total = totalDespues
-                });
+                    precioFinal = producto.PrecioPorMayor.Value;
+                }
+
+                detalle.PrecioUnitario = precioFinal;
+
+                await _context.SaveChangesAsync();
             }
+
+            // 🔹 Calcular total actualizado (productos + promociones)
+            var totalProductos = await _context.CarritoDetalles
+                .Where(cd => cd.Carrito.UsuarioId == usuarioId)
+                .SumAsync(cd => (decimal?)(cd.Cantidad * cd.PrecioUnitario)) ?? 0;
+
+            var totalPromociones = await _context.CarritoPromociones
+                .Where(cp => cp.Carrito.UsuarioId == usuarioId)
+                .SumAsync(cp => (decimal?)(cp.Cantidad * cp.PrecioTotal)) ?? 0;
+
+            var totalDespues = totalProductos + totalPromociones;
+
+            // 🔹 Subtotal del producto actualizado
+            var subtotalActual = cantidad > 0 ? detalle.Cantidad * detalle.PrecioUnitario : 0m;
+
+
+            // 🔔 Mensaje informativo (opcional)
+            string mensaje = "";
+            if (cantidad > 0)
+            {
+                if (detalle.Producto.UmbralMayorista.HasValue && cantidad >= detalle.Producto.UmbralMayorista.Value)
+                    mensaje = $"Se aplicó el precio mayorista a {detalle.Producto.Nombre}.";
+                else
+                    mensaje = $"Precio normal aplicado a {detalle.Producto.Nombre}.";
+            }
+
+            return Json(new
+            {
+                success = true,
+                eliminado = cantidad <= 0,
+                subtotal = subtotalActual,
+                total = totalDespues,
+                mensaje
+            });
         }
 
         [HttpPost]
@@ -385,21 +450,28 @@ namespace AgropRamirez.Controllers
         public async Task<IActionResult> EliminarDetalle(int detalleId)
         {
             var detalle = await _context.CarritoDetalles
-                 .Include(cd => cd.Carrito)
-                 .FirstOrDefaultAsync(cd => cd.CarritoDetalleId == detalleId);
+                .Include(cd => cd.Carrito)
+                .FirstOrDefaultAsync(cd => cd.CarritoDetalleId == detalleId);
 
             if (detalle == null)
                 return Json(new { success = false, message = "Producto no encontrado" });
 
             var usuarioId = detalle.Carrito.UsuarioId;
 
+            // 🔹 Eliminar producto del carrito
             _context.CarritoDetalles.Remove(detalle);
             await _context.SaveChangesAsync();
 
-            // Calcular el nuevo total sin usar SubTotal
-            var totalActualizado = await _context.CarritoDetalles
+            // 🔹 Calcular total global (productos + promociones)
+            var totalProductos = await _context.CarritoDetalles
                 .Where(cd => cd.Carrito.UsuarioId == usuarioId)
                 .SumAsync(cd => (decimal?)(cd.Cantidad * cd.PrecioUnitario)) ?? 0;
+
+            var totalPromociones = await _context.CarritoPromociones
+                .Where(cp => cp.Carrito.UsuarioId == usuarioId)
+                .SumAsync(cp => (decimal?)(cp.Cantidad * cp.PrecioTotal)) ?? 0;
+
+            var totalActualizado = totalProductos + totalPromociones;
 
             return Json(new
             {
@@ -407,5 +479,138 @@ namespace AgropRamirez.Controllers
                 total = totalActualizado
             });
         }
+
+        // ✅ Agregar promoción al carrito
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AgregarPromocionCompacta(int promocionId)
+        {
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var carrito = await _context.Carritos
+                .Include(c => c.CarritoPromociones)
+                .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+
+            if (carrito == null)
+            {
+                carrito = new Carrito
+                {
+                    UsuarioId = usuarioId,
+                    FechaCreacion = DateTime.Now
+                };
+                _context.Carritos.Add(carrito);
+                await _context.SaveChangesAsync();
+            }
+
+            var promo = await _context.Promociones
+                .Include(p => p.Productos)
+                .FirstOrDefaultAsync(p => p.PromocionId == promocionId);
+
+            if (promo == null || !promo.Productos.Any())
+                return Json(new { success = false, mensaje = "Promoción no encontrada o sin productos." });
+
+            // ✅ Verificar stock de cada producto de la promoción
+            foreach (var prod in promo.Productos)
+            {
+                if (prod.Stock <= 0)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        warning = true,
+                        mensaje = $"El producto '{prod.Nombre}' de esta promoción no tiene stock disponible."
+                    });
+                }
+            }
+
+            // ✅ Calcular total con descuento
+            var totalPromo = promo.Productos.Sum(p => p.Precio) * (1 - (promo.Descuento / 100));
+
+            // ✅ Verificar si ya existe en el carrito
+            var existente = carrito.CarritoPromociones.FirstOrDefault(cp => cp.PromocionId == promocionId);
+
+            // 🔸 Calcular cantidad total actual (existente + nueva)
+            int cantidadActual = existente?.Cantidad ?? 0;
+            int nuevaCantidad = cantidadActual + 1;
+
+            // 🚫 Validar límite máximo de 3 promociones iguales por usuario
+            if (nuevaCantidad > 3)
+            {
+                return Json(new
+                {
+                    success = false,
+                    warning = true,
+                    mensaje = $"⚠️ Solo puedes agregar la promoción '{promo.Nombre}' hasta 3 veces por usuario."
+                });
+            }
+
+            // ✅ Si no supera el límite, agregar o incrementar
+            if (existente != null)
+            {
+                existente.Cantidad++;
+                existente.PrecioTotal = Math.Round((decimal)totalPromo * existente.Cantidad, 2);
+            }
+            else
+            {
+                carrito.CarritoPromociones.Add(new CarritoPromocion
+                {
+                    PromocionId = promo.PromocionId,
+                    Cantidad = 1,
+                    PrecioTotal = Math.Round((decimal)totalPromo, 2)
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            // ✅ Respuesta al cliente (AJAX)
+            return Json(new
+            {
+                success = true,
+                mensaje = $"La promoción '{promo.Nombre}' fue añadida al carrito 🛒",
+                total = Math.Round((decimal)totalPromo, 2)
+            });
+        }
+
+        //Eliminar promoción del carrito
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarPromocion(int carritoPromocionId)
+        {
+            var promo = await _context.CarritoPromociones
+                .Include(cp => cp.Carrito)
+                .FirstOrDefaultAsync(cp => cp.CarritoPromocionId == carritoPromocionId);
+
+            if (promo == null)
+                return Json(new { success = false, message = "Promoción no encontrada" });
+
+            var usuarioId = promo.Carrito.UsuarioId;
+
+            // 🔹 Eliminar la promoción del carrito
+            _context.CarritoPromociones.Remove(promo);
+            await _context.SaveChangesAsync();
+
+            // 🔹 Calcular el total general (productos + promociones)
+            var totalActualizado = await CalcularTotalGeneralAsync(usuarioId);
+
+            return Json(new
+            {
+                success = true,
+                total = totalActualizado
+            });
+        }
+        // 🔹 Cálculo total del carrito (productos + promociones)
+        private async Task<decimal> CalcularTotalGeneralAsync(int usuarioId)
+        {
+            var totalProductos = await _context.CarritoDetalles
+                .Where(cd => cd.Carrito.UsuarioId == usuarioId)
+                .SumAsync(cd => (decimal?)(cd.Cantidad * cd.PrecioUnitario)) ?? 0;
+
+            var totalPromociones = await _context.CarritoPromociones
+                .Where(cp => cp.Carrito.UsuarioId == usuarioId)
+                .SumAsync(cp => (decimal?)(cp.Cantidad * cp.PrecioTotal)) ?? 0;
+
+            return totalProductos + totalPromociones;
+        }
+
     }
 }

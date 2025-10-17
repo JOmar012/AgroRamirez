@@ -50,5 +50,23 @@ namespace AgropRamirez.Models
         public ICollection<PedidoDetalle> PedidoDetalles { get; set; } = new List<PedidoDetalle>();
         public ICollection<CotizacionDetalle> CotizacionDetalles { get; set; } = new List<CotizacionDetalle>();
 
+        //Descuento de promociones
+        [NotMapped]
+        public decimal PrecioConDescuento
+        {
+            get
+            {
+                var promoActiva = Promociones
+                    ?.FirstOrDefault(p => p.FechaInicio <= DateTime.Now && p.FechaFin >= DateTime.Now);
+
+                if (promoActiva != null)
+                {
+                    var descuento = Precio * (promoActiva.Descuento / 100);
+                    return Math.Round(Precio - descuento, 2);
+                }
+
+                return Precio;
+            }
+        }
     }
 }
