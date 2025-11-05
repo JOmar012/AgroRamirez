@@ -26,9 +26,12 @@
 <div class="container mb-5">
     <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <a asp-action="Create" class="btn btn-warning text-dark">
-            <i class="bi bi-plus-circle-fill"></i> Nuevo
-        </a>
+        @if (User.IsInRole("Administrador"))
+        {
+            <a asp-action="Create" class="btn btn-warning text-dark">
+                <i class="bi bi-plus-circle-fill"></i> Nuevo Producto
+            </a>
+        }
         <h3 class="mb-0 text-center flex-grow-1">
             <i class="bi bi-box-seam"></i> Catálogo de Productos
         </h3>
@@ -61,18 +64,65 @@
 
                     <!-- Body -->
                     <div class="card-body d-flex flex-column text-start flex-grow-1">
-                        <h5 class="card-title fw-bold text-center w-100">
-                            <span class="badge bg-primary text-white w-100 py-2" style="font-size:1rem; border-radius:0;">
-                                @item.Nombre
-                            </span>
+
+                        <!-- Nombre del producto -->
+                        <h5 class="card-title fw-bold text-center text-dark" style="font-size:1.1rem;">
+                            @item.Nombre
                         </h5>
+
+                        <!-- Descripción -->
                         <p class="card-text text-muted flex-grow-1 mb-2" style="font-size:0.9rem; min-height:40px;">
                             @(item.Descripcion?.Length > 60 ? item.Descripcion.Substring(0, 60) + "..." : item.Descripcion)
                         </p>
 
-                        <div>
-                            <p class="fw-bold mb-1 text-success">S/ @item.Precio</p>
-                            <small class="text-muted">Stock: @item.Stock</small>
+                        <!-- Precio, stock y botón -->
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div>
+                                <p class="fw-bold mb-1 text-success">S/ @item.Precio</p>
+                                <small class="text-danger fw-semibold">Stock: @item.Stock</small>
+                            </div>
+
+                            <!-- Botón agregar al carrito -->
+                            @if (!User.Identity.IsAuthenticated)
+                            {
+                                <!-- No logueado -->
+                                <button type="button"
+                                        class="btn btn-warning text-dark fw-bold add-to-cart"
+                                        data-id="@item.ProductoId"
+                                        data-cantidad="1"
+                                        data-authenticated="False"
+                                        data-admin="False"
+                                        style="border-radius:8px; font-size:0.9rem;">
+                                    <i class="bi bi-box-arrow-in-right"></i> Comprar
+                                </button>
+                            }
+                            else if (User.IsInRole("Administrador"))
+                            {
+                                <!-- Administrador -->
+                                <button type="button"
+                                        class="btn btn-warning text-dark fw-bold add-to-cart"
+                                        data-id="@item.ProductoId"
+                                        data-cantidad="1"
+                                        data-authenticated="True"
+                                        data-admin="True"
+                                        style="border-radius:8px; font-size:0.9rem;">
+                                    <i class="bi bi-gear-fill"></i> Ir a crear carrito
+                                </button>
+                            }
+                            else
+                            {
+                                <!-- Cliente -->
+                                <button type="button"
+                                        class="btn btn-warning text-dark fw-bold add-to-cart"
+                                        data-id="@item.ProductoId"
+                                        data-cantidad="1"
+                                        data-authenticated="True"
+                                        data-admin="False"
+                                        style="border-radius:8px; font-size:0.9rem;">
+                                    <i class="bi bi-cart-plus"></i> Agregar
+                                </button>
+                            }
+
                         </div>
                     </div>
 
@@ -97,28 +147,60 @@
                     </div> *@
 
                     <!-- Botón agregar al carrito -->
-                    <button type="button"
+                   @*  <button type="button"
                             class="btn btn-warning text-dark fw-bold add-to-cart"
                             data-id="@item.ProductoId" data-cantidad="1">
                         <i class="bi bi-cart-plus"></i> Agregar
-                    </button>
+                    </button> *@
 
 
                     <!-- Footer -->
-                    <div class="card-footer bg-white border-0 d-flex justify-content-center gap-2 mt-auto">
-                        <a asp-action="Details" asp-route-id="@item.ProductoId" class="btn btn-outline-info btn-sm" title="Detalles">
-                            <i class="bi bi-eye-fill"></i>
-                        </a>
-                        <a asp-action="Edit" asp-route-id="@item.ProductoId" class="btn btn-outline-warning btn-sm" title="Editar">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-                        <a asp-action="Delete" asp-route-id="@item.ProductoId" class="btn btn-outline-danger btn-sm" title="Eliminar">
-                            <i class="bi bi-trash-fill"></i>
-                        </a>
-                    </div>
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <div class="card-footer bg-white border-0 d-flex justify-content-center gap-2 mt-auto">
+                            <a asp-action="Details" asp-route-id="@item.ProductoId" class="btn btn-outline-info btn-sm" title="Detalles">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.ProductoId" class="btn btn-outline-warning btn-sm" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.ProductoId" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                <i class="bi bi-trash-fill"></i>
+                            </a>
+                        </div>
+                    }
+
                 </div>
             </div>
                 }
     </div>
 </div>
 
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        // ✅ Hacer que toda la tarjeta sea clickeable (excepto los botones y enlaces internos)
+        document.addEventListener("DOMContentLoaded", () => {
+            const cards = document.querySelectorAll(".product-card");
+
+            cards.forEach(card => {
+                card.addEventListener("click", function (e) {
+                    // Si el clic fue en un botón, un link o un icono dentro de un botón, no hacer nada
+                    if (e.target.closest("button") || e.target.closest("a") || e.target.closest("i")) return;
+
+                    // Redirigir al Details del producto
+                    const link = this.querySelector("a[href*='Details']");
+                    if (link) {
+                        window.location.href = link.href;
+                    }
+                });
+
+                // 💅 Opcional: cursor de "mano" para dejar claro que es clickeable
+                card.style.cursor = "pointer";
+            });
+        });
+    </script>
+
+    
+}

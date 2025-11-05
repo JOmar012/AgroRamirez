@@ -22,11 +22,16 @@ namespace AgropRamirez.Controllers
         // GET: PedidoDetalles
         public async Task<IActionResult> Index()
         {
-            var agropecuariaContext = _context.PedidoDetalles.Include(p => p.Pedido).ThenInclude(p => p.Usuario).Include(p => p.Producto);
+            var agropecuariaContext = _context.PedidoDetalles
+                .Include(p => p.Pedido)
+                    .ThenInclude(p => p.Usuario)
+                .Include(p => p.Pedido)
+                    .ThenInclude(p => p.Pagos) // 👈 añadimos esto para traer los pagos
+                .Include(p => p.Producto);
+
             return View(await agropecuariaContext.ToListAsync());
         }
 
-        // GET: PedidoDetalles/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -37,8 +42,11 @@ namespace AgropRamirez.Controllers
             var pedidoDetalle = await _context.PedidoDetalles
                 .Include(p => p.Pedido)
                     .ThenInclude(p => p.Usuario)
-                .Include(p => p.Producto)
+                .Include(p => p.Pedido)
+                    .ThenInclude(p => p.PedidoDetalles) // 👈 Incluye todos los detalles del pedido
+                        .ThenInclude(d => d.Producto)    // 👈 E incluye los productos de cada detalle
                 .FirstOrDefaultAsync(m => m.PedidoDetalleId == id);
+
             if (pedidoDetalle == null)
             {
                 return NotFound();
@@ -183,7 +191,10 @@ namespace AgropRamirez.Controllers
             var pedidoDetalle = await _context.PedidoDetalles
                 .Include(p => p.Pedido)
                     .ThenInclude(p => p.Usuario)
-                .Include(p => p.Producto)
+                .Include(p => p.Pedido)
+                    .ThenInclude(p => p.PedidoDetalles)
+                .ThenInclude(d => d.Producto)
+
                 .FirstOrDefaultAsync(m => m.PedidoDetalleId == id);
             if (pedidoDetalle == null)
             {

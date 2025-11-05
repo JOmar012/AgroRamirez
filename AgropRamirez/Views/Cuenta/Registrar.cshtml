@@ -1,63 +1,185 @@
 ﻿@model AgropRamirez.ViewModels.Auth.RegistrarVM
 
 @{
-    ViewData["Title"] = "Registro de nuevo usuario";
+    ViewData["Title"] = "Registrate";
 }
 
-<h2 class="mb-4">Registrarse como Cliente</h2>
+<!-- Encabezado -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Nuevo Usuario</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Usuarios</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Registrar</li>
+            </ol>
+        </nav>
+    </div>
+</div>
 
-<form asp-action="Registrar" method="post" enctype="multipart/form-data">
-    @Html.AntiForgeryToken()
+<!-- Contenedor del formulario -->
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                @* <div class="card-header bg-success text-white text-center py-3 rounded-top">
+                    <h4 class="mb-0"><i class="bi bi-person-plus"></i> Registro de nuevo usuario</h4>
+                </div *@
 
-    <div class="row g-3">
-        <div class="col-md-6">
-            <label asp-for="Nombre" class="form-label"></label>
-            <input asp-for="Nombre" class="form-control" />
-            <span asp-validation-for="Nombre" class="text-danger"></span>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="Apellido" class="form-label"></label>
-            <input asp-for="Apellido" class="form-control" />
-            <span asp-validation-for="Apellido" class="text-danger"></span>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Dni" class="form-label"></label>
-            <input asp-for="Dni" class="form-control" />
-            <span asp-validation-for="Dni" class="text-danger"></span>
-        </div>
-        <div class="col-md-8">
-            <label asp-for="Direccion" class="form-label"></label>
-            <input asp-for="Direccion" class="form-control" />
-            <span asp-validation-for="Direccion" class="text-danger"></span>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="Email" class="form-label"></label>
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Password" class="form-label"></label>
-            <input asp-for="Password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="ConfirmPassword" class="form-label"></label>
-            <input asp-for="ConfirmPassword" class="form-control" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-        </div>
-        <div class="col-12">
-            <label asp-for="ImagenFile" class="form-label">Imagen de perfil (opcional)</label>
-            <input asp-for="ImagenFile" type="file" class="form-control" />
-            <span asp-validation-for="ImagenFile" class="text-danger"></span>
+                <div class="card-header bg-success custom-header text-center">
+                    <h4 class="mb-0"><i class="bi bi-person-plus"></i> Registro de nuevo usuario</h4>
+                    
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Registrar" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Nombre -->
+                        <div class="mb-3">
+                            <label asp-for="Nombre" class="form-label fw-semibold">
+                                <i class="bi bi-person"></i> Nombre
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-person"></i></span>
+                                <input asp-for="Nombre" class="form-control border-0 bg-light" />
+                            </div>
+                            <span asp-validation-for="Nombre" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Apellido -->
+                        <div class="mb-3">
+                            <label asp-for="Apellido" class="form-label fw-semibold">
+                                <i class="bi bi-person-lines-fill"></i> Apellido
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-person-lines-fill"></i></span>
+                                <input asp-for="Apellido" class="form-control border-0 bg-light" />
+                            </div>
+                            <span asp-validation-for="Apellido" class="text-danger small"></span>
+                        </div>
+
+                        <!-- DNI -->
+                        <div class="mb-3">
+                            <label asp-for="Dni" class="form-label fw-semibold">
+                                <i class="bi bi-card-heading"></i> DNI
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-card-heading"></i></span>
+                                <input asp-for="Dni" class="form-control border-0 bg-light" maxlength="8" />
+                            </div>
+                            <span asp-validation-for="Dni" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Dirección -->
+                        <div class="mb-3">
+                            <label asp-for="Direccion" class="form-label fw-semibold">
+                                <i class="bi bi-geo-alt"></i> Dirección
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-geo-alt"></i></span>
+                                <input asp-for="Direccion" class="form-control border-0 bg-light" />
+                            </div>
+                            <span asp-validation-for="Direccion" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-semibold">
+                                <i class="bi bi-envelope"></i> Correo electrónico
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" class="form-control border-0 bg-light" placeholder="ejemplo@correo.com" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label fw-semibold">
+                                <i class="bi bi-lock"></i> Contraseña
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-lock"></i></span>
+                                <input asp-for="Password" class="form-control border-0 bg-light" type="password" />
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Confirmar Contraseña -->
+                        <div class="mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label fw-semibold">
+                                <i class="bi bi-lock-fill"></i> Confirmar Contraseña
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-lock-fill"></i></span>
+                                <input asp-for="ConfirmPassword" class="form-control border-0 bg-light" type="password" />
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Imagen -->
+                        <div class="mb-3">
+                            <label asp-for="ImagenFile" class="form-label fw-semibold">
+                                <i class="bi bi-image"></i> Imagen de perfil (opcional)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-upload"></i></span>
+                                <input asp-for="ImagenFile" type="file" class="form-control border-0 bg-light" accept="image/*" onchange="previewImage(event)" />
+                            </div>
+                            <span asp-validation-for="ImagenFile" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Vista previa -->
+                        <div class="text-center mt-3">
+                            <img id="preview"
+                                 src="~/img/usuarios/usuarie.png"
+                                 alt="Vista previa"
+                                 style="max-width: 150px; border:1px solid #ccc; border-radius:8px; padding:4px;" />
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a asp-action="Login" class="btn btn-outline-secondary rounded-pill">
+                                <i class="bi bi-arrow-left-circle"></i> ¿Ya tienes cuenta?
+                            </a>
+                            <button type="submit" class="btn btn-success rounded-pill">
+                                <i class="bi bi-check-circle"></i> Registrarse
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="mt-4">
-        <button type="submit" class="btn btn-success">Registrarse</button>
-        <a asp-action="Login" class="btn btn-link">¿Ya tienes cuenta?</a>
-    </div>
-</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <!-- Script para vista previa -->
+    <script>
+        function previewImage(event) {
+            const input = event.target;
+            const preview = document.getElementById("preview");
+            const file = input.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Si no se elige una imagen, vuelve a la imagen por defecto
+                preview.src = "/img/usuarios/usuarie.png";
+                preview.style.display = "none";
+            }
+        }
+    </script>
+
 }

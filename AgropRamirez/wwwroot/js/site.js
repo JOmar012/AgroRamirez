@@ -62,8 +62,29 @@
                             }
                         });
                     } else {
-                        let subtotal = Number(res.subtotal) || 0;
-                        fila.find(".subtotal").text("S/ " + subtotal.toFixed(2));
+                        // 🔹 Actualizar cantidad
+                        input.val(cantidad);
+
+                        // 🟢 Actualizar precio unitario si viene del servidor
+                        if (res.precioUnitario) {
+                            const precioUnitario = Number(res.precioUnitario);
+                            const precioTexto = "S/ " + precioUnitario.toFixed(2);
+
+                            // Cambiar el texto en tiempo real con un efecto suave
+                            fila.find(".precio-unitario")
+                                .fadeOut(100)
+                                .text(precioTexto)
+                                .fadeIn(100);
+
+                            // 🔁 Recalcular subtotal en el cliente
+                            const nuevoSubtotal = precioUnitario * cantidad;
+                            fila.find(".subtotal").text("S/ " + nuevoSubtotal.toFixed(2));
+                        } else {
+                            // Si el servidor no devuelve precio, usar el subtotal que sí devuelve
+                            let subtotal = Number(res.subtotal) || 0;
+                            fila.find(".subtotal").text("S/ " + subtotal.toFixed(2));
+                        }
+                    
                     }
 
                     let total = Number(res.total) || 0;
@@ -109,6 +130,33 @@
         const productoId = $(this).data("id");
         const cantidad = $(this).data("cantidad");
 
+        // ✅ Leer desde los atributos de Razor inyectados
+        const isAuthenticated = $(this).data("authenticated") === true || $(this).data("authenticated") === "True";
+        const isAdmin = $(this).data("admin") === true || $(this).data("admin") === "True";
+
+        // 🔒 No logueado
+        if (!isAuthenticated) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Inicia sesión',
+                text: 'Debes iniciar sesión para agregar productos al carrito.',
+                confirmButtonText: 'Ir al inicio de sesión',
+                confirmButtonColor: '#ffc107'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/Cuenta/Login';
+                }
+            });
+            return;
+        }
+
+        // ⚙️ Administrador
+        if (isAdmin) {
+            window.location.href = '/Carritoes/Create';
+            return;
+        }
+
+        // 🔸 3. Cliente logueado → Ejecutar AJAX normal
         $.ajax({
             url: '/Carritoes/Agregar',
             type: 'POST',
@@ -212,20 +260,41 @@
                         __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                     },
                     success: function (res) {
-
                         if (res.success) {
+                            // 💨 Animación al eliminar la fila
                             fila.fadeOut(400, function () {
                                 $(this).remove();
-                                if ($(".carrito-productos tbody tr").length === 0 && $(".carrito-promociones tbody tr").length === 0) {
-                                    $(".card").replaceWith(`
-                                        <div class="alert alert-warning text-center shadow-sm">
-                                            <i class="bi bi-exclamation-circle"></i> Tu carrito está vacío.
+
+                                // 🔍 Verificamos si ya no hay productos ni promociones
+                                const hayProductos = $(".carrito-productos tr[data-tipo='producto']").length > 0;
+                                const hayPromos = $(".carrito-promociones tr[data-tipo='promocion']").length > 0;
+
+                                if (!hayProductos && !hayPromos) {
+                                    $(".card").fadeOut(300, function () {
+                                        $(this).replaceWith(`
+                                        <div id="carrito-vacio" class="text-center py-5">
+                                            <img src="/img/CarritoVacio.png" alt="Carrito vacío"
+                                                 class="img-fluid mb-3" style="max-width: 260px; opacity: 0.9;">
+                                            <h5 class="text-muted fw-semibold">
+                                                <i class="bi bi-emoji-frown"></i> Tu carrito está vacío.
+                                            </h5>
+                                            <p class="text-secondary mb-4">Parece que aún no has agregado productos ni promociones.</p>
+                                            <a href="/Productoes/Index" class="btn btn-warning text-dark fw-bold shadow-sm px-4">
+                                                <i class="bi bi-shop me-1"></i> Ir a comprar
+                                            </a>
                                         </div>
-                                    `);
+                                    `).hide().fadeIn(500);
+                                    });
                                 }
                             });
+
+                            // 💰 Actualizamos el total mostrado
                             $("#totalCarrito").text("S/ " + res.total.toFixed(2));
-                            actualizarCarrito();
+
+                            // 🔁 Actualiza el ícono o contador global del carrito
+                            if (typeof actualizarCarrito === "function") {
+                                actualizarCarrito();
+                            }
                         }
                     },
                     error: function () {
@@ -248,7 +317,9 @@
     });
 
     //Añadir promocion al carrito
-    $(document).on("click", ".btn-add-promo", function () {
+    $(document).on("click", ".btn-add-promo", function (event) {
+        event.stopPropagation(); // 👈 evita que el clic del card se dispare
+        event.preventDefault();  // 🔹 Evita comportamiento por defecto (seguridad extra)
         const promoId = $(this).data("id");
 
         $.ajax({
@@ -297,8 +368,9 @@
         });
     });
 
-    //Eliminar promocion 
-
+    // ============================
+    // ELIMINAR PROMOCIÓN DEL CARRITO
+    // ============================
     $(document).on("click", ".btn-eliminar-promocion", function () {
         const promoRow = $(this).closest("tr");
         const carritoPromocionId = $(this).data("id");
@@ -322,28 +394,54 @@
                 },
                 success: function (res) {
                     if (!res || !res.success) {
-                        Swal.fire({ icon: 'error', title: 'Error', text: res?.message || 'No se pudo eliminar la promoción.' });
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: res?.message || 'No se pudo eliminar la promoción.'
+                        });
                         return;
                     }
 
+                    // 💨 Animación al eliminar fila
                     promoRow.fadeOut(300, function () {
                         $(this).remove();
 
-                        // ✅ Mostrar "carrito vacío" si ya no quedan productos ni promociones
-                        if (!hayItemsEnCarrito()) {
-                            $(".card").replaceWith(`
-              <div class="alert alert-warning text-center shadow-sm">
-                <i class="bi bi-exclamation-circle"></i> Tu carrito está vacío.
-              </div>
-            `);
+                        // 🔍 Verificar si el carrito quedó vacío
+                        const hayProductos = $(".carrito-productos tr[data-tipo='producto']").length > 0;
+                        const hayPromos = $(".carrito-promociones tr[data-tipo='promocion']").length > 0;
+
+                        if (!hayProductos && !hayPromos) {
+                            $(".card").fadeOut(300, function () {
+                                $(this).replaceWith(`
+                                <div id="carrito-vacio" class="text-center py-5">
+                                    <img src="/img/CarritoVacio.png" alt="Carrito vacío"
+                                         class="img-fluid mb-3" style="max-width: 260px; opacity: 0.9;">
+                                    <h5 class="text-muted fw-semibold">
+                                        <i class="bi bi-emoji-frown"></i> Tu carrito está vacío.
+                                    </h5>
+                                    <p class="text-secondary mb-4">
+                                        Parece que aún no has agregado productos ni promociones.
+                                    </p>
+                                    <a href="/Productoes/Index"
+                                       class="btn btn-warning text-dark fw-bold shadow-sm px-4">
+                                        <i class="bi bi-shop me-1"></i> Ir a comprar
+                                    </a>
+                                </div>
+                            `).hide().fadeIn(500);
+                            });
                         }
                     });
 
-                    // 🔹 Actualizar total y contador del navbar
+                    // 💰 Actualizar total mostrado
                     const total = Number(res.total || 0);
                     $("#totalCarrito").text("S/ " + total.toFixed(2));
-                    actualizarCarrito();
 
+                    // 🔁 Actualizar contador del navbar si existe
+                    if (typeof actualizarCarrito === "function") {
+                        actualizarCarrito();
+                    }
+
+                    // ✅ Confirmación visual
                     Swal.fire({
                         icon: 'success',
                         title: 'Eliminado',
@@ -353,7 +451,11 @@
                     });
                 },
                 error: function () {
-                    Swal.fire({ icon: 'error', title: 'Error del servidor', text: 'No se pudo procesar tu solicitud.' });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error del servidor',
+                        text: 'No se pudo procesar tu solicitud.'
+                    });
                 }
             });
         });

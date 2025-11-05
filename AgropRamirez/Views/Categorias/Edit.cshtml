@@ -18,19 +18,15 @@
 </div>
 <!-- Page Header End -->
 
-<div class="container">
+<div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-
-            <div class="card shadow-lg border-0 rounded-3">
-                <!-- Encabezado -->
-                <div class="card-header custom-header text-center">
-                    <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Editar Categoría</h4>
-                </div>
-
-                <!-- Avatar central -->
-               <div class="text-center mt-4">
-                    <i class="fas fa-horse" style="font-size:100px; color:#ff9900;"></i>
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header custom-header-edit text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-pencil-square"></i> Editar Categoría
+                    </h4>
                 </div>
 
                 <div class="card-body p-4">
@@ -38,42 +34,53 @@
                         @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                        <!-- Id oculto -->
                         <input type="hidden" asp-for="CategoriaId" />
 
-                        <!-- Nombre -->
-                        <div class="mb-3">
-                            <label asp-for="Nombre" class="form-label"></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
-                                <input asp-for="Nombre" class="form-control" />
-                            </div>
-                            <span asp-validation-for="Nombre" class="text-danger"></span>
-                        </div>
+                        <div class="row align-items-center">
 
-                        <!-- Descripción -->
-                        <div class="mb-3">
-                            <label asp-for="Descripcion" class="form-label"></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-journal-text"></i></span>
-                                <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                            <!-- Avatar -->
+                            <div class="col-md-4 text-center mb-4 mb-md-0">
+                                <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
+                                    <i class="fas fa-horse zoom-avatar-edit"></i>
+                                </div>
                             </div>
-                            <span asp-validation-for="Descripcion" class="text-danger"></span>
+
+                            <!-- Formulario -->
+                            <div class="col-md-8">
+                                <!-- Nombre -->
+                                <div class="mb-3">
+                                    <label asp-for="Nombre" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                        <input asp-for="Nombre" class="form-control" />
+                                    </div>
+                                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                                </div>
+
+                                <!-- Descripción -->
+                                <div class="mb-3">
+                                    <label asp-for="Descripcion" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-journal-text"></i></span>
+                                        <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                                    </div>
+                                    <span asp-validation-for="Descripcion" class="text-danger"></span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Botones -->
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-outline-secondary">
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
                                 <i class="bi bi-arrow-left-circle"></i> Volver
                             </a>
-                            <button type="submit" class="btn btn-warning">
+                            <button type="submit" class="btn btn-warning text-white px-4">
                                 <i class="bi bi-save"></i> Guardar Cambios
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

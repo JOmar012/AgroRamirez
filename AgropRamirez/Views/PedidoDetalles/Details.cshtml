@@ -17,59 +17,75 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-
-            <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header bg-info text-white text-center">
-                    <h4 class="mb-0"><i class="bi bi-file-earmark-text"></i> Información del Detalle</h4>
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header custom-header-details text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-file-earmark-text"></i> Información del Pedido
+                    </h4>
                 </div>
+
+                <!-- Cuerpo -->
                 <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <!-- Avatar -->
+                        <div class="col-md-4 text-center mb-4 mb-md-0">
+                            <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
+                                <i class="bi bi-box-seam zoom-avatar-details"></i>
+                            </div>
+                        </div>
 
-                    <dl class="row">
-                        <dt class="col-sm-4">Cliente</dt>
-                        <dd class="col-sm-8">
-                            @($"{Model.Pedido.Usuario?.Nombre} {Model.Pedido.Usuario?.Apellido}")
-                        </dd>
+                        <!-- Información general -->
+                        <div class="col-md-8">
+                            <div class="fs-5 mb-3">
+                                <p><i class="bi bi-person-circle me-2 text-success"></i><strong>Cliente:</strong> @($"{Model.Pedido.Usuario?.Nombre} {Model.Pedido.Usuario?.Apellido}")</p>
+                                <p><i class="bi bi-calendar3 me-2 text-success"></i><strong>Fecha del Pedido:</strong> @Model.Pedido.FechaPedido.ToString("dd/MM/yyyy")</p>
+                            </div>
+                        </div>
+                    </div>
 
-                        <dt class="col-sm-4">Fecha del Pedido</dt>
-                        <dd class="col-sm-8">
-                            @Model.Pedido.FechaPedido.ToString("dd/MM/yyyy")
-                        </dd>
+                    <hr />
 
-                        <dt class="col-sm-4">Producto</dt>
-                        <dd class="col-sm-8">
-                            @Model.Producto.Nombre
-                        </dd>
+                    <!-- Lista de productos -->
+                    <h5 class="fw-bold mb-3"><i class="bi bi-box-fill text-success"></i> Productos del Pedido</h5>
 
-                        <dt class="col-sm-4">Cantidad</dt>
-                        <dd class="col-sm-8">
-                            @Model.Cantidad
-                        </dd>
+                    <ul class="list-unstyled productos-lista mb-4">
+                        @foreach (var detalle in Model.Pedido.PedidoDetalles)
+                        {
+                            <li class="mb-3">
+                                <div>
+                                    <i class="bi bi-dot text-success"></i>
+                                    <strong>@detalle.Producto.Nombre:</strong>
+                                </div>
+                                <div class="ps-4 text-muted">
+                                    Cant. @detalle.Cantidad <br />
+                                    Precio Unitario: S/ @detalle.PrecioUnitario.ToString("0.00") <br />
+                                    Subtotal: <strong>S/ @((detalle.Cantidad * detalle.PrecioUnitario).ToString("0.00"))</strong>
+                                </div>
+                            </li>
+                        }
+                    </ul>
 
-                        <dt class="col-sm-4">Precio Unitario</dt>
-                        <dd class="col-sm-8">
-                            S/ @Model.PrecioUnitario
-                        </dd>
-
-                        <dt class="col-sm-4">Subtotal</dt>
-                        <dd class="col-sm-8">
-                            S/ @(Model.Cantidad* Model.PrecioUnitario)
-                        </dd>
-                    </dl>
-
+                    <!-- Total general -->
+                    <div class="text-end fs-5 fw-bold">
+                        <i class="bi bi-cash-coin text-success"></i> Total:
+                        S/ @Model.Pedido.PedidoDetalles.Sum(p => p.Cantidad * p.PrecioUnitario).ToString("0.00")
+                    </div>
                 </div>
-                <div class="card-footer text-center">
-                    <a asp-action="Edit" asp-route-id="@Model?.PedidoDetalleId" class="btn btn-warning text-white me-2">
+
+                <!-- Footer -->
+                <div class="card-footer text-center py-3">
+                    @* <a asp-action="Edit" asp-route-id="@Model?.PedidoDetalleId" class="btn btn-warning text-white px-4 me-2">
                         <i class="bi bi-pencil-square"></i> Editar
-                    </a>
-                    <a asp-action="Index" class="btn btn-outline-secondary">
+                    </a> *@
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
                         <i class="bi bi-arrow-left-circle"></i> Volver
                     </a>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

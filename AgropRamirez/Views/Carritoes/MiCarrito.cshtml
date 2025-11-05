@@ -22,25 +22,29 @@
     {
         @Html.AntiForgeryToken()
 
-        <div class="card shadow-lg border-0 rounded-3">
+        <div class="card shadow-lg border-0 rounded-4">
             <div class="card-body p-4">
 
-                <!-- 🔹 Botón Seguir Comprando -->
-                <div class="mb-3">
-                    <a asp-controller="Productoes" asp-action="Index" class="btn btn-outline-secondary">
+                <!-- 🔹 Encabezado -->
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                    <h4 class="mb-0 text-dark fw-bold">
+                        <i class="bi bi-cart4 text-warning"></i> Carrito de Compras
+                    </h4>
+                    <a asp-controller="Productoes" asp-action="Index" class="btn btn-outline-warning fw-semibold">
                         <i class="bi bi-arrow-left-circle"></i> Seguir comprando
                     </a>
                 </div>
 
-                <table class="table table-hover align-middle">
+                <!-- 🧾 Tabla -->
+                <table class="table table-hover align-middle rounded-3 overflow-hidden shadow-sm">
                     <thead class="table-warning">
                         <tr>
                             <th></th>
-                            <th>Producto / Promoción</th>
-                            <th class="text-center">Cantidad</th>
-                            <th>Precio Unitario</th>
-                            <th>Subtotal</th>
-                            <th></th>
+                            <th><i class="bi bi-box-seam me-1"></i> Producto / Promoción</th>
+                            <th class="text-center"><i class="bi bi-plus-slash-minus me-1"></i> Cantidad</th>
+                            <th><i class="bi bi-currency-dollar me-1"></i> Precio Unitario</th>
+                            <th><i class="bi bi-receipt me-1"></i> Subtotal</th>
+                            <th class="text-center"><i class="bi bi-trash3 me-1"></i> Acción</th>
                         </tr>
                     </thead>
 
@@ -48,38 +52,33 @@
                     @if (Model.CarritoDetalles != null && Model.CarritoDetalles.Any())
                     {
                         <tbody class="carrito-productos">
+                            <tr class="table-success">
+                                <th colspan="6" class="text-center">Productos</th>
+                            </tr>
+
                             @foreach (var item in Model.CarritoDetalles)
                             {
                                 <tr data-tipo="producto" data-id="@item.CarritoDetalleId" data-precio="@item.PrecioUnitario">
                                     <td>
                                         <img src="@item.Producto?.Imagen" alt="@item.Producto?.Nombre"
-                                             style="width:60px; height:60px; object-fit:cover; border-radius:8px;" />
+                                             class="rounded-3 shadow-sm"
+                                             style="width:60px; height:60px; object-fit:cover;" />
                                     </td>
-                                    <td>@item.Producto?.Nombre</td>
+                                    <td class="fw-semibold">@item.Producto?.Nombre</td>
 
                                     <td>
                                         <div class="input-group input-group-sm justify-content-center" style="max-width:120px;">
-                                            <button type="button" class="btn btn-outline-primary btn-sm btn-restar"
-                                                    data-id="@item.CarritoDetalleId">
-                                                −
-                                            </button>
-
-                                            <input type="text" class="form-control text-center cantidad-input"
-                                                   value="@item.Cantidad" data-id="@item.CarritoDetalleId" readonly />
-
-                                            <button type="button" class="btn btn-outline-primary btn-sm btn-sumar"
-                                                    data-id="@item.CarritoDetalleId">
-                                                +
-                                            </button>
+                                            <button type="button" class="btn btn-outline-primary btn-sm btn-restar" data-id="@item.CarritoDetalleId">−</button>
+                                            <input type="text" class="form-control text-center cantidad-input fw-bold" value="@item.Cantidad" data-id="@item.CarritoDetalleId" readonly />
+                                            <button type="button" class="btn btn-outline-primary btn-sm btn-sumar" data-id="@item.CarritoDetalleId">+</button>
                                         </div>
                                     </td>
 
-                                    <td>S/ @item.PrecioUnitario.ToString("0.00")</td>
-                                    <td class="subtotal">S/ @item.SubTotal.ToString("0.00")</td>
+                                    <td class="precio-unitario text-success fw-semibold">S/ @item.PrecioUnitario.ToString("0.00")</td>
+                                    <td class="subtotal text-success fw-semibold">S/ @item.SubTotal.ToString("0.00")</td>
 
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-danger btn-eliminar"
-                                                data-id="@item.CarritoDetalleId">
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-danger btn-eliminar shadow-sm" data-id="@item.CarritoDetalleId">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </td>
@@ -98,18 +97,20 @@
 
                             @foreach (var promo in Model.CarritoPromociones)
                             {
+                                var subtotalPromo = promo.Cantidad * promo.PrecioTotal;
                                 <tr data-tipo="promocion">
                                     <td>
                                         <img src="@promo.Promocion.Imagen" alt="@promo.Promocion.Nombre"
-                                             style="width:60px; height:60px; object-fit:cover; border-radius:8px;" />
+                                             class="rounded-3 shadow-sm"
+                                             style="width:60px; height:60px; object-fit:cover;" />
                                     </td>
-                                    <td>@promo.Promocion.Nombre</td>
-                                    <td class="text-center">@promo.Cantidad</td>
-                                    <td>S/ @promo.PrecioTotal.ToString("0.00")</td>
-                                    <td>S/ @(promo.Cantidad* promo.PrecioTotal).ToString("0.00")</td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-danger btn-eliminar-promocion"
-                                                data-id="@promo.CarritoPromocionId">
+                                    <td class="fw-semibold">@promo.Promocion.Nombre</td>
+                                    <td class="text-center fw-bold">@promo.Cantidad</td>
+                                    <td class="text-success fw-semibold">S/ @promo.PrecioTotal.ToString("0.00")</td>
+                                    <td class="text-success fw-semibold">S/ @subtotalPromo.ToString("0.00")</td>
+
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-danger btn-eliminar-promocion shadow-sm" data-id="@promo.CarritoPromocionId">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </td>
@@ -119,10 +120,10 @@
                     }
 
                     <!-- 🧮 TOTAL GENERAL -->
-                    <tfoot>
+                    <tfoot class="table-light">
                         <tr>
                             <td colspan="4" class="text-end fw-bold">Total:</td>
-                            <td id="totalCarrito">
+                            <td id="totalCarrito" class="fw-bold text-success fs-5">
                                 @{
                                     decimal totalProductos = Model.CarritoDetalles?.Sum(cd => cd.SubTotal) ?? 0;
                                     decimal totalPromos = Model.CarritoPromociones?.Sum(cp => cp.Cantidad * cp.PrecioTotal) ?? 0;
@@ -137,8 +138,8 @@
 
                 <!-- 🔹 Botón Proceder al Pago -->
                 <div class="text-end mt-3">
-                    <a asp-controller="Pedidoes" asp-action="Checkout" class="btn btn-success fw-bold">
-                        <i class="bi bi-bag-check-fill"></i> Proceder al Pago
+                    <a asp-controller="Pedidoes" asp-action="Checkout" class="btn btn-success fw-bold px-4 py-2 shadow-sm">
+                        <i class="bi bi-bag-check-fill me-1"></i> Proceder al Pago
                     </a>
                 </div>
 
@@ -147,15 +148,15 @@
     }
     else
     {
-        <!-- ❌ Carrito vacío -->
-        <div class="alert alert-warning text-center shadow-sm">
-            <i class="bi bi-exclamation-circle"></i> Tu carrito está vacío.
-        </div>
-
-        <!-- 🔹 Botón Ir a Comprar -->
-        <div class="text-center mt-3">
-            <a asp-controller="Productoes" asp-action="Index" class="btn btn-primary fw-bold">
-                <i class="bi bi-shop"></i> Ir a comprar
+        <!-- 🛒 Carrito vacío -->
+        <div class="text-center py-5">
+            <img src="~/img/CarritoVacio.png" alt="Carrito vacío" class="img-fluid mb-3" style="max-width: 260px; opacity: 0.9;">
+            <h5 class="text-muted fw-semibold">
+                <i class="bi bi-emoji-frown"></i> Tu carrito está vacío.
+            </h5>
+            <p class="text-secondary mb-4">Parece que aún no has agregado productos ni promociones.</p>
+            <a asp-controller="Productoes" asp-action="Index" class="btn btn-warning text-dark fw-bold shadow-sm px-4">
+                <i class="bi bi-shop me-1"></i> Ir a comprar
             </a>
         </div>
     }

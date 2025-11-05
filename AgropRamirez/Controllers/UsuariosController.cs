@@ -111,6 +111,7 @@ namespace AgropRamirez.Controllers
             // 🔹 Guardar imagen
 
             string? rutaImagen = null;
+
             if (vm.ImagenFile != null && vm.ImagenFile.Length > 0)
             {
                 var uploads = Path.Combine(_env.WebRootPath, "img", "usuarios");
@@ -125,6 +126,11 @@ namespace AgropRamirez.Controllers
                 }
 
                 rutaImagen = $"/img/usuarios/{fileName}";
+            }
+            else
+            {
+                // 🔸 Si no se sube imagen, usar la imagen por defecto
+                rutaImagen = "/img/usuarios/usuarie.png";
             }
 
             var nuevoUsuario = new Usuario

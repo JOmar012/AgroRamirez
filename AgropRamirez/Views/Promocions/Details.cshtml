@@ -25,137 +25,128 @@
     var totalConDescuento = subtotal - descuento;
 }
 
-<div class="container mb-5">
+<div class="container my-4 detalles-promocion">
     <div class="row justify-content-center">
-        <div class="col-lg-8 col-md-10">
-            <div class="card shadow-lg border-0 rounded-3 p-4">
-
-                <!-- Encabezado con línea -->
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                    <h4 class="mb-0">
-                        <i class="bi bi-gift-fill text-danger"></i> Detalles de la promoción
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header custom-header-details text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-gift-fill"></i> Detalles de la Promoción
                     </h4>
                 </div>
 
-                <div class="row g-4">
-                    <!-- Imagen -->
-                    <div class="col-md-4 text-center">
-                        @if (!string.IsNullOrEmpty(Model.Imagen))
-                        {
-                            <img src="@Model.Imagen" alt="Imagen de la promoción"
-                                 class="img-fluid rounded shadow-sm"
-                                 style="width:100%; height:auto; object-fit:contain;" />
-                        }
-                        else
-                        {
-                            <img src="~/img/no-image.png" alt="Sin imagen"
-                                 class="img-fluid rounded shadow-sm"
-                                 style="width:100%; height:auto; opacity:0.5; object-fit:contain;" />
-                        }
-                    </div>
-
-                    <!-- Información -->
-                    <div class="col-md-8 d-flex flex-column">
-                        <div class="mb-3">
-                            <h3 class="fw-bold">@Model.Nombre</h3>
-                            <p class="text-muted">@Model.Descripcion</p>
-                        </div>
-
-                        <dl class="row">
-                            <dt class="col-sm-4 fw-bold">Fecha Inicio</dt>
-                            <dd class="col-sm-8">@Model.FechaInicio.ToString("dd/MM/yyyy HH:mm")</dd>
-
-                            <dt class="col-sm-4 fw-bold">Fecha Fin</dt>
-                            <dd class="col-sm-8">@Model.FechaFin.ToString("dd/MM/yyyy HH:mm")</dd>
-
-                            <dt class="col-sm-4 fw-bold">Descuento</dt>
-                            <dd class="col-sm-8">@Model.Descuento %</dd>
-                        </dl>
-                    </div>
-                </div>
-
-                <!-- Productos incluidos -->
-                <div class="mt-4">
-                    <h5 class="fw-bold mb-3">
-                        <i class="bi bi-box-seam"></i> Productos incluidos
-                    </h5>
-
-                    @if (Model.Productos != null && Model.Productos.Any())
-                    {
-                        <ul class="list-group shadow-sm">
-                            @foreach (var prod in Model.Productos)
-                            {
-                                <li class="list-group-item d-flex align-items-center">
-                                    <img src="@prod.Imagen" alt="@prod.Nombre"
-                                         class="rounded-circle me-3"
-                                         style="width:50px; height:50px; object-fit:cover;" />
-                                    <div>
-                                        <strong>@prod.Nombre</strong><br />
-                                        <span class="text-muted">S/ @prod.Precio</span>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
-
-
-                        <!-- Resumen del total -->
-                        <div class="card mt-4 shadow-sm border-0 bg-light rounded-3">
-                            <div class="card-body py-3 px-4">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="fw-semibold text-secondary">Subtotal:</span>
-                                    <span class="fw-semibold text-muted">S/ @subtotal.ToString("0.00")</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="fw-semibold text-danger">
-                                        Descuento (@Model.Descuento.ToString("0.#") %):
-                                    </span>
-                                    <span class="fw-semibold text-danger">- S/ @descuento.ToString("0.00")</span>
-                                </div>
-                                <hr class="my-2">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="h5 fw-bold text-success mb-0">Total con descuento:</span>
-                                    <span class="h5 fw-bold text-success mb-0">S/ @totalConDescuento.ToString("0.00")</span>
-                                </div>
+                <!-- Cuerpo -->
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <!-- Imagen -->
+                        <div class="col-md-4 text-center mb-4 mb-md-0">
+                            <div class="zoom-image">
+                                @if (!string.IsNullOrEmpty(Model.Imagen))
+                                {
+                                    <img src="@Model.Imagen" alt="Imagen de la promoción"
+                                         class="img-fluid rounded-3 shadow-sm"
+                                         style="width:100%; height:100%; object-fit:cover;" />
+                                }
+                                else
+                                {
+                                    <img src="~/img/no-image.png" alt="Sin imagen"
+                                         class="img-fluid rounded-3 shadow-sm opacity-50"
+                                         style="width:100%; height:100%; object-fit:cover;" />
+                                }
                             </div>
                         </div>
 
-                    }
-                    else
-                    {
-                        <p class="text-muted fst-italic">No hay productos asociados a esta promoción.</p>
-                    }
-                </div>
+                        <!-- Información -->
+                        <div class="col-md-8">
+                            <h3 class="fw-bold text-dark mb-2">@Model.Nombre</h3>
+                            <p class="text-muted mb-4">@Model.Descripcion</p>
 
-                <!-- Botones centrados -->
-                <div class="mt-4 d-flex justify-content-center gap-2 flex-wrap">
-                    @* <button type="button"
-                            class="btn btn-warning text-dark fw-bold add-promo-to-cart"
-                            data-promocion-id="@Model.PromocionId">
-                        <i class="bi bi-cart-plus"></i> Añadir promoción al carrito
-                    </button> *@
+                            <div>
+                                <p><i class="bi bi-calendar-event me-2 text-info"></i><strong>Fecha Inicio:</strong> @Model.FechaInicio.ToString("dd/MM/yyyy HH:mm")</p>
+                                <p><i class="bi bi-calendar-event-fill me-2 text-info"></i><strong>Fecha Fin:</strong> @Model.FechaFin.ToString("dd/MM/yyyy HH:mm")</p>
+                                <p><i class="bi bi-percent me-2 text-info"></i><strong>Descuento:</strong> @Model.Descuento.ToString("0.#")%</p>
+                            </div>
 
-                    @if (Model.Productos != null && Model.Productos.Any())
-                    {
-                        <div class="mt-4 text-center">
-                            <form asp-controller="Carritoes" asp-action="AgregarPromocionCompacta" method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="promocionId" value="@Model.PromocionId" />
-                                <button type="button"
-                                        class="btn btn-success fw-bold btn-add-promo"
-                                        data-id="@Model.PromocionId">
-                                    <i class="bi bi-cart-plus-fill"></i> Añadir promoción al carrito
-                                </button>
-                            </form>
+                            @if (Model.Productos != null && Model.Productos.Any())
+                            {
+                                <div class="text-center mt-4">
+                                    <form asp-controller="Carritoes" asp-action="AgregarPromocionCompacta" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="promocionId" value="@Model.PromocionId" />
+                                        <button type="button"
+                                                class="btn btn-success fw-bold btn-add-promo"
+                                                data-id="@Model.PromocionId">
+                                            <i class="bi bi-cart-plus-fill"></i> Añadir promoción al carrito
+                                        </button>
+                                    </form>
+                                </div>
+                            }
                         </div>
-                    }
+                    </div>
 
-                    <a asp-action="Edit" asp-route-id="@Model.PromocionId" class="btn btn-outline-warning">
-                        <i class="bi bi-pencil-square"></i> Editar
-                    </a>
+                    <!-- Productos incluidos -->
+                    <div class="mt-5">
+                        <h5 class="fw-bold mb-3 text-dark">
+                            <i class="bi bi-box-seam"></i> Productos incluidos
+                        </h5>
 
-                    <a asp-action="Index" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left-circle"></i> Volver
-                    </a>
+                        @if (Model.Productos != null && Model.Productos.Any())
+                        {
+                            <ul class="list-group shadow-sm">
+                                @foreach (var prod in Model.Productos)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <img src="@prod.Imagen" alt="@prod.Nombre"
+                                             class="rounded-circle me-3"
+                                             style="width:50px; height:50px; object-fit:cover;" />
+                                        <div>
+                                            <strong>@prod.Nombre</strong><br />
+                                            <span class="text-muted">S/ @prod.Precio</span>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+
+                            <!-- Resumen -->
+                            <div class="card mt-4 shadow-sm border-0 bg-light rounded-3">
+                                <div class="card-body py-3 px-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-semibold text-secondary">Subtotal:</span>
+                                        <span class="fw-semibold text-muted">S/ @subtotal.ToString("0.00")</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-semibold text-danger">
+                                            Descuento (@Model.Descuento.ToString("0.#") %):
+                                        </span>
+                                        <span class="fw-semibold text-danger">- S/ @descuento.ToString("0.00")</span>
+                                    </div>
+                                    <hr class="my-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="h5 fw-bold text-success mb-0">Total con descuento:</span>
+                                        <span class="h5 fw-bold text-success mb-0">S/ @totalConDescuento.ToString("0.00")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted fst-italic">No hay productos asociados a esta promoción.</p>
+                        }
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="mt-4 d-flex justify-content-center gap-3">
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@Model.PromocionId" class="btn btn-warning text-white px-4">
+                                <i class="bi bi-pencil-square"></i> Editar
+                            </a>
+                        }
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-arrow-left-circle"></i> Volver
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

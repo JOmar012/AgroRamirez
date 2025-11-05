@@ -19,146 +19,154 @@
 </div>
 <!-- Page Header End -->
 
-<div class="container">
+<div class="container my-4 ">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-            <div class="card shadow-lg border-0 rounded-3">
-                <!-- Header con ícono -->
-                <div class="card-header text-center bg-white">
-                    <h4 class="mb-0 fw-bold text-primary">Editar Promoción</h4>
-                    <div class="avatar-preview mx-auto d-flex align-items-center justify-content-center rounded-circle shadow mb-3"
-                         style="width:120px; height:120px; background-color:#fff; border:3px solid #0d6efd; color:#0d6efd;">
-                        <i class="bi bi-gift-fill" style="font-size:48px;"></i>
-                    </div>
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header custom-header-edit text-center py-3" >
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-gift-fill"></i> Editar Promoción
+                    </h4>
                 </div>
 
                 <div class="card-body p-4">
                     <form asp-action="Edit" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="PromocionId" />
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                        <!-- Nombre -->
-                        <div class="mb-3">
-                            <label asp-for="Nombre" class="form-label">
-                                <i class="bi bi-type"></i> Nombre
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-type"></i></span>
-                                <input asp-for="Nombre" class="form-control" />
+                        <div class="row align-items-start">
+                            <!-- Columna Izquierda: Imagen actual + preview -->
+                            <div class="col-md-4 text-center mb-4 mb-md-0">
+                                <div class="d-flex flex-column align-items-center justify-content-start w-100">
+
+                                    <!-- Contenedor de imagen con zoom -->
+                                    <div id="avatar-container" class="zoom-avatar-product mb-3">
+                                        <img id="preview"
+                                             src="@(string.IsNullOrEmpty(Model.Imagen) ? "/img/promociones/default.jpg" : Model.Imagen)"
+                                             alt="Imagen actual"
+                                             style="width:100%; height:100%; object-fit:cover; border-radius:12px;" />
+                                    </div>
+
+                                    <!-- Campo para subir nueva imagen -->
+                                    <div class="w-100">
+                                        <label asp-for="ImagenFile" class="form-label fw-semibold d-block text-start">
+                                            <i class="bi bi-image"></i> Reemplazar imagen
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light">
+                                                <i class="bi bi-upload text-primary"></i>
+                                            </span>
+                                            <input asp-for="ImagenFile"
+                                                   type="file"
+                                                   class="form-control"
+                                                   accept="image/*"
+                                                   onchange="previewImage(event)" />
+                                        </div>
+                                        <span asp-validation-for="ImagenFile" class="text-danger small"></span>
+                                    </div>
+                                </div>
                             </div>
-                            <span asp-validation-for="Nombre" class="text-danger"></span>
-                        </div>
 
-                        <!-- Imagen actual -->
-                        @if (!string.IsNullOrEmpty(Model.Imagen))
-                        {
-                            <div class="mb-3 text-center">
-                                <label class="form-label">Imagen actual</label><br />
-                                <img src="@Model.Imagen" alt="Imagen actual"
-                                     style="max-width:200px; border:1px solid #ccc; padding:5px; border-radius:6px;" />
-                            </div>
-                        }
-
-                        <!-- Nueva imagen -->
-                        <div class="mb-3">
-                            <label asp-for="ImagenFile" class="form-label">
-                                <i class="bi bi-image"></i> Nueva imagen (opcional)
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-upload"></i></span>
-                                <input asp-for="ImagenFile" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" />
-                            </div>
-                            <span asp-validation-for="ImagenFile" class="text-danger"></span>
-                        </div>
-
-                        <!-- Preview de nueva imagen -->
-                        <div class="text-center mb-3">
-                            <img id="preview" src="#" alt="Vista previa"
-                                 style="max-width:200px; display:none; border:1px solid #ccc; border-radius:6px; padding:4px;" />
-                        </div>
-
-                        <!-- Descripción -->
-                        <div class="mb-3">
-                            <label asp-for="Descripcion" class="form-label">
-                                <i class="bi bi-card-text"></i> Descripción
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
-                                <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
-                            </div>
-                            <span asp-validation-for="Descripcion" class="text-danger"></span>
-                        </div>
-
-                        <!-- Fecha Inicio -->
-                        <div class="mb-3">
-                            <label asp-for="FechaInicio" class="form-label">
-                                <i class="bi bi-calendar-event"></i> Fecha Inicio
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
-                                <input asp-for="FechaInicio" class="form-control" type="datetime-local"
-                                       value="@(Model?.FechaInicio.ToString("yyyy-MM-ddTHH:mm"))" />
-                            </div>
-                            <span asp-validation-for="FechaInicio" class="text-danger"></span>
-                        </div>
-
-                        <!-- Fecha Fin -->
-                        <div class="mb-3">
-                            <label asp-for="FechaFin" class="form-label">
-                                <i class="bi bi-calendar-event-fill"></i> Fecha Fin
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-calendar-event-fill"></i></span>
-                                <input asp-for="FechaFin" class="form-control" type="datetime-local"
-                                       value="@(Model?.FechaFin.ToString("yyyy-MM-ddTHH:mm"))" />
-                            </div>
-                            <span asp-validation-for="FechaFin" class="text-danger"></span>
-                        </div>
-
-                        <!-- Descuento -->
-                        <div class="mb-3">
-                            <label asp-for="Descuento" class="form-label">
-                                <i class="bi bi-percent"></i> Descuento
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-percent"></i></span>
-                                <input asp-for="Descuento" class="form-control" type="number" step="0.01" placeholder="Ej: 15 (%)" />
-                            </div>
-                            <span asp-validation-for="Descuento" class="text-danger"></span>
-                        </div>
-
-                        <!-- Productos -->
-                        <div class="mb-3">
-                            <label class="form-label">
-                                <i class="bi bi-box"></i> Seleccionar Productos
-                            </label>
-                            <div class="list-group" style="max-height: 220px; overflow-y: auto;">
-                                @foreach (var prod in (IEnumerable<AgropRamirez.Models.Producto>)ViewBag.Productos)
-                                {
-                                    <label class="list-group-item d-flex align-items-center">
-                                        <input type="checkbox"
-                                               name="ProductosSeleccionados"
-                                               value="@prod.ProductoId"
-                                               class="form-check-input me-2"
-                                               @(Model.ProductosSeleccionados.Contains(prod.ProductoId) ? "checked" : "") />
-
-                                        <img src="@prod.Imagen" alt="@prod.Nombre"
-                                             class="rounded-circle me-2"
-                                             style="width:40px; height:40px; object-fit:cover;" />
-
-                                        <span>@prod.Nombre (@prod.Precio.ToString("C"))</span>
+                            <!-- Columna Derecha: Campos -->
+                            <div class="col-md-8">
+                                <!-- Nombre -->
+                                <div class="mb-3">
+                                    <label asp-for="Nombre" class="form-label fw-semibold">
+                                        <i class="bi bi-type"></i> Nombre
                                     </label>
-                                }
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-type"></i></span>
+                                        <input asp-for="Nombre" class="form-control" />
+                                    </div>
+                                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                                </div>
+
+                                <!-- Descripción -->
+                                <div class="mb-3">
+                                    <label asp-for="Descripcion" class="form-label fw-semibold">
+                                        <i class="bi bi-card-text"></i> Descripción
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-card-text"></i></span>
+                                        <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                                    </div>
+                                    <span asp-validation-for="Descripcion" class="text-danger"></span>
+                                </div>
+
+                                <!-- Fechas -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="FechaInicio" class="form-label fw-semibold">
+                                            <i class="bi bi-calendar-event"></i> Fecha Inicio
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-calendar-event"></i></span>
+                                            <input asp-for="FechaInicio" class="form-control" type="datetime-local"
+                                                   value="@(Model?.FechaInicio.ToString("yyyy-MM-ddTHH:mm"))" />
+                                        </div>
+                                        <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="FechaFin" class="form-label fw-semibold">
+                                            <i class="bi bi-calendar-event-fill"></i> Fecha Fin
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-calendar-event-fill"></i></span>
+                                            <input asp-for="FechaFin" class="form-control" type="datetime-local"
+                                                   value="@(Model?.FechaFin.ToString("yyyy-MM-ddTHH:mm"))" />
+                                        </div>
+                                        <span asp-validation-for="FechaFin" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Descuento -->
+                                <div class="mb-3">
+                                    <label asp-for="Descuento" class="form-label fw-semibold">
+                                        <i class="bi bi-percent"></i> Descuento (%)
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-percent"></i></span>
+                                        <input asp-for="Descuento" class="form-control" type="number" step="0.01" />
+                                    </div>
+                                    <span asp-validation-for="Descuento" class="text-danger"></span>
+                                </div>
+
+                                <!-- Productos -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-box-seam"></i> Seleccionar Productos
+                                    </label>
+                                    <div class="list-group" style="max-height: 220px; overflow-y: auto;">
+                                        @foreach (var prod in (IEnumerable<AgropRamirez.Models.Producto>)ViewBag.Productos)
+                                        {
+                                            <label class="list-group-item d-flex align-items-center">
+                                                <input type="checkbox"
+                                                       name="ProductosSeleccionados"
+                                                       value="@prod.ProductoId"
+                                                       class="form-check-input me-2"
+                                                       @(Model.ProductosSeleccionados.Contains(prod.ProductoId) ? "checked" : "") />
+
+                                                <img src="@prod.Imagen"
+                                                     alt="@prod.Nombre"
+                                                     class="rounded-circle me-2"
+                                                     style="width:40px; height:40px; object-fit:cover;" />
+                                                <span>@prod.Nombre (@prod.Precio.ToString("C"))</span>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
                             </div>
-                            <span asp-validation-for="ProductosSeleccionados" class="text-danger"></span>
                         </div>
 
                         <!-- Botones -->
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left-circle"></i> Volver
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left-circle"></i> Cancelar
                             </a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-warning px-4">
                                 <i class="bi bi-check-circle"></i> Guardar cambios
                             </button>
                         </div>

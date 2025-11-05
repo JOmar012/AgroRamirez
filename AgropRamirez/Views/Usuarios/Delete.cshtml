@@ -17,17 +17,15 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-
-            <div class="card shadow-lg border-0 rounded-3">
+        <div class="col-lg-7 col-md-9 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
                 <!-- Header Rojo -->
-                <div class="card-header custom-header-delete text-center">
-                    <h4 class="mb-0"><i class="bi bi-trash"></i> Confirmar Eliminación</h4>
-                    <div class="mt-2">
-                        <i class="bi bi-exclamation-triangle fs-3"></i>
-                    </div>
+                <div class="card-header custom-header-delete text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-trash"></i> Confirmar Eliminación
+                    </h4>
                 </div>
 
                 <div class="card-body p-4">
@@ -35,23 +33,28 @@
                         ¿Está seguro que desea eliminar este usuario?
                     </h5>
 
-                    <!-- Ficha con imagen e info -->
-                    <div class="d-flex align-items-start">
+                    <!-- Ficha con imagen e información -->
+                    <div class="row align-items-center">
                         <!-- Imagen -->
-                        <div class="me-4">
-                            <img src="@(string.IsNullOrEmpty(Model.Imagen) ? Url.Content("~/img/usuarios/usuarie.png") : Model.Imagen)"
-                                 class="img-thumbnail rounded"
-                                 style="width:120px; height:120px; object-fit:cover;" />
+                        <div class="col-md-5 text-center mb-3 mb-md-0">
+                            <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
+                                <img src="@(string.IsNullOrEmpty(Model.Imagen) ? Url.Content("~/img/usuarios/default.png") : Model.Imagen)"
+                                     alt="Foto del usuario"
+                                     class="img-fluid rounded-3 shadow-sm zoom-image"
+                                     style="max-height: 250px; object-fit: cover;" />
+                            </div>
                         </div>
 
-                        <!-- Información del usuario -->
-                        <div>
-                            <p><strong>Nombre:</strong> @Model.Nombre</p>
-                            <p><strong>Apellido:</strong> @Model.Apellido</p>
-                            <p><strong>DNI:</strong> @Model.Dni</p>
-                            <p><strong>Email:</strong> @Model.Email</p>
-                            <p><strong>Rol:</strong> @Model.Rol</p>
-                            <p><strong>Registrado:</strong> @Model.FechaRegistro</p>
+                        <!-- Información -->
+                        <div class="col-md-7">
+                            <div>
+                                <p><i class="bi bi-person-fill me-2 text-danger"></i><strong>Nombre:</strong> @Model.Nombre</p>
+                                <p><i class="bi bi-person-vcard-fill me-2 text-danger"></i><strong>Apellido:</strong> @Model.Apellido</p>
+                                <p><i class="bi bi-credit-card-2-front-fill me-2 text-danger"></i><strong>DNI:</strong> @Model.Dni</p>
+                                <p><i class="bi bi-envelope-fill me-2 text-danger"></i><strong>Email:</strong> @Model.Email</p>
+                                <p><i class="bi bi-person-gear me-2 text-danger"></i><strong>Rol:</strong> @Model.Rol</p>
+                                <p><i class="bi bi-calendar-check-fill me-2 text-danger"></i><strong>Registrado:</strong> @Model.FechaRegistro</p>
+                            </div>
                         </div>
                     </div>
 
@@ -59,17 +62,16 @@
                     <form asp-action="Delete" class="mt-4">
                         <input type="hidden" asp-for="UsuarioId" />
                         <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-outline-secondary">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
                                 <i class="bi bi-arrow-left-circle"></i> Cancelar
                             </a>
-                            <button type="submit" class="btn btn-danger">
+                            <button type="submit" class="btn btn-danger px-4">
                                 <i class="bi bi-trash-fill"></i> Eliminar
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

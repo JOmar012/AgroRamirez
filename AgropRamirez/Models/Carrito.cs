@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace AgropRamirez.Models
@@ -8,7 +9,10 @@ namespace AgropRamirez.Models
     public class Carrito
     {
         public int CarritoId { get; set; }
+        [Display(Name = "Imagen del cliente")]
         public int UsuarioId { get; set; }
+
+        [Display(Name = "Fecha de creación")]
         public DateTime FechaCreacion { get; set; }
 
         // Propiedades de navegación

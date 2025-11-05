@@ -17,53 +17,54 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-
-            <div class="card shadow-lg border-0 rounded-3">
-                <!-- Header Turquesa -->
-                <div class="card-header custom-header-details text-center">
-                    <h4 class="mb-0"><i class="bi bi-person-badge"></i> Información del Usuario</h4>
-                    <div class="mt-2">
-                        <i class="bi bi-info-circle fs-3"></i>
-                    </div>
+        <div class="col-lg-7 col-md-9 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header custom-header-details text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-person-badge"></i> Información del Usuario
+                    </h4>
                 </div>
 
                 <div class="card-body p-4">
-                    <!-- Ficha con imagen e info -->
-                    <div class="d-flex align-items-start">
+                    <div class="row align-items-center">
                         <!-- Imagen -->
-                        <div class="me-4">
-                            <img src="@(string.IsNullOrEmpty(Model.Imagen) ? Url.Content("~/img/usuarios/default.png") : Model.Imagen)"
-                                 class="img-thumbnail rounded"
-                                 style="width:120px; height:120px; object-fit:cover;" />
+                        <div class="col-md-5 text-center mb-3 mb-md-0">
+                            <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
+                                <img src="@(string.IsNullOrEmpty(Model.Imagen) ? Url.Content("~/img/usuarios/default.png") : Model.Imagen)"
+                                     alt="Foto del usuario"
+                                     class="img-fluid rounded-3 shadow-sm zoom-image"
+                                     style="max-height: 250px; object-fit: cover;" />
+                            </div>
                         </div>
 
                         <!-- Información -->
-                        <div>
-                            <p><strong>Nombre:</strong> @Model.Nombre</p>
-                            <p><strong>Apellido:</strong> @Model.Apellido</p>
-                            <p><strong>DNI:</strong> @Model.Dni</p>
-                            <p><strong>Dirección:</strong> @Model.Direccion</p>
-                            <p><strong>Email:</strong> @Model.Email</p>
-                            <p><strong>Rol:</strong> @Model.Rol</p>
-                            <p><strong>Registrado:</strong> @Model.FechaRegistro</p>
+                        <div class="col-md-7">
+                            <div>
+                                <p><i class="bi bi-person-fill me-2 text-info"></i><strong>Nombre:</strong> @Model.Nombre</p>
+                                <p><i class="bi bi-person-vcard-fill me-2 text-info"></i><strong>Apellido:</strong> @Model.Apellido</p>
+                                <p><i class="bi bi-credit-card-2-front-fill me-2 text-info"></i><strong>DNI:</strong> @Model.Dni</p>
+                                <p><i class="bi bi-geo-alt-fill me-2 text-info"></i><strong>Dirección:</strong> @Model.Direccion</p>
+                                <p><i class="bi bi-envelope-fill me-2 text-info"></i><strong>Email:</strong> @Model.Email</p>
+                                <p><i class="bi bi-person-gear me-2 text-info"></i><strong>Rol:</strong> @Model.Rol</p>
+                                <p><i class="bi bi-calendar-check-fill me-2 text-info"></i><strong>Registrado:</strong> @Model.FechaRegistro</p>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Botones -->
                     <div class="d-flex justify-content-between mt-4">
-                        <a asp-action="Index" class="btn btn-outline-secondary">
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
                             <i class="bi bi-arrow-left-circle"></i> Volver
                         </a>
-                        <a asp-action="Edit" asp-route-id="@Model?.UsuarioId" class="btn btn-info text-white">
+                        <a asp-action="Edit" asp-route-id="@Model?.UsuarioId" class="btn btn-info text-white px-4">
                             <i class="bi bi-pencil-square"></i> Editar
                         </a>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

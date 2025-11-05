@@ -46,69 +46,165 @@ namespace AgropRamirez.Controllers
             return View(pago);
         }
 
-        // GET: Pagoes/Create
-        public IActionResult Create()
-        {
-            ViewData["PedidoId"] = new SelectList(
-                _context.Pedidos.Select(p => new
-                {
-                    p.PedidoId,
-                    Fecha = p.FechaPedido.ToString("dd/MM/yyyy")
-                }),
-                "PedidoId",
-                "Fecha"
-            );
+            // GET: Pagoes/Create
 
-            ViewData["UsuarioId"] = new SelectList(
-                _context.Usuarios.Select(u => new
-                {
-                    u.UsuarioId,
-                    NombreCompleto = u.Nombre + " " + u.Apellido
-                }),
-                "UsuarioId",
-                "NombreCompleto"
-            );
-
-            return View();
-        }
-
-        // POST: Pagoes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PagoId,PedidoId,UsuarioId,FechaPago,Monto,MetodoPago,Estado")] Pago pago)
-        {
-            if (ModelState.IsValid)
+            [HttpGet]
+            public async Task<IActionResult> Create(int pedidoId)
             {
-                _context.Add(pago);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                // 🔥 Limpiamos cualquier mensaje previo
+                //TempData.Remove("Success");
+
+                // 🔍 Buscar el pedido con cliente
+                var pedido = await _context.Pedidos
+                    .Include(p => p.Usuario)
+                    .FirstOrDefaultAsync(p => p.PedidoId == pedidoId);
+
+                if (pedido == null)
+                    return NotFound();
+
+                // 💰 Crear el modelo con datos por defecto
+                var model = new Pago
+                {
+                    PedidoId = pedido.PedidoId,
+                    UsuarioId = pedido.UsuarioId,
+                    FechaPago = DateTime.Now,
+                    Monto = pedido.Total,
+                    MetodoPago = "Efectivo", // puedes ajustar por defecto
+                    Estado = "Pagado"
+                };
+
+                // Enviar nombre del cliente a la vista mediante ViewBag
+                ViewBag.NombreCliente = $"{pedido.Usuario.Nombre} {pedido.Usuario.Apellido}";
+                ViewBag.Total = pedido.Total.ToString("F2");
+
+                return View("Create", model);
             }
 
-            ViewData["PedidoId"] = new SelectList(
-                _context.Pedidos.Select(p => new
-                {
-                    p.PedidoId,
-                    Fecha = p.FechaPedido.ToString("dd/MM/yyyy")
-                }),
-                "PedidoId",
-                "Fecha",
-                pago.PedidoId
-            );
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Pago pago)
+        {
+            if (!ModelState.IsValid)
+            {
+                var pedidoError = await _context.Pedidos
+                    .Include(p => p.Usuario)
+                    .FirstOrDefaultAsync(p => p.PedidoId == pago.PedidoId);
 
-            ViewData["UsuarioId"] = new SelectList(
-                _context.Usuarios.Select(u => new
+                ViewBag.NombreCliente = $"{pedidoError.Usuario.Nombre} {pedidoError.Usuario.Apellido}";
+                ViewBag.Total = pedidoError.Total.ToString("F2");
+                return View("Create", pago);
+            }
+
+            // ⚠️ 1. Verificar si el pedido ya tiene un pago registrado
+            bool yaPagado = await _context.Pagos.AnyAsync(p => p.PedidoId == pago.PedidoId);
+
+            if (yaPagado)
+            {
+                // Si ya existe un pago, mostrar alerta de advertencia
+                TempData["PagoDuplicado"] = true;
+                return RedirectToAction("Create", new { pedidoId = pago.PedidoId });
+            }
+
+            // 💰 2. Registrar el nuevo pago
+            pago.Estado = "Pagado";
+            _context.Pagos.Add(pago);
+            await _context.SaveChangesAsync();
+
+            // 📦 3. Buscar pedido con detalles y descontar stock
+            var pedido = await _context.Pedidos
+                .Include(p => p.PedidoDetalles)
+                    .ThenInclude(d => d.Producto)
+                .FirstOrDefaultAsync(p => p.PedidoId == pago.PedidoId);
+
+            if (pedido != null)
+            {
+                foreach (var detalle in pedido.PedidoDetalles)
                 {
-                    u.UsuarioId,
-                    NombreCompleto = u.Nombre + " " + u.Apellido
-                }),
-                "UsuarioId",
-                "NombreCompleto",
-                pago.UsuarioId
-            );
-            return View(pago);
+                    if (detalle.Producto != null)
+                    {
+                        detalle.Producto.Stock -= detalle.Cantidad;
+                        if (detalle.Producto.Stock < 0)
+                            detalle.Producto.Stock = 0;
+
+                        _context.Update(detalle.Producto);
+                    }
+                }
+
+                pedido.Estado = "Pagado";
+                _context.Update(pedido);
+                await _context.SaveChangesAsync();
+            }
+
+            // 🚀 4. Bandera para alerta de éxito
+            TempData["PagoExitoso"] = true;
+
+            // Redirigir a la misma vista para mostrar alerta y luego ir al catálogo
+            return RedirectToAction("Create", new { pedidoId = pago.PedidoId });
         }
+
+        //public IActionResult Create()
+        //{
+        //    ViewData["PedidoId"] = new SelectList(
+        //        _context.Pedidos.Select(p => new
+        //        {
+        //            p.PedidoId,
+        //            Fecha = p.FechaPedido.ToString("dd/MM/yyyy")
+        //        }),
+        //        "PedidoId",
+        //        "Fecha"
+        //    );
+
+        //    ViewData["UsuarioId"] = new SelectList(
+        //        _context.Usuarios.Select(u => new
+        //        {
+        //            u.UsuarioId,
+        //            NombreCompleto = u.Nombre + " " + u.Apellido
+        //        }),
+        //        "UsuarioId",
+        //        "NombreCompleto"
+        //    );
+
+        //    return View();
+        //}
+
+        //// POST: Pagoes/Create
+        //// To protect from overposting attacks, enable the specific properties you want to bind to.
+        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create([Bind("PagoId,PedidoId,UsuarioId,FechaPago,Monto,MetodoPago,Estado")] Pago pago)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        _context.Add(pago);
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+        //    ViewData["PedidoId"] = new SelectList(
+        //        _context.Pedidos.Select(p => new
+        //        {
+        //            p.PedidoId,
+        //            Fecha = p.FechaPedido.ToString("dd/MM/yyyy")
+        //        }),
+        //        "PedidoId",
+        //        "Fecha",
+        //        pago.PedidoId
+        //    );
+
+        //    ViewData["UsuarioId"] = new SelectList(
+        //        _context.Usuarios.Select(u => new
+        //        {
+        //            u.UsuarioId,
+        //            NombreCompleto = u.Nombre + " " + u.Apellido
+        //        }),
+        //        "UsuarioId",
+        //        "NombreCompleto",
+        //        pago.UsuarioId
+        //    );
+        //    return View(pago);
+        //}
 
         // GET: Pagoes/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -284,6 +380,18 @@ namespace AgropRamirez.Controllers
 
             try
             {
+                // ⚠️ 1️⃣ Verificar si ya existe un pago para este pedido
+                bool pagoExistente = await _context.Pagos.AnyAsync(p => p.PedidoId == pago.PedidoId);
+                if (pagoExistente)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        warning = true,
+                        mensaje = "⚠️ Este pedido ya cuenta con un pago registrado. No es posible registrar otro."
+                    });
+                }
+
                 // ✅ Buscar el pedido y verificar que exista
                 var pedido = await _context.Pedidos
                     .Include(p => p.PedidoDetalles)
@@ -334,6 +442,7 @@ namespace AgropRamirez.Controllers
                 }
 
                 // ✅ Si todo tiene stock, registrar el pago
+                pago.Estado = "Pagado";
                 _context.Pagos.Add(pago);
                 await _context.SaveChangesAsync();
 

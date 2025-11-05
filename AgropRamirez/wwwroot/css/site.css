@@ -153,10 +153,13 @@ main[role="main"] {
 
 /* ===== Estilos tarjetas crear, editar, detalles ... ===== */
 .custom-header {
-    background-color: #28a745; /* Verde */
+    /*background-color: #28a745;*/ /* Verde */
     padding: 1rem;
     border-radius: 0.5rem 0.5rem 0 0; /* Bordes superiores redondeados */
     text-align: center;
+
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    /*color: white;*/
 }
 
     .custom-header h4 {
@@ -209,6 +212,143 @@ main[role="main"] {
         color: #fff !important;
     }
 
+/*ver la imagen en la ficha de detalles*/
+.custom-header-details {
+    background: linear-gradient(135deg, #009688, #00796b);
+    color: white;
+}
+
+/* Imagen con efecto de zoom suave */
+.zoom-image {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+}
+
+    .zoom-image:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+
+/* Mantener proporción entre texto e imagen solo en la vista de detalles */
+.detalles-promocion .col-md-7 p {
+    line-height: 1.6;
+}
+
+/* Ajuste del texto para mantener proporción */
+.fs-5 li {
+    line-height: 1.6;
+}
+
+/* Asegura que la imagen crezca visualmente con el contenido */
+@media (min-width: 992px) {
+    .zoom-image {
+        max-height: calc(1.5em * 8); /* crece según el tamaño de texto */
+    }
+}
+/*Fin ver la imagen en la ficha de detalles*/
+
+/*Ver el avatar en la fichas de detalles,edit y demas*/
+.zoom-avatar {
+    font-size: 8em; /* 🔹 hace que el tamaño crezca con el texto */
+    color: #2e7d32;
+    transition: transform 0.3s ease-in-out, text-shadow 0.3s;
+}
+
+    .zoom-avatar:hover {
+        transform: scale(1.08);
+        text-shadow: 0 4px 15px rgba(46, 125, 50, 0.6);
+    }
+
+.form-label {
+    font-weight: 600;
+}
+
+/*@media (min-width: 992px) {
+    .zoom-avatar {
+        font-size: calc(1.5em * 8);*/ /* crece proporcionalmente al texto */
+    /*}
+}*/
+
+/*Para edit color de avatar*/
+.zoom-avatar-edit {
+    font-size: 8em;
+    color: #ff9900;
+    transition: transform 0.3s ease-in-out, text-shadow 0.3s;
+}
+    .zoom-avatar-edit:hover {
+        transform: scale(1.08);
+        text-shadow: 0 4px 15px rgba(255, 153, 0, 0.6);
+    }
+
+/*@media (min-width: 992px) {
+    .zoom-avatar-edit {
+        font-size: calc(1.5em * 8);*/ /* crece proporcionalmente al texto */
+    /*}
+}*/
+
+/*Para delete color de avatar*/
+
+.zoom-avatar-delete {
+    font-size: 8em;
+    color: #dc3545;
+    transition: transform 0.3s ease-in-out, text-shadow 0.3s;
+}
+
+    .zoom-avatar-delete:hover {
+        transform: scale(1.08);
+        text-shadow: 0 4px 15px rgba(220, 53, 69, 0.6);
+    }
+
+/*Para detalles color de avatar*/
+.zoom-avatar-details {
+    font-size: 8em;
+    color: #20c997;
+    transition: transform 0.3s ease-in-out, text-shadow 0.3s;
+}
+
+    .zoom-avatar-details:hover {
+        transform: scale(1.08);
+        text-shadow: 0 4px 15px rgba(32, 201, 151, 0.6);
+    }
+
+    /*AVATAR DE PRODUCTO*/
+.zoom-avatar-product {
+    border: 3px solid #2e7d32;
+    border-radius: 12px;
+    background-color: #f8f9fa;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease-in-out, text-shadow 0.3s;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    color: #2e7d32;
+}
+
+    .zoom-avatar-product i {
+        font-size: 3rem; /* 🔹 tamaño equilibrado del caballo */
+    }
+
+    .zoom-avatar-product:hover {
+        transform: scale(1.05);
+        text-shadow: 0 4px 15px rgba(46, 125, 50, 0.6);
+    }
+
+/* Escala suave para pantallas grandes */
+@media (min-width: 992px) {
+    .zoom-avatar-product {
+        width: 230px;
+        height: 230px;
+    }
+
+        .zoom-avatar-product i {
+            font-size: 3.5rem; /* 🔹 ligeramente más grande en escritorio */
+        }
+}
+
+
+
 /*<!-- card de productos -->*/
 
 .product-card {
@@ -236,7 +376,8 @@ main[role="main"] {
     padding: 0.4em 0.5em; /* opcional: más uniforme */
 }
 
-
+/*Promocion ESTILO*/
+    
 /*Promocion total-detalles*/
 .card.bg-light {
     border-left: 5px dashed #198754;
@@ -247,3 +388,32 @@ main[role="main"] {
         transform: scale(1.01);
         box-shadow: 0 0 10px rgba(25, 135, 84, 0.3);
     }
+
+/* 🔹 Imagen uniforme y clara */
+.promo-image-wrapper {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 0.5rem 0.5rem 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+}
+
+.promo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease-in-out;
+}
+
+.promo-card:hover .promo-image {
+    transform: scale(1.05);
+}
+
+/* 🔹 Hover general */
+.promo-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}

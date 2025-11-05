@@ -1,38 +1,89 @@
 ﻿@model AgropRamirez.Models.Carrito
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Carrito";
 }
 
-<h1>Edit</h1>
+<!-- Page Header Start -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Editar Carrito</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Carritos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Editar</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<!-- Page Header End -->
 
-<h4>Carrito</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="CarritoId" />
-            <div class="form-group">
-                <label asp-for="UsuarioId" class="control-label"></label>
-                <select asp-for="UsuarioId" class="form-control" asp-items="ViewBag.UsuarioId"></select>
-                <span asp-validation-for="UsuarioId" class="text-danger"></span>
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header custom-header-edit text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-pencil-square"></i> Editar Carrito
+                    </h4>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <input type="hidden" asp-for="CarritoId" />
+
+                        <div class="row align-items-center">
+                            <!-- Avatar -->
+                            <div class="col-md-4 text-center mb-4 mb-md-0">
+                                <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
+                                    <i class="bi bi-cart4 zoom-avatar-edit"></i>
+                                </div>
+                            </div>
+
+                            <!-- Formulario -->
+                            <div class="col-md-8">
+                                <!-- Usuario -->
+                                <div class="mb-3">
+                                    <label asp-for="UsuarioId" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-person-circle"></i></span>
+                                        <select asp-for="UsuarioId" class="form-select" asp-items="ViewBag.UsuarioId"></select>
+                                    </div>
+                                    <span asp-validation-for="UsuarioId" class="text-danger"></span>
+                                </div>
+
+                                <!-- Fecha de creación -->
+                                <div class="mb-3">
+                                    <label asp-for="FechaCreacion" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                                        <input asp-for="FechaCreacion" class="form-control" type="datetime-local" />
+                                    </div>
+                                    <span asp-validation-for="FechaCreacion" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left-circle"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-warning text-white px-4">
+                                <i class="bi bi-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="FechaCreacion" class="control-label"></label>
-                <input asp-for="FechaCreacion" class="form-control" />
-                <span asp-validation-for="FechaCreacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -91,21 +91,31 @@ namespace AgropRamirez.Controllers
                 return View(vm);
             }
 
+            // 🔹 Guardar imagen
             string? rutaImagen = null;
+
             if (vm.ImagenFile != null && vm.ImagenFile.Length > 0)
             {
-                var uploads = Path.Combine(_env.WebRootPath, "uploads", "usuarios");
+                // 📂 Carpeta de destino (misma que en Create)
+                var uploads = Path.Combine(_env.WebRootPath, "img", "usuarios");
                 Directory.CreateDirectory(uploads);
 
+                // 📸 Nombre único de archivo
                 var fileName = Guid.NewGuid().ToString("N") + Path.GetExtension(vm.ImagenFile.FileName);
-                var path = Path.Combine(uploads, fileName);
+                var fullPath = Path.Combine(uploads, fileName);
 
-                using (var stream = new FileStream(path, FileMode.Create))
+                // 💾 Guardar imagen físicamente
+                using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
                     await vm.ImagenFile.CopyToAsync(stream);
                 }
 
-                rutaImagen = $"/uploads/usuarios/{fileName}";
+                rutaImagen = $"/img/usuarios/{fileName}";
+            }
+            else
+            {
+                // 🖼️ Si no se sube imagen, asignar la imagen por defecto
+                rutaImagen = "/img/usuarios/usuarie.png";
             }
 
             var nuevoUsuario = new Usuario

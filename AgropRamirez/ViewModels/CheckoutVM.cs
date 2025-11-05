@@ -5,6 +5,15 @@ namespace AgropRamirez.ViewModels
 {
     public class CheckoutVM
     {
+        //Nuevo para crear desde adminin un carrtito de compras
+
+        public int UsuarioId { get; set; }
+        public string? NombreCliente { get; set; }
+        public int CarritoId { get; set; }
+        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        //
+
+
         public List<CheckoutItemVM> Items { get; set; } = new();
 
         // 🎁 Promociones (paquetes)

@@ -24,12 +24,12 @@
         <div class="col-lg-6 col-md-8">
 
             <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header custom-header text-center">
+                
+                <div class="card-header bg-success custom-header text-center">
                     <h4 class="mb-0"><i class="bi bi-person-plus"></i> Registrar Usuario</h4>
-                    <div class="mt-2">
-                        <i class="bi bi-people-fill fs-3"></i>
-                    </div>
+
                 </div>
+
                 <div class="card-body p-4">
                     <form asp-action="Create" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
@@ -157,6 +157,8 @@
                 }
                 reader.readAsDataURL(file);
             } else {
+                // Si no se selecciona imagen, vuelve a mostrar la imagen por defecto
+                preview.src = "/img/usuarios/usuarie.png";
                 preview.style.display = "none";
             }
         }

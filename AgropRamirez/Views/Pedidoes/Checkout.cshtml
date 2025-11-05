@@ -4,39 +4,78 @@
     ViewData["Title"] = "Confirmar Pedido";
 }
 
-<div class="container my-4">
+<!-- ======= ENCABEZADO ======= -->
+<div class="container-fluid page-header py-5 wow fadeIn" data-wow-delay="0.1s"
+     style="background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)), url('/img/Campos.jpg') center center/cover no-repeat;">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-3 animated slideInDown">
+            <i class="bi bi-clipboard-check"></i> Confirmar Pedido
+        </h1>
+        <p class="text-white-50 fs-5 animated fadeIn">
+            <i class="bi bi-cart4"></i> Revisa el resumen de los productos antes de confirmar tu pedido.
+        </p>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Resumen del Pedido</li>
+            </ol>
+        </nav>
+    </div>
+</div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Resumen de tu pedido</h2>
-        <a asp-controller="Productoes" asp-action="Index" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left-circle"></i> Seguir comprando
-        </a>
+<div class="container my-5">
+
+    <!-- 🧭 Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 fw-bold text-dark">
+            <i class="bi bi-receipt"></i> Resumen del Pedido
+            @if (!string.IsNullOrEmpty(Model.NombreCliente))
+            {
+                <span class="text-muted fs-5">— Cliente: <strong>@Model.NombreCliente</strong></span>
+            }
+        </h2>
+
+        @if (string.IsNullOrEmpty(Model.NombreCliente))
+        {
+            <!-- CLIENTE -->
+            <a asp-controller="Productoes" asp-action="Index" class="btn btn-outline-secondary fw-bold">
+                <i class="bi bi-arrow-left-circle"></i> Seguir comprando
+            </a>
+        }
+        else
+        {
+            <!-- ADMIN -->
+            <a asp-controller="Carritoes" asp-action="Index" class="btn btn-outline-dark fw-bold">
+                <i class="bi bi-arrow-left-circle"></i> Volver al listado
+            </a>
+        }
     </div>
 
+    <!-- ⚠️ Alerta de stock -->
     @if (Model.HayProblemasDeStock)
     {
-        <div class="alert alert-warning">
+        <div class="alert alert-warning shadow-sm">
             <i class="bi bi-exclamation-triangle"></i>
-            Algunos productos superan el stock disponible. Ajusta cantidades antes de confirmar.
+            Algunos productos superan el stock disponible. Ajusta las cantidades antes de confirmar el pedido.
         </div>
     }
 
-    <div class="card shadow-sm">
+    <!-- 🧾 Tabla de resumen -->
+    <div class="card shadow-lg border-0 rounded-3">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead class="table-light">
+                <table class="table align-middle table-hover">
+                    <thead class="table-dark text-warning">
                         <tr>
                             <th>Producto / Promoción</th>
                             <th class="text-center">Cant.</th>
-                            <th class="text-end">Precio</th>
-                            <th class="text-end">Subtotal</th>
+                            <th class="text-end">Precio (S/)</th>
+                            <th class="text-end">Subtotal (S/)</th>
                             <th class="text-center">Stock</th>
                         </tr>
                     </thead>
                     <tbody>
-
-                        <!-- 🟢 Productos normales -->
+                        <!-- 🟢 Productos -->
                         @foreach (var item in Model.Items)
                         {
                             var supera = item.Cantidad > item.StockDisponible;
@@ -46,6 +85,7 @@
                                         @if (!string.IsNullOrEmpty(item.Imagen))
                                         {
                                             <img src="@item.Imagen"
+                                                 alt="@item.Nombre"
                                                  style="width:48px;height:48px;object-fit:cover;border-radius:6px;" />
                                         }
                                         <span>@item.Nombre</span>
@@ -56,7 +96,7 @@
                                 <td class="text-end fw-semibold">S/ @item.Subtotal.ToString("F2")</td>
                                 <td class="text-center">
                                     @item.StockDisponible
-                                    @(supera ? " (excede)" : "")
+                                    @(supera ? " <span class='text-danger'>(excede)</span>" : "")
                                 </td>
                             </tr>
                         }
@@ -65,7 +105,9 @@
                         @if (Model.Promociones != null && Model.Promociones.Any())
                         {
                             <tr class="table-success">
-                                <th colspan="5" class="text-center">Promociones</th>
+                                <th colspan="5" class="text-center">
+                                    <i class="bi bi-gift"></i> Promociones
+                                </th>
                             </tr>
 
                             @foreach (var promo in Model.Promociones)
@@ -76,26 +118,29 @@
                                             @if (!string.IsNullOrEmpty(promo.Imagen))
                                             {
                                                 <img src="@promo.Imagen"
+                                                     alt="@promo.Nombre"
                                                      style="width:48px;height:48px;object-fit:cover;border-radius:6px;" />
                                             }
                                             <div>
                                                 <strong>@promo.Nombre</strong>
                                                 <div class="small text-muted">
-                                                    @string.Join(", ", promo.ProductosIncluidos)
+                                                    Incluye: @string.Join(", ", promo.ProductosIncluidos)
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="text-center">@promo.Cantidad</td>
                                     <td class="text-end">S/ @promo.PrecioTotal.ToString("F2")</td>
-                                    <td class="text-end fw-semibold">S/ @(promo.Cantidad* promo.PrecioTotal).ToString("F2")</td>
+                                    <td class="text-end fw-semibold">
+                                        S/ @(promo.Cantidad* promo.PrecioTotal).ToString("F2")
+                                    </td>
                                     <td class="text-center">—</td>
                                 </tr>
                             }
                         }
                     </tbody>
 
-                    <tfoot>
+                    <tfoot class="table-light">
                         <tr>
                             <td colspan="3" class="text-end fw-bold">Total</td>
                             <td class="text-end fw-bold">S/ @Model.Total.ToString("F2")</td>
@@ -105,18 +150,60 @@
                 </table>
             </div>
 
-            <div class="d-flex justify-content-between mt-3">
-                <a asp-controller="Carritoes" asp-action="MiCarrito" class="btn btn-outline-primary">
-                    <i class="bi bi-pencil-square"></i> Editar carrito
-                </a>
+            <!-- 🧭 Botones -->
+            <div class="d-flex justify-content-between mt-4">
+                @if (string.IsNullOrEmpty(Model.NombreCliente))
+                {
+                    <!-- CLIENTE -->
+                    <a asp-controller="Carritoes" asp-action="MiCarrito" class="btn btn-outline-warning fw-bold">
+                        <i class="bi bi-pencil-square"></i> Editar carrito
+                    </a>
 
-                <form asp-controller="Pedidoes" asp-action="ConfirmarPedido" method="post" class="m-0">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-success fw-bold" @(Model.HayProblemasDeStock ? "disabled" : "")>
-                        <i class="bi bi-check-circle"></i> Confirmar pedido
-                    </button>
-                </form>
+                    <form asp-controller="Pedidoes" asp-action="ConfirmarPedido" method="post" class="m-0">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-success fw-bold px-4"
+                                @(Model.HayProblemasDeStock ? "disabled" : "")>
+                            <i class="bi bi-check-circle"></i> Confirmar pedido
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <!-- ADMIN -->
+                    <a asp-controller="Carritoes" asp-action="Index" class="btn btn-outline-dark fw-bold">
+                        <i class="bi bi-arrow-left-circle"></i> Volver al listado
+                    </a>
+
+                    <form asp-controller="Pedidoes" asp-action="ConfirmarPedidoAdmin" method="post" class="m-0">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="carritoId" value="@Model.CarritoId" />
+                        <button type="submit" class="btn btn-dark fw-bold px-4"
+                                @(Model.HayProblemasDeStock ? "disabled" : "")>
+                            <i class="bi bi-check-circle"></i> Confirmar pedido del cliente
+                        </button>
+                    </form>
+                }
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('form[action*="ConfirmarPedido"]').forEach(form => {
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                Swal.fire({
+                    title: '¿Confirmar pedido?',
+                    text: 'Se generará el pedido y pasará al registro de pago.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, confirmar',
+                    cancelButtonText: 'Cancelar'
+                }).then(result => {
+                    if (result.isConfirmed) e.target.submit();
+                });
+            });
+        });
+    </script>
+}

@@ -1,5 +1,6 @@
 ﻿using AgropRamirez.Data;
 using AgropRamirez.Models;
+using AgropRamirez.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -50,9 +51,12 @@ namespace AgropRamirez.Controllers
             return View(carrito);
         }
 
+        [Authorize(Roles = "Administrador")]
         // GET: Carritoes/Create
         public IActionResult Create()
         {
+            var model = new CheckoutVM();
+
             ViewData["UsuarioId"] = new SelectList(
                 _context.Usuarios
                     .Select(u => new
@@ -60,10 +64,21 @@ namespace AgropRamirez.Controllers
                         u.UsuarioId,
                         NombreCompleto = u.Nombre + " " + u.Apellido
                     }),
-            "UsuarioId",
-            "NombreCompleto");
+                "UsuarioId",
+                "NombreCompleto"
+            );
 
-            return View();
+            var productos = _context.Productos
+                .Select(p => new
+                {
+                    p.ProductoId,
+                    p.Nombre,
+                    p.Precio,
+                    p.Stock
+                }).ToList();
+
+            ViewData["Productos"] = productos;
+            return View(model);
         }
 
         // POST: Carritoes/Create
@@ -71,29 +86,53 @@ namespace AgropRamirez.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CarritoId,UsuarioId,FechaCreacion")] Carrito carrito)
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> Create(CheckoutVM model)
         {
-            if (ModelState.IsValid)
+            if (model.Items == null || !model.Items.Any(i => i.Cantidad > 0))
             {
-                _context.Add(carrito);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("", "Debe agregar al menos un producto con cantidad válida.");
+                ViewData["UsuarioId"] = new SelectList(_context.Usuarios, "UsuarioId", "NombreCompleto", model.UsuarioId);
+                ViewData["Productos"] = _context.Productos
+                    .Select(p => new { p.ProductoId, p.Nombre, p.Precio, p.Stock })
+                    .ToList();
+                return View(model);
             }
 
-            ViewData["UsuarioId"] = new SelectList(
-                _context.Usuarios
-                    .Select(u => new
-                    {
-                        u.UsuarioId,
-                        NombreCompleto = u.Nombre + " " + u.Apellido
-                    }),
-            "UsuarioId",
-            "NombreCompleto");
+            var carrito = new Carrito
+            {
+                UsuarioId = model.UsuarioId,
+                FechaCreacion = model.FechaCreacion
+            };
+            _context.Carritos.Add(carrito);
+            await _context.SaveChangesAsync();
 
-            return View(carrito);
+            foreach (var item in model.Items.Where(i => i.Cantidad > 0))
+            {
+                var detalle = new CarritoDetalle
+                {
+                    CarritoId = carrito.CarritoId,
+                    ProductoId = item.ProductoId,
+                    Cantidad = item.Cantidad,
+                    PrecioUnitario = item.PrecioUnitario
+                };
+                _context.CarritoDetalles.Add(detalle);
+            }
+
+            await _context.SaveChangesAsync();
+
+            // 🔹 Si el usuario actual es admin, redirigir a CheckoutAdmin
+            if (User.IsInRole("Administrador"))
+            {
+                return RedirectToAction("CheckoutAdmin", "Pedidoes", new { carritoId = carrito.CarritoId });
+            }
+
+            // 🔹 Si es cliente normal, flujo normal
+            return RedirectToAction("Checkout", "Pedidoes", new { carritoId = carrito.CarritoId });
         }
 
         // GET: Carritoes/Edit/5
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -125,6 +164,7 @@ namespace AgropRamirez.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Edit(int id, [Bind("CarritoId,UsuarioId,FechaCreacion")] Carrito carrito)
         {
             if (id != carrito.CarritoId)
@@ -165,6 +205,7 @@ namespace AgropRamirez.Controllers
         }
 
         // GET: Carritoes/Delete/5
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -186,6 +227,7 @@ namespace AgropRamirez.Controllers
         // POST: Carritoes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var carrito = await _context.Carritos.FindAsync(id);
@@ -441,7 +483,8 @@ namespace AgropRamirez.Controllers
                 eliminado = cantidad <= 0,
                 subtotal = subtotalActual,
                 total = totalDespues,
-                mensaje
+                mensaje,
+                precioUnitario = detalle.PrecioUnitario
             });
         }
 
@@ -610,6 +653,55 @@ namespace AgropRamirez.Controllers
                 .SumAsync(cp => (decimal?)(cp.Cantidad * cp.PrecioTotal)) ?? 0;
 
             return totalProductos + totalPromociones;
+        }
+
+
+        //pedidos del carrito desde admin
+        [HttpPost]
+        public async Task<IActionResult> GenerarPedidoDesdeCarrito(int carritoId)
+        {
+            var carrito = await _context.Carritos   
+                .Include(c => c.CarritoDetalles)
+                    .ThenInclude(cd => cd.Producto)
+                .FirstOrDefaultAsync(c => c.CarritoId == carritoId);
+
+            if (carrito == null)
+                return Json(new { success = false, mensaje = "No se encontró el carrito." });
+
+            if (!carrito.CarritoDetalles.Any())
+                return Json(new { success = false, mensaje = "El carrito está vacío." });
+
+            // Calcular total
+            var total = carrito.CarritoDetalles.Sum(cd => cd.Cantidad * cd.PrecioUnitario);
+
+            // Crear pedido
+            var pedido = new Pedido
+            {
+                UsuarioId = carrito.UsuarioId,
+                FechaPedido = DateTime.Now,
+                Estado = "Pendiente de pago",
+                Total = total,
+                PedidoDetalles = carrito.CarritoDetalles.Select(cd => new PedidoDetalle
+                {
+                    ProductoId = cd.ProductoId,
+                    Cantidad = cd.Cantidad,
+                    PrecioUnitario = cd.PrecioUnitario
+                }).ToList()
+            };
+
+            _context.Pedidos.Add(pedido);
+            await _context.SaveChangesAsync();
+
+            // Vaciar carrito
+            _context.CarritoDetalles.RemoveRange(carrito.CarritoDetalles);
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                pedidoId = pedido.PedidoId,
+                mensaje = "Pedido generado correctamente para el cliente."
+            });
         }
 
     }

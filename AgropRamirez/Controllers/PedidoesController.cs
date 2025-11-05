@@ -1,6 +1,7 @@
 ﻿using AgropRamirez.Data;
 using AgropRamirez.Models;
 using AgropRamirez.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -195,51 +196,48 @@ namespace AgropRamirez.Controllers
 
         //ver pedidos cliente
         [HttpGet]
-        public async Task<IActionResult> Checkout()
+        public async Task<IActionResult> Checkout(int? carritoId)
         {
-            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value); 
 
             var carrito = await _context.Carritos
-                .Include(c => c.CarritoDetalles).ThenInclude(cd => cd.Producto)
-                .Include(c => c.CarritoPromociones).ThenInclude(cp => cp.Promocion)
-                .ThenInclude(p => p.Productos)
-                .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+                .Include(c => c.CarritoDetalles)
+                .ThenInclude(cd => cd.Producto)
+                .Include(c => c.CarritoPromociones)
+                .ThenInclude(cp => cp.Promocion).ThenInclude(p => p.Productos)
+                .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId); 
 
-            if (carrito == null ||
-                (!carrito.CarritoDetalles.Any() && !carrito.CarritoPromociones.Any()))
-            {
-                TempData["Warn"] = "Tu carrito está vacío.";
-                return RedirectToAction("MiCarrito", "Carritoes");
-            }
+            if (carrito == null || (!carrito.CarritoDetalles.Any() && 
+                !carrito.CarritoPromociones.Any())) 
 
+                { 
+                TempData["Warn"] = "Tu carrito está vacío."; 
+                return RedirectToAction("MiCarrito", "Carritoes"); 
+                }
             var vm = new CheckoutVM
             {
-                Items = carrito.CarritoDetalles.Select(cd => new CheckoutItemVM
-                {
-                    ProductoId = cd.ProductoId,
-                    Nombre = cd.Producto!.Nombre,
-                    Imagen = cd.Producto.Imagen,
-                    Cantidad = cd.Cantidad,
-                    PrecioUnitario = cd.PrecioUnitario,
-                    StockDisponible = cd.Producto.Stock
-                }).ToList(),
+                Items = carrito.CarritoDetalles.Select(cd => new CheckoutItemVM 
+                { 
+                    ProductoId = cd.ProductoId, 
+                    Nombre = cd.Producto!.Nombre, 
+                    Imagen = cd.Producto.Imagen, 
+                    Cantidad = cd.Cantidad, 
+                    PrecioUnitario = cd.PrecioUnitario, 
+                    StockDisponible = cd.Producto.Stock 
+                }).ToList(), 
 
                 // 🔹 Agregar promociones al resumen
-                Promociones = carrito.CarritoPromociones.Select(cp => new CheckoutPromocionVM
+                Promociones = carrito.CarritoPromociones.Select(cp => new CheckoutPromocionVM 
                 {
-                    PromocionId = cp.PromocionId,
-                    Nombre = cp.Promocion!.Nombre,
-                    Imagen = cp.Promocion.Imagen,
-                    Cantidad = cp.Cantidad,
-                    PrecioTotal = cp.PrecioTotal,
-                    ProductosIncluidos = cp.Promocion.Productos.Select(p => p.Nombre).ToList()
-                }).ToList()
-            };
-
-            
-
-            return View(vm);
-        }
+                    PromocionId = cp.PromocionId, 
+                    Nombre = cp.Promocion!.Nombre, 
+                    Imagen = cp.Promocion.Imagen, 
+                    Cantidad = cp.Cantidad, 
+                    PrecioTotal = cp.PrecioTotal, 
+                    ProductosIncluidos = cp.Promocion.Productos.Select(p => p.Nombre).ToList() }).ToList() 
+                }; 
+                return View(vm);
+            }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -254,30 +252,32 @@ namespace AgropRamirez.Controllers
                     .ThenInclude(cp => cp.Promocion)
                 .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
 
-            // ⚠️ Validar si el carrito está vacío
-            if (carrito == null ||
-                (!carrito.CarritoDetalles.Any() && !carrito.CarritoPromociones.Any()))
-            {
-                TempData["Warn"] = "Tu carrito está vacío.";
-                return RedirectToAction("MiCarrito", "Carritoes");
-            }
+            // ⚠️ Validar si existe y tiene contenido
+            if (carrito == null || 
+                (!carrito.CarritoDetalles.Any() && 
+                !carrito.CarritoPromociones.Any())) 
+                {   
+                    TempData["Warn"] = "Tu carrito está vacío."; 
+                    return RedirectToAction("MiCarrito", "Carritoes"); 
+                }
 
-            // ⚠️ Validar stock de productos
+            // ⚠️ Validar stock
             foreach (var item in carrito.CarritoDetalles)
             {
                 if (item.Cantidad > item.Producto.Stock)
                 {
-                    TempData["Warn"] = $"El producto {item.Producto.Nombre} no tiene suficiente stock.";
+                    TempData["Warn"] = $"El producto {item.Producto.Nombre} no tiene suficiente stock."; 
                     return RedirectToAction("Checkout");
                 }
             }
 
-            // 💰 Calcular total incluyendo promociones
+            // 💰 Calcular total
             var totalPedido =
                 carrito.CarritoDetalles.Sum(cd => cd.Cantidad * cd.PrecioUnitario)
                 + carrito.CarritoPromociones.Sum(cp => cp.Cantidad * cp.PrecioTotal);
 
-            // 🧾 Crear pedido (solo con productos)
+
+            // 🧾 Crear pedido
             var pedido = new Pedido
             {
                 UsuarioId = usuarioId,
@@ -292,12 +292,128 @@ namespace AgropRamirez.Controllers
                 }).ToList()
             };
 
-            // ✅ Guardar el pedido
             _context.Pedidos.Add(pedido);
             await _context.SaveChangesAsync();
 
             // 🚀 Redirigir al pago
-            return RedirectToAction("CreatePagoCliente", "Pagoes", new { pedidoId = pedido.PedidoId });
+            return RedirectToAction("CreatePagoCliente", "Pagoes", 
+                new { pedidoId = pedido.PedidoId });
+        }
+
+
+        //Metodos para el admin
+
+        [Authorize(Roles = "Administrador")]
+        [HttpGet]
+        public async Task<IActionResult> CheckoutAdmin(int carritoId)
+        {
+            var carrito = await _context.Carritos
+                .Include(c => c.CarritoDetalles).ThenInclude(cd => cd.Producto)
+                .Include(c => c.CarritoPromociones).ThenInclude(cp => cp.Promocion)
+                    .ThenInclude(p => p.Productos)
+                .Include(c => c.Usuario)
+                .FirstOrDefaultAsync(c => c.CarritoId == carritoId);
+
+            if (carrito == null)
+            {
+                TempData["Warn"] = "El carrito seleccionado no existe.";
+                return RedirectToAction("Index", "Carritoes");
+            }
+
+            if (!carrito.CarritoDetalles.Any() && !carrito.CarritoPromociones.Any())
+            {
+                TempData["Warn"] = "El carrito está vacío.";
+                return RedirectToAction("Index", "Carritoes");
+            }
+
+            var vm = new CheckoutVM
+            {
+                CarritoId = carrito.CarritoId,
+                UsuarioId = carrito.UsuarioId,
+                NombreCliente = carrito.Usuario.Nombre + " " + carrito.Usuario.Apellido,
+                Items = carrito.CarritoDetalles.Select(cd => new CheckoutItemVM
+                {
+                    ProductoId = cd.ProductoId,
+                    Nombre = cd.Producto!.Nombre,
+                    Imagen = cd.Producto.Imagen,
+                    Cantidad = cd.Cantidad,
+                    PrecioUnitario = cd.PrecioUnitario,
+                    StockDisponible = cd.Producto.Stock
+                }).ToList(),
+                Promociones = carrito.CarritoPromociones.Select(cp => new CheckoutPromocionVM
+                {
+                    PromocionId = cp.PromocionId,
+                    Nombre = cp.Promocion!.Nombre,
+                    Imagen = cp.Promocion.Imagen,
+                    Cantidad = cp.Cantidad,
+                    PrecioTotal = cp.PrecioTotal,
+                    ProductosIncluidos = cp.Promocion.Productos.Select(p => p.Nombre).ToList()
+                }).ToList()
+            };
+
+            return View("Checkout", vm); // 👉 usa una vista diferente o la misma adaptada
+        }
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmarPedidoAdmin(int carritoId)
+        {
+
+            // 👇 Log de diagnóstico
+            Console.WriteLine($"🛒 [DEBUG] Carrito recibido en ConfirmarPedidoAdmin: {carritoId}");
+
+            var carrito = await _context.Carritos
+                .Include(c => c.CarritoDetalles).ThenInclude(cd => cd.Producto)
+                .Include(c => c.CarritoPromociones).ThenInclude(cp => cp.Promocion)
+                .FirstOrDefaultAsync(c => c.CarritoId == carritoId);
+
+            if (carrito == null || (!carrito.CarritoDetalles.Any() && !carrito.CarritoPromociones.Any()))
+            {
+                Console.WriteLine("⚠️ [DEBUG] Carrito no encontrado o vacío.");
+                TempData["Warn"] = "El carrito está vacío o no existe.";
+                return RedirectToAction("Index", "Carritoes");
+            }
+
+            Console.WriteLine($"✅ [DEBUG] Carrito encontrado para el usuario: {carrito.UsuarioId}");
+
+            // ⚠️ Validar stock
+            foreach (var item in carrito.CarritoDetalles)
+            {
+                if (item.Cantidad > item.Producto.Stock)
+                {
+                    TempData["Warn"] = $"El producto {item.Producto.Nombre} no tiene suficiente stock.";
+                    return RedirectToAction("Checkout", new { carritoId });
+                }
+            }
+
+            // 💰 Calcular total
+            var totalPedido = carrito.CarritoDetalles.Sum(cd => cd.Cantidad * cd.PrecioUnitario)
+                              + carrito.CarritoPromociones.Sum(cp => cp.Cantidad * cp.PrecioTotal);
+
+            // 🧾 Crear pedido
+            var pedido = new Pedido
+            {
+                UsuarioId = carrito.UsuarioId, // 🔹 Pedido pertenece al cliente, no al admin
+                FechaPedido = DateTime.Now,
+                Estado = "Pendiente de pago",
+                Total = totalPedido,
+                PedidoDetalles = carrito.CarritoDetalles.Select(cd => new PedidoDetalle
+                {
+                    ProductoId = cd.ProductoId,
+                    Cantidad = cd.Cantidad,
+                    PrecioUnitario = cd.PrecioUnitario
+                }).ToList()
+            };
+
+            _context.Pedidos.Add(pedido);
+            await _context.SaveChangesAsync();
+
+            // 🚀 Redirigir al listado de pedidos del admin
+            TempData["Success"] = "✅ Pedido creado exitosamente para el cliente.";
+            return RedirectToAction("Create", "Pagoes", new { pedidoId = pedido.PedidoId });
+
+
         }
 
 

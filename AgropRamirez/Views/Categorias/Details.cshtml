@@ -18,42 +18,44 @@
 </div>
 <!-- Page Header End -->
 
-<div class="container my-5">
-    <div class="card shadow-lg border-0 rounded-3 p-4">
-        <div class="row g-4 align-items-center">
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header custom-header-details text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-journal-text"></i> Información de la Categoría
+                    </h4>
+                </div>
 
-            <!-- Avatar a la izquierda -->
-            <div class="col-md-3 text-center">
-                <i class="fas fa-horse" style="font-size:100px; color:#20c997;"></i>
-            </div>
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <!-- Avatar -->
+                        <div class="col-md-4 text-center mb-4 mb-md-0">
+                            <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
+                                <i class="fas fa-horse zoom-avatar-details"></i>
+                            </div>
+                        </div>
 
-            <!-- Datos a la derecha -->
-            <div class="col-md-9">
-                <h4 class="mb-3"><i class="bi bi-journal-text"></i> Información de la Categoría</h4>
-                <dl class="row">
-                    <dt class="col-sm-3">
-                        @Html.DisplayNameFor(model => model.Nombre)
-                    </dt>
-                    <dd class="col-sm-9">
-                        @Html.DisplayFor(model => model.Nombre)
-                    </dd>
+                        <!-- Información -->
+                        <div class="col-md-8">
+                            <div class="fs-5">
+                                <p><i class="bi bi-card-text me-2 text-success"></i><strong>Nombre:</strong> @Model.Nombre</p>
+                                <p><i class="bi bi-journal-text me-2 text-success"></i><strong>Descripción:</strong> @Model.Descripcion</p>
+                            </div>
 
-                    <dt class="col-sm-3">
-                        @Html.DisplayNameFor(model => model.Descripcion)
-                    </dt>
-                    <dd class="col-sm-9">
-                        @Html.DisplayFor(model => model.Descripcion)
-                    </dd>
-                </dl>
-
-                <!-- Botones -->
-                <div class="d-flex justify-content-start mt-3">
-                    <a asp-action="Edit" asp-route-id="@Model?.CategoriaId" class="btn btn-warning me-2">
-                        <i class="bi bi-pencil-square"></i> Editar
-                    </a>
-                    <a asp-action="Index" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left-circle"></i> Volver
-                    </a>
+                            <!-- Botones -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                    <i class="bi bi-arrow-left-circle"></i> Volver
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@Model?.CategoriaId" class="btn btn-success px-4 text-white">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -5,28 +5,65 @@
     ViewData["Title"] = "Iniciar sesión";
 }
 
-<h2 class="mb-4">Iniciar sesión</h2>
-
-<form asp-action="Login" method="post">
-    @Html.AntiForgeryToken()
-
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+<!-- Encabezado -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">Iniciar sesión</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Login</li>
+            </ol>
+        </nav>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label asp-for="Password" class="form-label"></label>
-        <input asp-for="Password" class="form-control" type="password" />
-        <span asp-validation-for="Password" class="text-danger"></span>
+<!-- Tarjeta de Login -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-4 wow fadeInUp" data-wow-delay="0.2s">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-circle display-3 text-success mb-3"></i>
+                        <h3 class="fw-bold text-dark">Bienvenido a Servicios agropecuarios Ramírez</h3>
+                        <p class="text-muted">Accede a tu cuenta para continuar</p>
+                    </div>
+
+                    <form asp-action="Login" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" placeholder="nombre@ejemplo.com" />
+                            <label asp-for="Email"></label>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Password" class="form-control" type="password" placeholder="********" />
+                            <label asp-for="Password"></label>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <input type="hidden" asp-for="ReturnUrl" />
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg rounded-pill">
+                                <i class="bi bi-box-arrow-in-right"></i> Entrar
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <a asp-action="Registrar" class="text-decoration-none text-success fw-semibold">
+                                ¿No tienes cuenta? Regístrate aquí
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <input type="hidden" asp-for="ReturnUrl" />
-
-    <button type="submit" class="btn btn-primary">Entrar</button>
-    <a asp-action="Registrar" class="btn btn-link">¿No tienes cuenta? Regístrate</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
