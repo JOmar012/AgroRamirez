@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AgropRamirez.Data;
+using AgropRamirez.Models;
+using AgropRamirez.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using AgropRamirez.Data;
-using AgropRamirez.Models;
-using Microsoft.AspNetCore.Hosting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AgropRamirez.Controllers
 {
@@ -23,10 +24,46 @@ namespace AgropRamirez.Controllers
         }
 
         // GET: Productoes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string busqueda, int? categoriaId, int pagina = 1)
         {
-            var agropecuariaContext = _context.Productos.Include(p => p.Categoria);
-            return View(await agropecuariaContext.ToListAsync());
+            int registrosPorPagina = 8;
+
+            var query = _context.Productos
+                .Include(p => p.Categoria)
+                .AsQueryable();
+
+            // Filtro por categoría
+            if (categoriaId.HasValue && categoriaId.Value > 0)
+            {
+                query = query.Where(p => p.CategoriaId == categoriaId.Value);
+            }
+
+            // Búsqueda solo por nombre
+            if (!string.IsNullOrEmpty(busqueda))
+            {
+                busqueda = busqueda.ToLower();
+                query = query.Where(p => p.Nombre.ToLower().Contains(busqueda));
+            }
+
+            int totalRegistros = await query.CountAsync();
+
+            var productos = await query
+                .OrderBy(p => p.Nombre)
+                .Skip((pagina - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToListAsync();
+
+            var vm = new ProductosIndexViewModel
+            {
+                Productos = productos,
+                PaginaActual = pagina,
+                TotalPaginas = (int)Math.Ceiling((double)totalRegistros / registrosPorPagina),
+                Busqueda = busqueda,
+                CategoriaId = categoriaId,
+                Categorias = await _context.Categorias.ToListAsync()
+            };
+
+            return View(vm);
         }
 
         // GET: Productoes/Details/5

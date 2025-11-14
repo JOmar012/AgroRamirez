@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace AgropRamirez.Models
 {
     public class Pago
     {
         public int PagoId { get; set; }
+
+        [Display(Name = "Fec. Pedido")]
         public int PedidoId { get; set; }
         public int UsuarioId { get; set; }
         public DateTime FechaPago { get; set; }

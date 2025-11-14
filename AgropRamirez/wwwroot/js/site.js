@@ -309,11 +309,32 @@
         });
     });
 
+
+    // =====================================
+    // 🔔 CARGAR NOTIFICACIONES DINÁMICAS
+    // =====================================
+    function cargarNotificaciones() {
+        $.ajax({
+            url: '/Notificacions/NotificacionesNavbar',
+            type: 'GET',
+            cache: false,
+            success: function (html) {
+                $('#navbarNotificacionesContainer').html(html);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error al cargar notificaciones:', error);
+            }
+        });
+    }
+
     // ============================
     // CARGAR CANTIDAD INICIAL
     // ============================
     $(document).ready(function () {
         actualizarCarrito();
+        cargarNotificaciones();
+
+        setInterval(cargarNotificaciones, 60000);    // Notificaciones cada minuto
     });
 
     //Añadir promocion al carrito
@@ -460,6 +481,10 @@
             });
         });
     });
+
+
+    
+
 
 })(jQuery);
 

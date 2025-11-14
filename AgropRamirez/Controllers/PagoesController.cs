@@ -446,6 +446,9 @@ namespace AgropRamirez.Controllers
                 _context.Pagos.Add(pago);
                 await _context.SaveChangesAsync();
 
+                // 🔔 Crear notificación al administrador
+                await NotificarAdministradorAsync(pago);
+
                 // ✅ Actualizar estado del pedido
                 pedido.Estado = "Pagado";
 
@@ -494,6 +497,32 @@ namespace AgropRamirez.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, mensaje = "Error al registrar el pago: " + ex.Message });
+            }
+        }
+
+        private async Task NotificarAdministradorAsync(Pago pago)
+        {
+            // 🔍 Buscar administrador (por rol o condición)
+            var admin = await _context.Usuarios.FirstOrDefaultAsync(u => u.Rol == "Administrador");
+
+            var usuario = await _context.Usuarios.FindAsync(pago.UsuarioId);
+
+            if (admin != null)
+            {
+                var nombreCliente = $"{usuario.Nombre} {usuario.Apellido}".Trim();
+
+                // 🔔 Crear la notificación
+                var notificacion = new Notificacion
+                {
+                    UsuarioId = admin.UsuarioId,
+                    Titulo = "Nuevo pago registrado",
+                    Mensaje = $"El cliente {nombreCliente} realizó un pago de S/. {pago.Monto:0.00} mediante {pago.MetodoPago}.",
+                    Fecha = DateTime.Now,
+                    Leido = false
+                };
+
+                _context.Notificaciones.Add(notificacion);
+                await _context.SaveChangesAsync();
             }
         }
     }

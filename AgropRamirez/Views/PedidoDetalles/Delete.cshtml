@@ -22,63 +22,74 @@
         <div class="col-lg-8 col-md-10 col-sm-12">
             <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
                 <!-- Header -->
-                <div class="card-header custom-header-delete text-center py-3">
-                    <h4 class="mb-0 text-white">
+                <div class="card-header custom-header-delete text-center py-3 bg-danger">
+                    <h4 class="mb-0 text-white fw-bold">
                         <i class="bi bi-trash"></i> Confirmar Eliminación
                     </h4>
                 </div>
 
+                <!-- Cuerpo -->
                 <div class="card-body p-4">
                     <div class="row align-items-center">
-                        <!-- Avatar / Ícono -->
-                        <div class="col-md-4 text-center mb-4 mb-md-0">
-                            <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
-                                <i class="bi bi-cart-x-fill zoom-avatar-delete text-danger"></i>
-                            </div>
+                        <!-- Avatar / Ícono --> 
+                        <div class="col-md-4 text-center mb-4 mb-md-0"> 
+                            <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center"> 
+                                <i class="bi bi-cart-x-fill zoom-avatar-delete text-danger"></i> 
+                            </div> 
                         </div>
 
-                        <!-- Contenido -->
+                        <!-- Contenido principal -->
                         <div class="col-md-8">
-                            <h5 class="text-danger mb-3">
-                                <i class="bi bi-exclamation-triangle-fill"></i> ¿Estás seguro de que deseas eliminar este detalle?
+                            <h5 class="text-danger fw-bold mb-3">
+                                <i class="bi bi-exclamation-triangle-fill"></i> Eliminación de detalle
                             </h5>
-                            <p class="text-muted">
-                                Esta acción eliminará el detalle de pedido seleccionado y <strong>no se podrá deshacer.</strong>
-                            </p>
 
-                            <div class="fs-5">
-                                <p><i class="bi bi-person-fill me-2 text-danger"></i><strong>Cliente:</strong> @($"{Model.Pedido.Usuario?.Nombre} {Model.Pedido.Usuario?.Apellido}")</p>
-                                <p><i class="bi bi-calendar3 me-2 text-danger"></i><strong>Fecha del Pedido:</strong> @Model.Pedido.FechaPedido.ToString("dd/MM/yyyy")</p>
+                            <div class="text-secondary mb-3" style="font-size: 1rem;">
+                                <p class="mb-2">
+                                    <i class="bi bi-person-fill me-2 text-danger"></i>
+                                    <strong>Cliente:</strong> @($"{Model.Pedido.Usuario?.Nombre} {Model.Pedido.Usuario?.Apellido}")
+                                </p>
+                                <p class="mb-0">
+                                    <i class="bi bi-calendar3 me-2 text-danger"></i>
+                                    <strong>Fecha del Pedido:</strong> @Model.Pedido.FechaPedido.ToString("dd/MM/yyyy")
+                                </p>
                             </div>
-                            
                         </div>
                     </div>
 
                     <hr />
 
                     <!-- Lista de productos -->
-                    <h5 class="fw-bold mb-3"><i class="bi bi-box-fill text-success"></i> Productos del Pedido</h5>
-                    
-                        <ul class="list-unstyled mb-0 ps-2">
-                            @foreach (var detalle in Model.Pedido.PedidoDetalles)
-                            {
-                                <li class="mb-2">
-                                    <i class="bi bi-dot text-success"></i>
-                                    <strong>@detalle.Producto.Nombre:</strong><br />
-                                    <span class="text-muted ps-3">
-                                        Cant. @detalle.Cantidad<br />
-                                        Precio Unitario: S/ @detalle.PrecioUnitario.ToString("0.00")<br />
-                                        Subtotal: <strong>S/ @((detalle.Cantidad * detalle.PrecioUnitario).ToString("0.00"))</strong>
-                                    </span>
-                                </li>
-                            }
-                        </ul>
-                    
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-box-fill text-success"></i> Productos del Pedido
+                    </h5>
+
+                    <ul class="list-unstyled mb-0 ps-2">
+                        @foreach (var detalle in Model.Pedido.PedidoDetalles)
+                        {
+                            <li class="mb-2">
+                                <i class="bi bi-dot text-success"></i>
+                                <strong>@detalle.Producto.Nombre</strong><br />
+                                <span class="text-muted ps-3" style="font-size: 0.95rem;">
+                                    Cant: @detalle.Cantidad<br />
+                                    Precio Unitario: S/ @detalle.PrecioUnitario.ToString("0.00")<br />
+                                    Subtotal: <strong>S/ @((detalle.Cantidad * detalle.PrecioUnitario).ToString("0.00"))</strong>
+                                </span>
+                            </li>
+                        }
+                    </ul>
 
                     <!-- Total general -->
-                    <div class="text-end fs-5 fw-bold">
+                    <div class="text-end fs-6 fw-bold mt-3">
                         <i class="bi bi-cash-coin text-success"></i> Total:
                         S/ @Model.Pedido.PedidoDetalles.Sum(p => p.Cantidad * p.PrecioUnitario).ToString("0.00")
+                    </div>
+
+                    <!-- Advertencia final -->
+                    <div class="alert alert-warning mt-4 mb-0 text-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        ¿Estás seguro de que deseas eliminar este detalle?<br />
+                        <span class="fw-semibold">Esta acción eliminará el detalle de pedido seleccionado y no se podrá deshacer.</span>
                     </div>
 
                     <!-- Formulario -->
@@ -97,4 +108,4 @@
             </div>
         </div>
     </div>
-</div>
+</div></div>

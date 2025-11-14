@@ -1,30 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AgropRamirez.Data;
+using AgropRamirez.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using AgropRamirez.Data;
-using AgropRamirez.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace AgropRamirez.Controllers
 {
+    [Authorize]
     public class NotificacionsController : Controller
     {
         private readonly AgropecuariaContext _context;
 
+
         public NotificacionsController(AgropecuariaContext context)
         {
             _context = context;
+
         }
 
         // GET: Notificacions
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool soloPropias = false)
         {
-            var agropecuariaContext = _context.Notificaciones.Include(n => n.Usuario);
-            return View(await agropecuariaContext.ToListAsync());
+            // ✅ Obtener el claim correcto
+            var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var rolClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            int.TryParse(usuarioIdClaim, out int usuarioId);
+            bool esAdmin = rolClaim == "Administrador";
+
+            // 🔹 Base de consulta
+            var notificaciones = _context.Notificaciones
+                .Include(n => n.Usuario)
+                .OrderByDescending(n => n.Fecha)
+                .AsQueryable();
+
+            // 🔸 Filtrar según el rol
+            if (!esAdmin)
+            {
+                // Cliente o Empleado → solo sus notificaciones
+                notificaciones = notificaciones.Where(n => n.UsuarioId == usuarioId);
+            }
+            else if (soloPropias)
+            {
+                // Admin activó el filtro “solo mis notificaciones”
+                notificaciones = notificaciones.Where(n => n.UsuarioId == usuarioId);
+            }
+
+            // 🔹 Datos para la vista
+            ViewBag.EsAdmin = esAdmin;
+            ViewBag.SoloPropias = soloPropias;
+
+            return View(await notificaciones.ToListAsync());
+        
         }
+
 
         // GET: Notificacions/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -37,9 +73,18 @@ namespace AgropRamirez.Controllers
             var notificacion = await _context.Notificaciones
                 .Include(n => n.Usuario)
                 .FirstOrDefaultAsync(m => m.NotificacionId == id);
+
             if (notificacion == null)
             {
                 return NotFound();
+            }
+
+            // ✅ Marcar como leída si no lo está
+            if (!notificacion.Leido)
+            {
+                notificacion.Leido = true;
+                _context.Update(notificacion);
+                await _context.SaveChangesAsync();
             }
 
             return View(notificacion);
@@ -186,6 +231,48 @@ namespace AgropRamirez.Controllers
         private bool NotificacionExists(int id)
         {
             return _context.Notificaciones.Any(e => e.NotificacionId == id);
+        }
+
+        //Notificacion en el nabvar
+        [Authorize]
+        public async Task<PartialViewResult> NotificacionesNavbar()
+        {
+            var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            // ✅ Si el usuario no está logueado o no hay claim, devolver lista vacía
+            if (string.IsNullOrEmpty(usuarioIdClaim))
+                return PartialView("_NotificacionesNavbar", new List<Notificacion>());
+
+            int.TryParse(usuarioIdClaim, out int usuarioId);
+
+            var notificaciones = await _context.Notificaciones
+                .Where(n => n.UsuarioId == usuarioId)
+                .OrderByDescending(n => n.Fecha)
+                .Take(5)
+                .ToListAsync();
+
+            // ✅ Si no hay registros, devolver lista vacía (no null)
+            return PartialView("_NotificacionesNavbar", notificaciones ?? new List<Notificacion>());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CambiarEstado(int id, bool leido)
+        {
+            var notificacion = await _context.Notificaciones.FindAsync(id);
+            if (notificacion == null)
+                return NotFound();
+
+            notificacion.Leido = leido;
+            _context.Update(notificacion);
+            await _context.SaveChangesAsync();
+
+            // Contar las no leídas
+            var usuarioId = notificacion.UsuarioId;
+            var noLeidas = await _context.Notificaciones
+                .Where(n => n.UsuarioId == usuarioId && !n.Leido)
+                .CountAsync();
+
+            return Json(new { success = true, noLeidas });
         }
     }
 }

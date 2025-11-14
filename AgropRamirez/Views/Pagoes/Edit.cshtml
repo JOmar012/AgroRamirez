@@ -17,91 +17,150 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-
-            <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header bg-warning text-dark text-center">
-                    <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Modificar Pago</h4>
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header custom-header-edit text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-pencil-square"></i> Editar Pago
+                    </h4>
                 </div>
+
                 <div class="card-body p-4">
-                    <form asp-action="Edit">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
                         <input type="hidden" asp-for="PagoId" />
 
-                        <!-- Pedido -->
-                        <div class="mb-3">
-                            <label asp-for="PedidoId" class="form-label"></label>
-                            <select asp-for="PedidoId" class="form-select" asp-items="ViewBag.PedidoId"></select>
-                            <span asp-validation-for="PedidoId" class="text-danger"></span>
-                        </div>
+                        <div class="row align-items-center">
 
-                        <!-- Usuario -->
-                        <div class="mb-3">
-                            <label asp-for="UsuarioId" class="form-label"></label>
-                            <select asp-for="UsuarioId" class="form-select" asp-items="ViewBag.UsuarioId"></select>
-                            <span asp-validation-for="UsuarioId" class="text-danger"></span>
-                        </div>
-
-                        <!-- Fecha de Pago -->
-                        <div class="mb-3">
-                            <label asp-for="FechaPago" class="form-label"></label>
-                            <input asp-for="FechaPago" class="form-control" type="date" />
-                            <span asp-validation-for="FechaPago" class="text-danger"></span>
-                        </div>
-
-                        <!-- Monto -->
-                        <div class="mb-3">
-                            <label asp-for="Monto" class="form-label"></label>
-                            <div class="input-group">
-                                <span class="input-group-text">S/</span>
-                                <input asp-for="Monto" class="form-control" type="number" step="0.01" />
+                            <!-- Ícono lateral -->
+                            <div class="col-md-4 text-center mb-4 mb-md-0">
+                                <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
+                                    <i class="bi bi-wallet2 zoom-avatar-edit"></i>
+                                </div>
                             </div>
-                            <span asp-validation-for="Monto" class="text-danger"></span>
-                        </div>
 
-                        <!-- Método de Pago -->
-                        <div class="mb-3">
-                            <label asp-for="MetodoPago" class="form-label"></label>
-                            <select asp-for="MetodoPago" class="form-select">
-                                <option value="">-- Seleccione un método --</option>
-                                <option value="Efectivo" selected="@(Model.MetodoPago == "Efectivo")">Efectivo</option>
-                                <option value="Yape" selected="@(Model.MetodoPago == "Yape")">Yape</option>
-                                <option value="Tarjeta" selected="@(Model.MetodoPago == "Tarjeta")">Tarjeta</option>
-                            </select>
-                            <span asp-validation-for="MetodoPago" class="text-danger"></span>
-                        </div>
+                            <!-- Formulario -->
+                            <div class="col-md-8">
 
-                        <!-- Estado -->
-                        <div class="mb-3">
-                            <label asp-for="Estado" class="form-label"></label>
-                            <select asp-for="Estado" class="form-select">
-                                <option value="">-- Seleccione estado --</option>
-                                <option value="Pendiente" selected="@(Model.Estado == "Pendiente")">Pendiente</option>
-                                <option value="Confirmado" selected="@(Model.Estado == "Confirmado")">Confirmado</option>
-                                <option value="Anulado" selected="@(Model.Estado == "Anulado")">Anulado</option>
-                            </select>
-                            <span asp-validation-for="Estado" class="text-danger"></span>
+                                <!-- Pedido -->
+                                <div class="mb-3">
+                                    <label asp-for="PedidoId" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-receipt"></i></span>
+                                        <select asp-for="PedidoId" class="form-select" asp-items="ViewBag.PedidoId"></select>
+                                    </div>
+                                    <span asp-validation-for="PedidoId" class="text-danger"></span>
+                                </div>
+
+                                <!-- Usuario -->
+                                <div class="mb-3">
+                                    <label asp-for="UsuarioId" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                                        <select asp-for="UsuarioId" class="form-select" asp-items="ViewBag.UsuarioId"></select>
+                                    </div>
+                                    <span asp-validation-for="UsuarioId" class="text-danger"></span>
+                                </div>
+
+                                <!-- Fecha de Pago -->
+                                <div class="mb-3">
+                                    <label asp-for="FechaPago" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
+                                        <input asp-for="FechaPago" class="form-control" type="datetime-local" />
+                                    </div>
+                                    <span asp-validation-for="FechaPago" class="text-danger"></span>
+                                </div>
+
+                                <!-- Monto -->
+                                <div class="mb-3">
+                                    <label asp-for="Monto" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-cash-stack"></i></span>
+                                        <input asp-for="Monto" class="form-control" type="number" step="0.01" />
+                                    </div>
+                                    <span asp-validation-for="Monto" class="text-danger"></span>
+                                </div>
+
+                                <!-- Método de Pago -->
+                                <div class="mb-3">
+                                    <label asp-for="MetodoPago" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
+                                        <select asp-for="MetodoPago" class="form-select" id="metodoPagoEdit" onchange="mostrarImagenYapeEdit()">
+                                            <option value="">-- Seleccione un método --</option>
+                                            <option value="Efectivo" selected="@(Model.MetodoPago == "Efectivo")">Efectivo</option>
+                                            <option value="Transferencia" selected="@(Model.MetodoPago == "Transferencia")">Transferencia</option>
+                                            <option value="Tarjeta" selected="@(Model.MetodoPago == "Tarjeta")">Tarjeta</option>
+                                            <option value="Yape / Plin" selected="@(Model.MetodoPago == "Yape / Plin")">Yape / Plin</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="MetodoPago" class="text-danger"></span>
+                                </div>
+
+                                <!-- Imagen Yape dinámica -->
+                                <div id="imagenYapeEditContainer" class="text-center mt-3" style="display:none;">
+                                    <img src="~/img/yape-plin.png" alt="Pago con Yape o Plin"
+                                         class="img-fluid rounded shadow-sm" style="max-width: 220px;">
+                                    <p class="text-muted mt-2">
+                                        Escanea el código QR con <strong>Yape</strong> o <strong>Plin</strong> para completar el pago.
+                                    </p>
+                                </div>
+
+                                <!-- Estado -->
+                                <div class="mb-3">
+                                    <label asp-for="Estado" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-check2-circle"></i></span>
+                                        <select asp-for="Estado" class="form-select">
+                                            <option value="Pagado" selected="@(Model.Estado == "Pagado")">Pagado</option>
+                                            <option value="Pendiente" selected="@(Model.Estado == "Pendiente")">Pendiente</option>
+                                            <option value="Anulado" selected="@(Model.Estado == "Anulado")">Anulado</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="Estado" class="text-danger"></span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Botones -->
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-outline-secondary">
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary px-4">
                                 <i class="bi bi-arrow-left-circle"></i> Volver
                             </a>
-                            <button type="submit" class="btn btn-warning text-white">
+                            <button type="submit" class="btn btn-warning text-white px-4">
                                 <i class="bi bi-save"></i> Guardar Cambios
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        function mostrarImagenYapeEdit() {
+            const select = document.getElementById("metodoPagoEdit");
+            const contenedor = document.getElementById("imagenYapeEditContainer");
+            if (select.value === "Yape / Plin") {
+                contenedor.style.display = "block";
+            } else {
+                contenedor.style.display = "none";
+            }
+        }
+
+        // Mostrar la imagen si el método Yape / Plin ya está seleccionado
+        document.addEventListener("DOMContentLoaded", function () {
+            mostrarImagenYapeEdit();
+        });
+    </script>
 }

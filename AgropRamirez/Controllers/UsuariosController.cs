@@ -25,9 +25,38 @@ namespace AgropRamirez.Controllers
         }
 
         // GET: Usuarios
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string rolFiltro, string busqueda)
         {
-            return View(await _context.Usuarios.ToListAsync());
+
+            // 1. Consulta base (IQueryable para agregar filtros dinámicos)
+            var query = _context.Usuarios.AsQueryable();
+
+            // 2. Filtro por Rol
+            if (!string.IsNullOrEmpty(rolFiltro))
+            {
+                query = query.Where(u => u.Rol == rolFiltro);
+            }
+
+            // 3. Filtro por nombre, apellido o DNI
+            if (!string.IsNullOrEmpty(busqueda))
+            {
+                busqueda = busqueda.ToLower();
+                query = query.Where(u =>
+                    u.Nombre.ToLower().Contains(busqueda) ||
+                    u.Apellido.ToLower().Contains(busqueda) ||
+                    u.Dni.ToLower().Contains(busqueda)
+                );
+            }
+
+            // 4. Enviar lista de roles a la vista (para el dropdown)
+            ViewBag.Roles = await _context.Usuarios
+                .Select(u => u.Rol)
+                .Distinct()
+                .ToListAsync();
+
+            return View(await query.ToListAsync());
+
+            //return View(await _context.Usuarios.ToListAsync());
         }
 
         // GET: Usuarios/Details/5

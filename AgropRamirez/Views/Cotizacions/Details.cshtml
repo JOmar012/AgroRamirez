@@ -17,44 +17,144 @@
     </div>
 </div>
 
-<div class="container">
+<!-- ✅ Detalles de Cotización - Estilo moderno tipo Pedido -->
+<div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
 
-            <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header bg-info text-white text-center">
-                    <h4 class="mb-0"><i class="bi bi-file-earmark-text"></i> Información de Cotización</h4>
+                <!-- Header -->
+                <div class="card-header custom-header-details text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-file-earmark-text"></i> Información de la cotización
+                    </h4>
                 </div>
+
+                <!-- Cuerpo -->
                 <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <!-- Avatar lateral -->
+                        <div class="col-md-4 text-center mb-4 mb-md-0">
+                            <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
+                                <i class="bi bi-receipt-cutoff text-info zoom-avatar-details" style="font-size: 6rem;"></i>
+                            </div>
+                        </div>
 
-                    <dl class="row">
-                        <dt class="col-sm-4">Fecha Cotización</dt>
-                        <dd class="col-sm-8">@Model.FechaCotizacion.ToString("dd/MM/yyyy")</dd>
+                        <!-- Información general -->
+                        <div class="col-md-8">
+                            <div class="fs-5 mb-3">
+                                <p>
+                                    <i class="bi bi-person-circle me-2 text-info"></i>
+                                    <strong>Cliente:</strong> @($"{Model.Usuario?.Nombre} {Model.Usuario?.Apellido}")
+                                </p>
+                                <p>
+                                    <i class="bi bi-calendar3 me-2 text-info"></i>
+                                    <strong>Fecha de Cotización:</strong> @Model.FechaCotizacion.ToString("dd/MM/yyyy")
+                                </p>
+                                <p>
+                                    <i class="bi bi-calendar-check me-2 text-info"></i>
+                                    <strong>Válido Hasta:</strong> @Model.ValidoHasta?.ToString("dd/MM/yyyy")
+                                </p>
+                                <p>
+                                    <i class="bi bi-cash-coin me-2 text-info"></i>
+                                    <strong>Total:</strong> S/ @Model.Total.ToString("0.00")
+                                </p>
+                                <p>
+                                    <i class="bi bi-info-circle me-2 text-info"></i>
+                                    <strong>Estado:</strong> @Model.Estado
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
-                        <dt class="col-sm-4">Válido Hasta</dt>
-                        <dd class="col-sm-8">@Model.ValidoHasta?.ToString("dd/MM/yyyy")</dd>
+                    <hr class="my-4" />
 
-                        <dt class="col-sm-4">Total</dt>
-                        <dd class="col-sm-8">S/ @Model.Total.ToString("0.00")</dd>
+                    <!-- Tabla de productos cotizados -->
+                    <h5 class="fw-bold text-secondary mb-3 text-center">
+                        <i class="bi bi-bag-check"></i> Productos Cotizados
+                    </h5>
 
-                        <dt class="col-sm-4">Estado</dt>
-                        <dd class="col-sm-8">@Model.Estado</dd>
-
-                        <dt class="col-sm-4">Usuario</dt>
-                        <dd class="col-sm-8">@($"{Model.Usuario?.Nombre} {Model.Usuario?.Apellido}")</dd>
-                    </dl>
-
+                    @if (Model.CotizacionDetalles != null && Model.CotizacionDetalles.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-custom align-middle text-center">
+                                <thead>
+                                    <tr>
+                                        <th><i class="bi bi-box-seam"></i> Producto</th>
+                                        <th><i class="bi bi-cash"></i> Precio Unitario</th>
+                                        <th><i class="bi bi-plus-slash-minus"></i> Cantidad</th>
+                                        <th><i class="bi bi-calculator"></i> Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var det in Model.CotizacionDetalles)
+                                    {
+                                        <tr>
+                                            <td class="text-start">
+                                                <i class="bi bi-caret-right-fill text-info"></i> @det.Producto?.Nombre
+                                            </td>
+                                            <td>S/ @det.PrecioUnitario.ToString("0.00")</td>
+                                            <td>@det.Cantidad</td>
+                                            <td class="fw-bold">S/ @((det.Cantidad * det.PrecioUnitario).ToString("0.00"))</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-secondary text-center mt-3">
+                            <i class="bi bi-info-circle"></i> No hay productos asociados a esta cotización.
+                        </div>
+                    }
                 </div>
-                <div class="card-footer text-center">
-                    <a asp-action="Edit" asp-route-id="@Model?.CotizacionId" class="btn btn-warning text-white me-2">
+
+                <!-- Footer -->
+                <div class="card-footer text-center py-3">
+                    <a asp-action="Edit" asp-route-id="@Model?.CotizacionId" class="btn btn-warning text-white px-4 me-2">
                         <i class="bi bi-pencil-square"></i> Editar
                     </a>
-                    <a asp-action="Index" class="btn btn-outline-secondary">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
                         <i class="bi bi-arrow-left-circle"></i> Volver
+                    </a>
+
+                    <!-- Botón PDF -->
+                    <a href="javascript:void(0);"
+                       class="btn btn-outline-primary px-4 btn-descargar"
+                       data-id="@Model.CotizacionId">
+                        <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
                     </a>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Función para descargar PDF
+        $(".btn-descargar").on("click", function () {
+            const id = $(this).data("id");
+            const data = { CotizacionId: id };
+            $.ajax({
+                url: '/Cotizacions/GenerarPdf',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                xhrFields: { responseType: 'blob' },
+                success: function (blob) {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Cotizacion_${Date.now()}.pdf`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                },
+                error: function () {
+                    alert("Ocurrió un error al generar el PDF. Intenta nuevamente.");
+                }
+            });
+        });
+    </script>
+}

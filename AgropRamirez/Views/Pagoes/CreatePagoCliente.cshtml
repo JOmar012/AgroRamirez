@@ -4,6 +4,27 @@
     ViewData["Title"] = "Confirmar Pago";
 }
 
+
+<!-- Encabezado -->
+<div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s"
+     style="background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/img/Campos.jpg') center center/cover no-repeat;">
+    <div class="container text-center py-5">
+        <h1 class="display-3 text-white mb-4 animated slideInDown">
+            <i class="bi bi-credit-card-2-front"></i> Nuevo Pago
+        </h1>
+        <nav aria-label="breadcrumb" class="animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item">
+                    <a asp-action="Index" class="text-decoration-none">Pagos</a>
+                </li>
+                <li class="breadcrumb-item active text-white" aria-current="page">Crear</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+
+
 <div class="container mt-5">
     <div class="card shadow-lg border-0">
         <div class="card-header bg-warning text-dark fw-bold">
@@ -31,16 +52,29 @@
                 </div>
 
                 <!-- 🔹 Método de pago -->
+                <!-- Método de Pago -->
                 <div class="mb-3">
-                    <label asp-for="MetodoPago" class="form-label fw-bold"></label>
-                    <select asp-for="MetodoPago" class="form-select" required>
-                        <option value="">-- Selecciona un método --</option>
-                        <option value="Yape">Yape</option>
-                        <option value="Plin">Plin</option>
-                        <option value="Transferencia Bancaria">Transferencia Bancaria</option>
-                        <option value="Efectivo">Efectivo</option>
-                    </select>
+                    <label asp-for="MetodoPago" class="form-label fw-semibold"></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
+                        <select asp-for="MetodoPago" class="form-select" id="metodoPagoSelect" onchange="mostrarImagenYape()">
+                            <option value="">-- Seleccione un método --</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Transferencia">Transferencia</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Yape / Plin">Yape / Plin</option>
+                        </select>
+                    </div>
                     <span asp-validation-for="MetodoPago" class="text-danger"></span>
+                </div>
+
+                <!-- Contenedor para imagen de Yape -->
+                <div id="imagenYapeContainer" class="text-center mt-3" style="display:none;">
+                    <img src="~/img/yape-plin.png" alt="Pago con Yape o Plin"
+                         class="img-fluid rounded shadow-sm" style="max-width: 220px;">
+                    <p class="text-muted mt-2">
+                        Escanea el código QR con tu app <strong>Yape</strong> o <strong>Plin</strong> para completar el pago.
+                    </p>
                 </div>
 
                 <!-- 🔹 Botones -->
@@ -60,6 +94,20 @@
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    @* yape *@
+    <script>
+        function mostrarImagenYape() {
+            const select = document.getElementById("metodoPagoSelect");
+            const contenedor = document.getElementById("imagenYapeContainer");
+
+            if (select.value === "Yape / Plin") {
+                contenedor.style.display = "block";
+            } else {
+                contenedor.style.display = "none";
+            }
+        }
+    </script>
 
     <script>
         $("#formPagoCliente").on("submit", function (e) {
@@ -105,4 +153,6 @@
             });
         });
     </script>
+
+   
 }

@@ -89,19 +89,20 @@
                     </h5>
                 </div>
 
-                @* Volver al listado *@
-                <div class="container mb-3">
-                    <a asp-action="Index" class="btn btn-outline-dark fw-bold">
-                        <i class="bi bi-arrow-left-circle"></i> Volver al listado
-                    </a>
+                <div class="container mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <!-- 🔹 Botón Volver -->
+                        <a asp-action="Index" class="btn btn-outline-warning fw-bold">
+                            <i class="bi bi-arrow-left-circle"></i> Volver al listado
+                        </a>
+
+                        <!-- 🔹 Botón Guardar -->
+                        <button type="submit" class="btn btn-dark fw-bold px-4">
+                            <i class="bi bi-save2-fill"></i> Guardar Carrito
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Botón guardar -->
-                <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-dark fw-bold px-4">
-                        <i class="bi bi-save2-fill"></i> Guardar Carrito
-                    </button>
-                </div>
             </form>
         </div>
     </div>

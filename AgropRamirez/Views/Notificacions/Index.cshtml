@@ -17,59 +17,148 @@
     </div>
 </div>
 
-<div class="container">
-    <p class="text-end">
-        <a asp-action="Create" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Nueva Notificación
-        </a>
-    </p>
+@{
+    bool esAdmin = ViewBag.EsAdmin ?? false;
+    bool soloPropias = ViewBag.SoloPropias ?? false;
+}
 
+<div class="container mb-5">
     <div class="card shadow-lg border-0 rounded-3">
         <div class="card-body">
-            <table class="table table-striped table-hover table-bordered align-middle">
-                <thead class="table-primary text-center">
-                    <tr>
-                        <th>Título</th>
-                        <th>Mensaje</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                        <th>Usuario</th>
-                        <th style="width: 180px;">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">
+                    <i class="bi bi-bell-fill"></i> Lista de Notificaciones
+                </h4>
+
+                <div>
+                    @if (esAdmin)
                     {
-                        <tr>
-                            <td>@item.Titulo</td>
-                            <td>@item.Mensaje</td>
-                            <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
-                            <td class="text-center">
-                                @if (item.Leido)
-                                {
-                                    <span class="badge bg-success">Leído</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">No leído</span>
-                                }
-                            </td>
-                            <td>@($"{item.Usuario?.Nombre} {item.Usuario?.Apellido}")</td>
-                            <td class="text-center">
-                                <a asp-action="Edit" asp-route-id="@item.NotificacionId" class="btn btn-sm btn-warning text-white me-1">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                                <a asp-action="Details" asp-route-id="@item.NotificacionId" class="btn btn-sm btn-info text-white me-1">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.NotificacionId" class="btn btn-sm btn-danger">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
+                        <a asp-action="Index" asp-route-soloPropias="@(soloPropias ? false : true)"
+                           class="btn btn-outline-primary me-2">
+                            <i class="bi bi-funnel"></i>
+                            @(soloPropias ? "Ver todas" : "Ver solo mis notificaciones")
+                        </a>
                     }
-                </tbody>
-            </table>
+
+                    <a asp-action="Create" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Nueva Notificación
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="table-responsive">
+                <table class="table table-custom align-middle text-center">
+                    <thead>
+                        <tr>
+                            <th><i class="bi bi-card-heading"></i> Título</th>
+                            <th><i class="bi bi-chat-left-dots-fill"></i> Mensaje</th>
+                            <th><i class="bi bi-calendar-date-fill"></i> Fecha</th>
+                            <th><i class="bi bi-envelope-check-fill"></i> Estado</th>
+                            <th><i class="bi bi-person-fill"></i> Usuario</th>
+                            <th><i class="bi bi-gear-fill"></i> Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            // 🔴 Si no está leída → clase "no-leida" (rojo suave)
+                            string rowClass = item.Leido ? "" : "bg-light-danger";
+
+                            <tr class="@rowClass">
+                                <td>@item.Titulo</td>
+                                <td>@item.Mensaje</td>
+                                <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-inline-flex align-items-center justify-content-center">
+                                        <input class="form-check-input toggle-leido" type="checkbox"
+                                               data-id="@item.NotificacionId"
+                                               @(item.Leido ? "checked" : "") />
+                                        <label class="form-check-label ms-2">
+                                            @if (item.Leido)
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle"></i> Leído
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-envelope"></i> No leído
+                                                </span>
+                                            }
+                                        </label>
+                                    </div>
+                                </td>
+
+                                <td>@($"{item.Usuario?.Nombre} {item.Usuario?.Apellido}")</td>
+                                <td>
+
+                                    @if (User.IsInRole("Administrador"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.NotificacionId"
+                                           class="btn-icon btn-edit" title="Editar">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    }
+                                    
+                                    <a asp-action="Details" asp-route-id="@item.NotificacionId"
+                                       class="btn-icon btn-details" title="Detalles">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.NotificacionId"
+                                       class="btn-icon btn-delete" title="Eliminar">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".toggle-leido").change(function () {
+                const id = $(this).data("id");
+                const leido = $(this).is(":checked");
+
+                $.ajax({
+                    url: '/Notificacions/CambiarEstado',
+                    type: 'POST',
+                    data: { id: id, leido: leido },
+                    success: function (res) {
+                        if (res.success) {
+                            // ✅ Actualizar el contador del navbar
+                            const $contador = $("#notificacionesCount");
+                            if (res.noLeidas > 0) {
+                                $contador.text(res.noLeidas).show();
+                            } else {
+                                $contador.text("0").hide();
+                            }
+
+                            // ✅ Actualizar el texto visual en la tabla
+                            const fila = $(`[data-id='${id}']`).closest('tr');
+                            if (leido) {
+                                fila.find('.badge')
+                                    .removeClass('bg-danger')
+                                    .addClass('bg-success')
+                                    .html('<i class="bi bi-check-circle"></i> Leído');
+                            } else {
+                                fila.find('.badge')
+                                    .removeClass('bg-success')
+                                    .addClass('bg-danger')
+                                    .html('<i class="bi bi-envelope"></i> No leído');
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

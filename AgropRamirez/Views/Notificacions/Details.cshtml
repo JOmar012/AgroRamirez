@@ -17,53 +17,76 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-
-            <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header bg-info text-white text-center">
-                    <h4 class="mb-0"><i class="bi bi-bell"></i> Información de Notificación</h4>
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header custom-header-details text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-bell-fill"></i> Información de la Notificación
+                    </h4>
                 </div>
+
                 <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <!-- Ícono lateral -->
+                        <div class="col-md-4 text-center mb-4 mb-md-0">
+                            <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
+                                <i class="bi bi-bell zoom-avatar-details text-info"></i>
+                            </div>
+                        </div>
 
-                    <dl class="row">
-                        <dt class="col-sm-4">Título</dt>
-                        <dd class="col-sm-8">@Model.Titulo</dd>
+                        <!-- Información -->
+                        <div class="col-md-8">
+                            <div class="fs-5">
+                                <p>
+                                    <i class="bi bi-card-text me-2 text-success"></i>
+                                    <strong>Título:</strong> @Model.Titulo
+                                </p>
+                                <p>
+                                    <i class="bi bi-chat-left-dots me-2 text-success"></i>
+                                    <strong>Mensaje:</strong> @Model.Mensaje
+                                </p>
+                                <p>
+                                    <i class="bi bi-calendar-date me-2 text-success"></i>
+                                    <strong>Fecha:</strong> @Model.Fecha.ToString("dd/MM/yyyy")
+                                </p>
+                                <p>
+                                    <i class="bi bi-envelope-check-fill me-2 text-success"></i>
+                                    <strong>Estado:</strong>
+                                    @if (Model.Leido)
+                                    {
+                                        <span class="badge bg-success">Leído</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">No leído</span>
+                                    }
+                                </p>
+                                <p>
+                                    <i class="bi bi-person-fill me-2 text-success"></i>
+                                    <strong>Usuario:</strong> @($"{Model.Usuario?.Nombre} {Model.Usuario?.Apellido}")
+                                </p>
+                            </div>
 
-                        <dt class="col-sm-4">Mensaje</dt>
-                        <dd class="col-sm-8">@Model.Mensaje</dd>
-
-                        <dt class="col-sm-4">Fecha</dt>
-                        <dd class="col-sm-8">@Model.Fecha.ToString("dd/MM/yyyy")</dd>
-
-                        <dt class="col-sm-4">Estado</dt>
-                        <dd class="col-sm-8">
-                            @if (Model.Leido)
-                            {
-                                <span class="badge bg-success">Leído</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">No leído</span>
-                            }
-                        </dd>
-
-                        <dt class="col-sm-4">Usuario</dt>
-                        <dd class="col-sm-8">@($"{Model.Usuario?.Nombre} {Model.Usuario?.Apellido}")</dd>
-                    </dl>
-
-                </div>
-                <div class="card-footer text-center">
-                    <a asp-action="Edit" asp-route-id="@Model?.NotificacionId" class="btn btn-warning text-white me-2">
-                        <i class="bi bi-pencil-square"></i> Editar
-                    </a>
-                    <a asp-action="Index" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left-circle"></i> Volver
-                    </a>
+                            <!-- Botones -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="javascript:history.back()" class="btn btn-outline-secondary px-4">
+                                    <i class="bi bi-arrow-left-circle"></i> Volver
+                                </a>
+                                
+                                @if (User.Identity.IsAuthenticated && User.IsInRole("Administrador"))
+                                {
+                                    <a asp-action="Edit" asp-route-id="@Model?.NotificacionId" class="btn btn-success px-4 text-white">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

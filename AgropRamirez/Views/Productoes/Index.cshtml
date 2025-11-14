@@ -1,4 +1,5 @@
-﻿@model IEnumerable<AgropRamirez.Models.Producto>
+﻿@* @model IEnumerable<AgropRamirez.Models.Producto> *@
+@model AgropRamirez.ViewModels.ProductosIndexViewModel
 
 @{
     ViewData["Title"] = "Productos";
@@ -23,156 +24,208 @@
     </div>
 </div>
 
-<div class="container mb-5">
-    <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+
+<!-- Header fuera del card -->
+<div class="container mb-3">
+    <div class="d-flex justify-content-between align-items-center">
+        <!-- Título centrado -->
+        <h2 class="mb-0 d-flex align-items-center"
+            style="
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            ">
+            <i class="bi bi-box-seam me-2"></i> Lista de Productos
+        </h2>
+
         @if (User.IsInRole("Administrador"))
         {
-            <a asp-action="Create" class="btn btn-warning text-dark">
-                <i class="bi bi-plus-circle-fill"></i> Nuevo Producto
+            <a asp-action="Create" class="btn btn-success d-flex align-items-center">
+            <i class="bi bi-plus-circle me-1"></i> Nuevo Producto
             </a>
         }
-        <h3 class="mb-0 text-center flex-grow-1">
-            <i class="bi bi-box-seam"></i> Catálogo de Productos
-        </h3>
-        <div style="width:80px"></div> <!-- espacio para balancear -->
+        
     </div>
+</div>
 
-    <!-- 🔹 Token antiforgery disponible para todo el JS -->
-    @Html.AntiForgeryToken()
+<div class="container mb-5">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body">
 
-    <!-- Grid -->
-    <div class="row justify-content-center g-4 mt-3">
-        @foreach (var item in Model)
-        {
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card h-100 shadow-lg border-0 rounded-3 product-card">
+            
 
-                    <!-- Imagen con etiqueta -->
-                    <a asp-action="Details" asp-route-id="@item.ProductoId" class="text-decoration-none text-dark">
-                        <div class="position-relative bg-light" style="height:200px; overflow:hidden; border-radius:0.5rem 0.5rem 0 0;">
-                            <img src="@item.Imagen" alt="@item.Nombre"
-                                 class="w-100 h-100"
-                                 style="object-fit:cover;" />
+           <!-- 🔎 Buscador por categoría y nombre -->
+            <form method="get" class="mb-4">
+                <div class="row g-3 bg-light p-3 rounded-3 border">
 
-                            <!-- Etiqueta amarilla -->
-                            <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2">
-                                @item.Categoria?.Nombre
-                            </span>
-                        </div>
-                    </a>
+            <!-- Select Categoría -->
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">
+                    <i class="bi bi-filter"></i> Filtrar por categoría
+                </label>
+                <select name="categoriaId" class="form-select" id="categoriaSelect">
+                    <option value="">Todas las categorías</option>
+                    @foreach (var cat in Model.Categorias)
+                    {
+                                <option value="@cat.CategoriaId"
+                                        selected="@(Model.CategoriaId == cat.CategoriaId)">
+                                    @cat.Nombre
+                                </option>
+                    }
+                </select>
+            </div>
 
-                    <!-- Body -->
-                    <div class="card-body d-flex flex-column text-start flex-grow-1">
+                    
 
-                        <!-- Nombre del producto -->
-                        <h5 class="card-title fw-bold text-center text-dark" style="font-size:1.1rem;">
-                            @item.Nombre
-                        </h5>
+            <!-- Búsqueda por nombre -->
+            <div class="col-md-5">
+                <label class="form-label fw-semibold">
+                    <i class="bi bi-search"></i> Buscar por nombre
+                </label>
+                <input type="text" name="busqueda"
+                       value="@Model.Busqueda"
+                       class="form-control"
+                       placeholder="Ej: Semilla, fertilizante, alimento..." />
+            </div>
 
-                        <!-- Descripción -->
-                        <p class="card-text text-muted flex-grow-1 mb-2" style="font-size:0.9rem; min-height:40px;">
-                            @(item.Descripcion?.Length > 60 ? item.Descripcion.Substring(0, 60) + "..." : item.Descripcion)
-                        </p>
+            <!-- Botones -->
+            <div class="col-md-3 d-flex gap-2 align-items-end">
+                <button class="btn btn-primary flex-fill" type="submit">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
 
-                        <!-- Precio, stock y botón -->
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <div>
-                                <p class="fw-bold mb-1 text-success">S/ @item.Precio</p>
-                                <small class="text-danger fw-semibold">Stock: @item.Stock</small>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary flex-fill">
+                    Limpiar
+                </a>
+            </div>
+
+        </div>
+</form>
+
+            <!-- GRID: 4 columnas × 2 filas = 8 productos -->
+            <div class="row justify-content-center g-4 mt-3">
+                @foreach (var item in Model.Productos)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                        <div class="card h-100 shadow-lg border-0 rounded-3 product-card">
+
+                            <!-- Imagen -->
+                            <a asp-action="Details" asp-route-id="@item.ProductoId" class="text-decoration-none text-dark">
+                                <div class="position-relative bg-light" style="height:200px; overflow:hidden;">
+                                    <img src="@item.Imagen" alt="@item.Nombre"
+                                         class="w-100 h-100"
+                                         style="object-fit:cover;" />
+
+                                    <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2">
+                                        @item.Categoria?.Nombre
+                                    </span>
+                                </div>
+                            </a>
+
+                            <!-- Body -->
+                            <div class="card-body d-flex flex-column text-start flex-grow-1">
+                                <h5 class="card-title fw-bold text-center text-dark" style="font-size:1.1rem;">
+                                    @item.Nombre
+                                </h5>
+
+                                <p class="card-text text-muted flex-grow-1 mb-2" style="font-size:0.9rem; min-height:40px;">
+                                    @(item.Descripcion?.Length > 60
+                                                                    ? item.Descripcion.Substring(0, 60) + "..."
+                                                                    : item.Descripcion)
+                            </p>
+
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <div>
+                                        <p class="fw-bold mb-1 text-success">S/ @item.Precio</p>
+                                        <small class="text-danger fw-semibold">Stock: @item.Stock</small>
+                                    </div>
+
+                                    @* Botón dependiendo del rol *@
+                                @if (!User.Identity.IsAuthenticated)
+                                    {
+                                        <button type="button"
+                                                class="btn btn-warning text-dark fw-bold add-to-cart"
+                                                data-id="@item.ProductoId"
+                                                data-cantidad="1"
+                                                data-authenticated="False"
+                                                data-admin="False">
+                                            <i class="bi bi-box-arrow-in-right"></i> Comprar
+                                        </button>
+                                    }
+                                    else if (User.IsInRole("Administrador"))
+                                    {
+                                        <button type="button"
+                                                class="btn btn-warning text-dark fw-bold add-to-cart"
+                                                data-id="@item.ProductoId"
+                                                data-cantidad="1"
+                                                data-authenticated="True"
+                                                data-admin="True">
+                                            <i class="bi bi-gear-fill"></i> Crear carrito
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button"
+                                                class="btn btn-warning text-dark fw-bold add-to-cart"
+                                                data-id="@item.ProductoId"
+                                                data-cantidad="1"
+                                                data-authenticated="True"
+                                                data-admin="False">
+                                            <i class="bi bi-cart-plus"></i> Agregar
+                                        </button>
+                                    }
+                                </div>
                             </div>
 
-                            <!-- Botón agregar al carrito -->
-                            @if (!User.Identity.IsAuthenticated)
+                            <!-- Footer administrador -->
+                            @if (User.IsInRole("Administrador"))
                             {
-                                <!-- No logueado -->
-                                <button type="button"
-                                        class="btn btn-warning text-dark fw-bold add-to-cart"
-                                        data-id="@item.ProductoId"
-                                        data-cantidad="1"
-                                        data-authenticated="False"
-                                        data-admin="False"
-                                        style="border-radius:8px; font-size:0.9rem;">
-                                    <i class="bi bi-box-arrow-in-right"></i> Comprar
-                                </button>
+                                <div class="card-footer bg-white border-0 d-flex justify-content-center gap-2 mt-auto">
+                                    <a asp-action="Details" asp-route-id="@item.ProductoId" class="btn btn-outline-info btn-sm"><i class="bi bi-eye-fill"></i></a>
+                                    <a asp-action="Edit" asp-route-id="@item.ProductoId" class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil-square"></i></a>
+                                    <a asp-action="Delete" asp-route-id="@item.ProductoId" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash-fill"></i></a>
+                                </div>
                             }
-                            else if (User.IsInRole("Administrador"))
-                            {
-                                <!-- Administrador -->
-                                <button type="button"
-                                        class="btn btn-warning text-dark fw-bold add-to-cart"
-                                        data-id="@item.ProductoId"
-                                        data-cantidad="1"
-                                        data-authenticated="True"
-                                        data-admin="True"
-                                        style="border-radius:8px; font-size:0.9rem;">
-                                    <i class="bi bi-gear-fill"></i> Ir a crear carrito
-                                </button>
-                            }
-                            else
-                            {
-                                <!-- Cliente -->
-                                <button type="button"
-                                        class="btn btn-warning text-dark fw-bold add-to-cart"
-                                        data-id="@item.ProductoId"
-                                        data-cantidad="1"
-                                        data-authenticated="True"
-                                        data-admin="False"
-                                        style="border-radius:8px; font-size:0.9rem;">
-                                    <i class="bi bi-cart-plus"></i> Agregar
-                                </button>
-                            }
-
                         </div>
                     </div>
+                }
+            </div>
 
-                    <!-- Botón agregar al carrito -->
-                    @* <form asp-controller="Carritoes" asp-action="Agregar" method="post" class="d-inline">
-                        <input type="hidden" name="productoId" value="@item.ProductoId" />
-                        <input type="hidden" name="cantidad" value="1" />
-                        <button class="btn btn-warning text-dark fw-bold add-to-cart"
-                                data-id="@item.ProductoId" data-cantidad="1">
-                            <i class="bi bi-cart-plus"></i> Agregar
-                        </button>
-                    </form> *@
+            <!-- PAGINACIÓN -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
 
-                   @*  Cantidad dinamico *@
+                    <!-- Botón Anterior -->
+                    <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           href="@Url.Action("Index", new { pagina = Model.PaginaActual - 1, categoriaId = Model.CategoriaId, busqueda = Model.Busqueda })">
+                            <i class="bi bi-chevron-left"></i> Anterior
+                        </a>
+                    </li>
 
-                    <!-- Controles de cantidad -->
-                    @* <div class="d-flex justify-content-center align-items-center mb-2">
-                        <button type="button" class="btn btn-outline-primary btn-sm btn-restar" data-id="@item.ProductoId">−</button>
-                        <input type="text" class="form-control text-center cantidad-input"
-                               value="1" data-id="@item.ProductoId" style="max-width:60px;" readonly />
-                        <button type="button" class="btn btn-outline-primary btn-sm btn-sumar" data-id="@item.ProductoId">+</button>
-                    </div> *@
-
-                    <!-- Botón agregar al carrito -->
-                   @*  <button type="button"
-                            class="btn btn-warning text-dark fw-bold add-to-cart"
-                            data-id="@item.ProductoId" data-cantidad="1">
-                        <i class="bi bi-cart-plus"></i> Agregar
-                    </button> *@
-
-
-                    <!-- Footer -->
-                    @if (User.IsInRole("Administrador"))
+                    <!-- Números -->
+                    @for (int i = 1; i <= Model.TotalPaginas; i++)
                     {
-                        <div class="card-footer bg-white border-0 d-flex justify-content-center gap-2 mt-auto">
-                            <a asp-action="Details" asp-route-id="@item.ProductoId" class="btn btn-outline-info btn-sm" title="Detalles">
-                                <i class="bi bi-eye-fill"></i>
+                        <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                            <a class="page-link"
+                               href="@Url.Action("Index", new { pagina = i, categoriaId = Model.CategoriaId, busqueda = Model.Busqueda })">
+                                @i
                             </a>
-                            <a asp-action="Edit" asp-route-id="@item.ProductoId" class="btn btn-outline-warning btn-sm" title="Editar">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@item.ProductoId" class="btn btn-outline-danger btn-sm" title="Eliminar">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </div>
+                        </li>
                     }
 
-                </div>
-            </div>
-                }
+                    <!-- Botón Siguiente -->
+                    <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                        <a class="page-link"
+                           href="@Url.Action("Index", new { pagina = Model.PaginaActual + 1, categoriaId = Model.CategoriaId, busqueda = Model.Busqueda })">
+                            Siguiente <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+
+        </div>
     </div>
 </div>
 
@@ -202,5 +255,24 @@
         });
     </script>
 
+   @*  //busqueda instantanea *@
+
+    <script>
+        // Auto-Búsqueda por categoría
+        document.getElementById("categoriaSelect").addEventListener("change", function () {
+            this.form.submit();
+        });
+
+        // Auto-búsqueda por nombre (busca en la BD)
+        let delayTimer;
+        const input = document.querySelector("input[name='busqueda']");
+
+        input.addEventListener("keyup", function () {
+            clearTimeout(delayTimer);
+            delayTimer = setTimeout(() => {
+                this.form.submit(); // 🔥 Se envía al servidor (controlador)
+            }, 400); // espera 0.4s para no recargar demasiado
+        });
+    </script>
     
 }

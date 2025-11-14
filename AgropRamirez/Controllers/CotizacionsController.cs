@@ -52,6 +52,8 @@ namespace AgropRamirez.Controllers
 
             var cotizacion = await _context.Cotizaciones
                 .Include(c => c.Usuario)
+                .Include(c => c.CotizacionDetalles)               // 🔹 Incluye los detalles
+                        .ThenInclude(d => d.Producto)
                 .FirstOrDefaultAsync(m => m.CotizacionId == id);
             if (cotizacion == null)
             {
@@ -134,7 +136,14 @@ namespace AgropRamirez.Controllers
             { // Si es cliente, toma el ID del usuario logueado
               userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value); 
             } 
-            vm.Cotizacion.UsuarioId = userId; 
+            vm.Cotizacion.UsuarioId = userId;
+
+            // ✅ Normalizar precios antes de guardar
+            foreach (var det in vm.Detalles)
+            {
+                det.PrecioUnitario = det.PrecioUnitario / 100; // 🔥 CORRECCIÓN CLAVE
+            }
+
             vm.Cotizacion.Total = vm.Detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
             
             if (ModelState.IsValid) 
@@ -244,6 +253,8 @@ namespace AgropRamirez.Controllers
 
             var cotizacion = await _context.Cotizaciones
                 .Include(c => c.Usuario)
+                .Include(c => c.CotizacionDetalles)             // 🔹 Incluye los detalles
+                        .ThenInclude(d => d.Producto)
                 .FirstOrDefaultAsync(m => m.CotizacionId == id);
             if (cotizacion == null)
             {

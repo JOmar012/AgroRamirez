@@ -337,7 +337,7 @@ namespace AgropRamirez.Controllers
                     Nombre = cd.Producto!.Nombre,
                     Imagen = cd.Producto.Imagen,
                     Cantidad = cd.Cantidad,
-                    PrecioUnitario = cd.PrecioUnitario,
+                    PrecioUnitario = cd.PrecioUnitario / 100, /*✅ divide entre 100*/
                     StockDisponible = cd.Producto.Stock
                 }).ToList(),
                 Promociones = carrito.CarritoPromociones.Select(cp => new CheckoutPromocionVM
@@ -346,10 +346,22 @@ namespace AgropRamirez.Controllers
                     Nombre = cp.Promocion!.Nombre,
                     Imagen = cp.Promocion.Imagen,
                     Cantidad = cp.Cantidad,
-                    PrecioTotal = cp.PrecioTotal,
+                    PrecioTotal = cp.PrecioTotal / 100, // ✅ divide entre 100 también aquí,
                     ProductosIncluidos = cp.Promocion.Productos.Select(p => p.Nombre).ToList()
                 }).ToList()
             };
+
+
+            foreach (var item in vm.Items)
+            {
+                Console.WriteLine($"🟢 PRODUCTO: {item.Nombre} - PrecioUnitario: {item.PrecioUnitario}");
+            }
+
+            foreach (var promo in vm.Promociones)
+            {
+                Console.WriteLine($"🎁 PROMO: {promo.Nombre} - PrecioTotal: {promo.PrecioTotal}");
+            }
+
 
             return View("Checkout", vm); // 👉 usa una vista diferente o la misma adaptada
         }
@@ -388,8 +400,8 @@ namespace AgropRamirez.Controllers
             }
 
             // 💰 Calcular total
-            var totalPedido = carrito.CarritoDetalles.Sum(cd => cd.Cantidad * cd.PrecioUnitario)
-                              + carrito.CarritoPromociones.Sum(cp => cp.Cantidad * cp.PrecioTotal);
+            var totalPedido = (carrito.CarritoDetalles.Sum(cd => cd.Cantidad * cd.PrecioUnitario)
+                  + carrito.CarritoPromociones.Sum(cp => cp.Cantidad * cp.PrecioTotal)) / 100;  
 
             // 🧾 Crear pedido
             var pedido = new Pedido

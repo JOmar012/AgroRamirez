@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace AgropRamirez.Models
 {
     public class Notificacion
     {
         public int NotificacionId { get; set; }
+
+        [Display(Name = "Uasuario")]
         public int UsuarioId { get; set; }
         public string Titulo { get; set; } = null!;
         public string Mensaje { get; set; } = null!;

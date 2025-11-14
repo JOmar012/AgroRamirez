@@ -33,9 +33,14 @@
         <div class="col-lg-8 col-md-10">
 
             <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header bg-primary text-white text-center">
-                    <h4 class="mb-0"><i class="bi bi-file-earmark-text"></i> Registrar Cotización</h4>
+
+                <!-- Header -->
+                <div class="card-header custom-header text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-credit-card-2-front"></i> Registrar cotización
+                    </h4>
                 </div>
+
                 <div class="card-body p-4">
                     <form asp-action="Create" method="post" id="formCotizacion">
                         @Html.AntiForgeryToken()

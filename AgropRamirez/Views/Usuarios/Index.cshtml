@@ -27,6 +27,61 @@
                 </a>
             </div>
 
+
+            <!-- 🔎 Buscador y filtro de rol -->
+            <form method="get" asp-action="Index" class="mb-3">
+                <div class="p-3 bg-light rounded-3 border">
+
+                    <div class="row g-3 align-items-end">
+
+                        <!-- Búsqueda general -->
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-search"></i> Buscar usuario
+                            </label>
+                            <input type="text"
+                                   name="busqueda"
+                                   value="@Context.Request.Query["busqueda"]"
+                                   class="form-control"
+                                   placeholder="Nombre, apellido o DNI..." />
+                        </div>
+
+                        <!-- Filtro por Rol -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-shield-lock-fill"></i> Rol
+                            </label>
+                            <select name="rolFiltro" class="form-select">
+                                <option value="">Todos los roles</option>
+                                @if (ViewBag.Roles != null)
+                                {
+                                    var rolSeleccionado = Context.Request.Query["rolFiltro"].ToString();
+                                    foreach (var rol in (List<string>)ViewBag.Roles)
+                                    {
+                                        <option value="@rol" selected="@(rolSeleccionado == rol)">
+                                            @rol
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="col-md-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-fill">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary flex-fill">
+                                Limpiar
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+
+
+
             <div class="table-responsive">
                 <table class="table table-custom align-middle text-center">
                     <thead> 

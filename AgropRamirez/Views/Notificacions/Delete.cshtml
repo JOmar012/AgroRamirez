@@ -17,53 +17,72 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-
-            <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header bg-danger text-white text-center">
-                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h4>
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header custom-header-delete text-center py-3">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-exclamation-triangle"></i> Eliminar Notificación
+                    </h4>
                 </div>
+
                 <div class="card-body p-4">
-
-                    <p class="text-center text-muted">
-                        ¿Estás seguro de que deseas eliminar esta notificación?
-                    </p>
-
-                    <dl class="row">
-                        <dt class="col-sm-4">Título</dt>
-                        <dd class="col-sm-8">@Model.Titulo</dd>
-
-                        <dt class="col-sm-4">Mensaje</dt>
-                        <dd class="col-sm-8">@Model.Mensaje</dd>
-
-                        <dt class="col-sm-4">Fecha</dt>
-                        <dd class="col-sm-8">@Model.Fecha.ToString("dd/MM/yyyy")</dd>
-
-                        <dt class="col-sm-4">Estado</dt>
-                        <dd class="col-sm-8">
-                            @(Model.Leido ? "Leído" : "No leído")
-                        </dd>
-
-                        <dt class="col-sm-4">Usuario</dt>
-                        <dd class="col-sm-8">@($"{Model.Usuario?.Nombre} {Model.Usuario?.Apellido}")</dd>
-                    </dl>
-
-                    <form asp-action="Delete">
-                        <input type="hidden" asp-for="NotificacionId" />
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left-circle"></i> Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash"></i> Eliminar
-                            </button>
+                    <div class="row align-items-center">
+                        <!-- Ícono lateral -->
+                        <div class="col-md-4 text-center mb-4 mb-md-0">
+                            <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
+                                <i class="bi bi-bell-fill zoom-avatar-delete text-danger"></i>
+                            </div>
                         </div>
-                    </form>
+
+                        <!-- Contenido -->
+                        <div class="col-md-8">
+                            <h5 class="text-danger mb-3">
+                                <i class="bi bi-exclamation-triangle-fill"></i> Confirmar eliminación
+                            </h5>
+                            <p class="text-muted">
+                                ¿Estás seguro de que deseas eliminar esta notificación?
+                                <strong class="text-danger">Esta acción no se puede deshacer.</strong>
+                            </p>
+
+                            <!-- Información -->
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Título</dt>
+                                <dd class="col-sm-8">@Model.Titulo</dd>
+
+                                <dt class="col-sm-4">Mensaje</dt>
+                                <dd class="col-sm-8">@Model.Mensaje</dd>
+
+                                <dt class="col-sm-4">Fecha</dt>
+                                <dd class="col-sm-8">@Model.Fecha.ToString("dd/MM/yyyy")</dd>
+
+                                <dt class="col-sm-4">Estado</dt>
+                                <dd class="col-sm-8">
+                                    @(Model.Leido ? "Leído" : "No leído")
+                                </dd>
+
+                                <dt class="col-sm-4">Usuario</dt>
+                                <dd class="col-sm-8">@($"{Model.Usuario?.Nombre} {Model.Usuario?.Apellido}")</dd>
+                            </dl>
+
+                            <!-- Formulario de eliminación -->
+                            <form asp-action="Delete" method="post" class="mt-4">
+                                <input type="hidden" asp-for="NotificacionId" />
+                                <div class="d-flex justify-content-between">
+                                    <a href="javascript:history.back()" class="btn btn-outline-secondary px-4">
+                                        <i class="bi bi-arrow-left-circle"></i> Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-danger px-4">
+                                        <i class="bi bi-trash-fill"></i> Eliminar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

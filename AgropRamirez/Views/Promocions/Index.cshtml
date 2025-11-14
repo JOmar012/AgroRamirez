@@ -213,11 +213,14 @@
                                 </i> Válido: @item.FechaInicio.ToString("dd/MM/yyyy") - 
                                 @item.FechaFin.ToString("dd/MM/yyyy") </small>
 
-                             @* Detalles *@
-                            <a asp-action="Details" asp-route-id="@item.PromocionId"
-                               class="btn btn-outline-success btn-sm fw-bold" title="Ver productos">
-                                <i class="bi bi-box-seam"></i>
-                            </a>
+                            @if (User.IsInRole("Cliente"))
+                            {
+                                @* Detalles *@
+                                <a asp-action="Details" asp-route-id="@item.PromocionId"
+                                class="btn btn-outline-success btn-sm fw-bold" title="Ver productos">
+                                    <i class="bi bi-box-seam"></i>
+                                </a>
+                            }
 
                             <!-- Botón añadir promoción -->
                             <button type="button"

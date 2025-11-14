@@ -20,9 +20,21 @@ namespace AgropRamirez.Controllers
         }
 
         // GET: Categorias
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string busqueda)
         {
-            return View(await _context.Categorias.ToListAsync());
+            var query = _context.Categorias.AsQueryable();
+
+            if (!string.IsNullOrEmpty(busqueda))
+            {
+                busqueda = busqueda.ToLower();
+
+                query = query.Where(c =>
+                    c.Nombre.ToLower().Contains(busqueda) ||
+                    c.Descripcion.ToLower().Contains(busqueda)
+                );
+            }
+
+            return View(await query.ToListAsync());
         }
 
         // GET: Categorias/Details/5

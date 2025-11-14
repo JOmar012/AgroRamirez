@@ -370,10 +370,14 @@ main[role="main"] {
 
 /*Carrito contador*/
 /* Ajuste para el badge del carrito */
+#navbarNotificacionesContainer .badge,
 #cartCount {
     transform: translate(-50%, 50%) !important; /* mueve hacia abajo */
     font-size: 0.75rem; /* opcional: ajustar tamaño */
     padding: 0.4em 0.5em; /* opcional: más uniforme */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: #ffc107 !important; /* igual al carrito (bg-warning) */
+    color: #0F4229 !important; /* texto oscuro */
 }
 
 /*Promocion ESTILO*/
@@ -417,3 +421,21 @@ main[role="main"] {
     transform: scale(1.03);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
 }
+
+/*Notificaciones no leidas*/
+.bg-light-danger {
+    background-color: #ffe6e6 !important;
+}
+
+    .bg-light-danger:hover {
+        background-color: #ffdcdc !important;
+    }
+
+/*Descargar cotización*/
+.btn-download {
+    color: #b81414;
+   
+}
+    .btn-download:hover {
+        color: #e61919;
+    }

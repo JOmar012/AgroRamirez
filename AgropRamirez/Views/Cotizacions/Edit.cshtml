@@ -1,4 +1,4 @@
-﻿@model AgropRamirez.Models.Cotizacion
+﻿    @model AgropRamirez.Models.Cotizacion
 
 @{
     ViewData["Title"] = "Editar Cotización";
@@ -17,76 +17,104 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-
-            <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header bg-warning text-dark text-center">
-                    <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Modificar Cotización</h4>
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header bg-warning text-dark text-center py-3">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Editar Cotización
+                    </h4>
                 </div>
+
                 <div class="card-body p-4">
-                    <form asp-action="Edit">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
                         <input type="hidden" asp-for="CotizacionId" />
 
-                        <!-- Usuario -->
-                        <div class="mb-3">
-                            <label asp-for="UsuarioId" class="form-label"></label>
-                            <select asp-for="UsuarioId" class="form-select" asp-items="ViewBag.UsuarioId"></select>
-                            <span asp-validation-for="UsuarioId" class="text-danger"></span>
-                        </div>
-
-                        <!-- Fecha de Cotización -->
-                        <div class="mb-3">
-                            <label asp-for="FechaCotizacion" class="form-label"></label>
-                            <input asp-for="FechaCotizacion" class="form-control" type="date" />
-                            <span asp-validation-for="FechaCotizacion" class="text-danger"></span>
-                        </div>
-
-                        <!-- Válido Hasta -->
-                        <div class="mb-3">
-                            <label asp-for="ValidoHasta" class="form-label"></label>
-                            <input asp-for="ValidoHasta" class="form-control" type="date" />
-                            <span asp-validation-for="ValidoHasta" class="text-danger"></span>
-                        </div>
-
-                        <!-- Total -->
-                        <div class="mb-3">
-                            <label asp-for="Total" class="form-label"></label>
-                            <div class="input-group">
-                                <span class="input-group-text">S/</span>
-                                <input asp-for="Total" class="form-control" type="number" step="0.01" />
+                        <div class="row align-items-center">
+                            <!-- Ícono lateral -->
+                            <div class="col-md-4 text-center mb-4 mb-md-0">
+                                <div class="ratio ratio-1x1 d-flex justify-content-center align-items-center">
+                                    <i class="bi bi-file-earmark-text text-warning zoom-avatar-edit" style="font-size: 6rem;"></i>
+                                </div>
                             </div>
-                            <span asp-validation-for="Total" class="text-danger"></span>
-                        </div>
 
-                        <!-- Estado -->
-                        <div class="mb-3">
-                            <label asp-for="Estado" class="form-label"></label>
-                            <select asp-for="Estado" class="form-select">
-                                <option value="">-- Seleccione estado --</option>
-                                <option value="Pendiente" selected="@(Model.Estado == "Pendiente")">Pendiente</option>
-                                <option value="Aceptada" selected="@(Model.Estado == "Aceptada")">Aceptada</option>
-                                <option value="Rechazada" selected="@(Model.Estado == "Rechazada")">Rechazada</option>
-                                <option value="Vencida" selected="@(Model.Estado == "Vencida")">Vencida</option>
-                            </select>
-                            <span asp-validation-for="Estado" class="text-danger"></span>
+                            <!-- Formulario -->
+                            <div class="col-md-8">
+                                <!-- Usuario -->
+                                <div class="mb-3">
+                                    <label asp-for="UsuarioId" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                                        <select asp-for="UsuarioId" class="form-select" asp-items="ViewBag.UsuarioId"></select>
+                                    </div>
+                                    <span asp-validation-for="UsuarioId" class="text-danger"></span>
+                                </div>
+
+                                <!-- Fecha de Cotización -->
+                                <div class="mb-3">
+                                    <label asp-for="FechaCotizacion" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
+                                        <input asp-for="FechaCotizacion" class="form-control" type="date" />
+                                    </div>
+                                    <span asp-validation-for="FechaCotizacion" class="text-danger"></span>
+                                </div>
+
+                                <!-- Válido Hasta -->
+                                <div class="mb-3">
+                                    <label asp-for="ValidoHasta" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                                        <input asp-for="ValidoHasta" class="form-control" type="date" />
+                                    </div>
+                                    <span asp-validation-for="ValidoHasta" class="text-danger"></span>
+                                </div>
+
+                                <!-- Total -->
+                                <div class="mb-3">
+                                    <label asp-for="Total" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-cash-coin"></i></span>
+                                        <input asp-for="Total" class="form-control" type="number" step="0.01" />
+                                    </div>
+                                    <span asp-validation-for="Total" class="text-danger"></span>
+                                </div>
+
+                                <!-- Estado -->
+                                <div class="mb-3">
+                                    <label asp-for="Estado" class="form-label fw-semibold"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-info-circle"></i></span>
+                                        <select asp-for="Estado" class="form-select">
+                                            <option value="">-- Seleccione estado --</option>
+                                            <option value="Pendiente" selected="@(Model.Estado == "Pendiente")">Pendiente</option>
+                                            <option value="Aceptada" selected="@(Model.Estado == "Aceptada")">Aceptada</option>
+                                            <option value="Rechazada" selected="@(Model.Estado == "Rechazada")">Rechazada</option>
+                                            <option value="Vencida" selected="@(Model.Estado == "Vencida")">Vencida</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="Estado" class="text-danger"></span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Botones -->
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-outline-secondary">
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
                                 <i class="bi bi-arrow-left-circle"></i> Volver
                             </a>
-                            <button type="submit" class="btn btn-warning text-white">
+                            <button type="submit" class="btn btn-warning text-white px-4">
                                 <i class="bi bi-save"></i> Guardar Cambios
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

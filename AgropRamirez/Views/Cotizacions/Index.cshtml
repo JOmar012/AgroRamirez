@@ -17,166 +17,102 @@
     </div>
 </div>
 
-<div class="container py-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="fw-bold text-primary"><i class="bi bi-file-earmark-text"></i> Cotizaciones Registradas</h2>
-        <a asp-action="Create" class="btn btn-success shadow-sm">
-            <i class="bi bi-plus-circle"></i> Nueva Cotización
-        </a>
-    </div>
-
+<!-- ✅ CONTENIDO PRINCIPAL -->
+<div class="container mb-5 mt-4">
     <div class="card shadow-lg border-0 rounded-3">
         <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">
+                    <i class="bi bi-file-earmark-text"></i> Lista de Cotizaciones
+                </h4>
 
-            <table class="table table-hover align-middle">
-                <thead class="table-primary text-center">
-                    <tr>
-                        <th>Código</th>
-                        <th>Fecha Cotización</th>
-                        <th>Válido Hasta</th>
-                        <th>Cliente</th>
-                        <th>Total</th>
-                        <th>Estado</th>
-                        <th style="width: 170px;">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr class="fw-semibold text-center align-middle">
-                            <td>@item.CotizacionId</td>
-                            <td>@item.FechaCotizacion.ToString("dd/MM/yyyy")</td>
-                            <td>@item.ValidoHasta?.ToString("dd/MM/yyyy")</td>
-                            <td>@($"{item.Usuario?.Nombre} {item.Usuario?.Apellido}")</td>
-                            <td>S/ @item.Total.ToString("0.00")</td>
-                            <td>
-                                @switch (item.Estado)
-                                {
-                                    case "Pendiente":
-                                        <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pendiente</span>;
-                                        break;
-                                    case "Aceptada":
-                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Aceptada</span>;
-                                        break;
-                                    case "Rechazada":
-                                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Rechazada</span>;
-                                        break;
-                                    case "Vencida":
-                                        <span class="badge bg-secondary"><i class="bi bi-calendar-x"></i> Vencida</span>;
-                                        break;
-                                    default:
-                                        <span class="badge bg-light text-dark">@item.Estado</span>;
-                                        break;
-                                }
-                            </td>
-                            <td>
-                                <a asp-action="Details" asp-route-id="@item.CotizacionId" class="btn btn-sm btn-info text-white me-1" title="Ver Detalles">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <a asp-action="Edit" asp-route-id="@item.CotizacionId" class="btn btn-sm btn-warning text-white me-1" title="Editar">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.CotizacionId" class="btn btn-sm btn-danger" title="Eliminar">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                <!-- Botón Nueva Cotización -->
+                <a asp-action="Create" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Nueva Cotización
+                </a>
+            </div>
 
-                                @* //Boton descargar pdf *@
-                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary me-1 btn-descargar" data-id="@item.CotizacionId">
-                                    <i class="bi bi-file-earmark-pdf"></i>
-                                </a>
-
-                            </td>
+            <div class="table-responsive">
+                <table class="table table-custom align-middle text-center">
+                    <thead>
+                        <tr>
+                            @* <th><i class="bi bi-hash"></i> Código</th> *@
+                            <th><i class="bi bi-calendar-date"></i> Fecha Cotización</th>
+                            <th><i class="bi bi-calendar-check"></i> Válido Hasta</th>
+                            <th><i class="bi bi-person-fill"></i> Cliente</th>
+                            <th><i class="bi bi-cash-coin"></i> Total</th>
+                            <th><i class="bi bi-info-circle-fill"></i> Estado</th>
+                            <th><i class="bi bi-gear-fill"></i> Acciones</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                @* <td>@item.CotizacionId</td> *@
+                                <td>@item.FechaCotizacion.ToString("dd/MM/yyyy")</td>
+                                <td>@item.ValidoHasta?.ToString("dd/MM/yyyy")</td>
+                                <td>@($"{item.Usuario?.Nombre} {item.Usuario?.Apellido}")</td>
+                                <td>S/ @item.Total.ToString("0.00")</td>
+                                <td>
+                                    @switch (item.Estado)
+                                    {
+                                        case "Pendiente":
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pendiente</span>
+                                            ;
+                                            break;
+                                        case "Aceptada":
+                                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Aceptada</span>
+                                            ;
+                                            break;
+                                        case "Rechazada":
+                                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Rechazada</span>
+                                            ;
+                                            break;
+                                        case "Vencida":
+                                            <span class="badge bg-secondary"><i class="bi bi-calendar-x"></i> Vencida</span>
+                                            ;
+                                            break;
+                                        default:
+                                            <span class="badge bg-light text-dark">@item.Estado</span>
+                                            ;
+                                            break;
+                                    }
+                                </td>
+                                <td>
 
-                        <!-- 🔽 Sección de Detalles -->
-                        <tr class="bg-light">
-                            <td colspan="7" class="p-0">
-                                <div class="collapse" id="detalles-@item.CotizacionId">
-                                    <div class="p-3">
-                                        <h6 class="fw-bold text-secondary mb-3">
-                                            <i class="bi bi-list-ul"></i> Productos cotizados:
-                                        </h6>
+                                    <a asp-action="Edit" asp-route-id="@item.CotizacionId" class="btn-icon btn-edit" title="Editar">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.CotizacionId" class="btn-icon btn-details" title="Detalles">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.CotizacionId" class="btn-icon btn-delete" title="Eliminar">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                    <a href="javascript:void(0);" class="btn-icon btn-download btn-descargar" data-id="@item.CotizacionId" title="Descargar PDF">
+                                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
 
-                                        @if (item.CotizacionDetalles != null && item.CotizacionDetalles.Any())
-                                        {
-                                            <table class="table table-sm table-bordered mb-0">
-                                                <thead class="table-secondary text-center">
-                                                    <tr>
-                                                        <th>Producto</th>
-                                                        <th>Precio Unitario</th>
-                                                        <th>Cantidad</th>
-                                                        <th>Subtotal</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach (var det in item.CotizacionDetalles)
-                                                    {
-                                                        <tr class="text-center">
-                                                            <td class="text-start">
-                                                                <i class="bi bi-caret-right-fill text-primary"></i>
-                                                                @det.Producto?.Nombre
-                                                            </td>
-                                                            <td>S/ @det.PrecioUnitario.ToString("0.00")</td>
-                                                            <td>@det.Cantidad</td>
-                                                            <td class="fw-bold">S/ @(det.Cantidad * det.PrecioUnitario).ToString("0.00")</td>
-                                                        </tr>
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        }
-                                        else
-                                        {
-                                            <p class="text-muted fst-italic">No hay productos asociados a esta cotización.</p>
-                                        }
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- Botón para expandir/colapsar -->
-                        <tr class="border-bottom">
-                            <td colspan="7" class="text-center py-2">
-                                <button class="btn btn-outline-primary btn-sm toggleDetalles" 
-                                        type="button" 
-                                        data-bs-toggle="collapse" 
-                                        data-bs-target="#detalles-@item.CotizacionId"
-                                        aria-expanded="false">
-                                    <i class="bi bi-caret-down-square"></i> Ver Detalles
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-            @if (!Model.Any())
-            {
-                <div class="alert alert-info text-center mt-3">
-                    <i class="bi bi-info-circle"></i> No existen cotizaciones registradas actualmente.
-                </div>
-            }
+                @if (!Model.Any())
+                {
+                    <div class="alert alert-info text-center mt-3">
+                        <i class="bi bi-info-circle"></i> No existen cotizaciones registradas actualmente.
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Animación para el botón de expandir/cerrar detalles
-        $(".toggleDetalles").on("click", function () {
-            const icon = $(this).find("i");
-            if (icon.hasClass("bi-caret-down-square")) {
-                icon.removeClass("bi-caret-down-square").addClass("bi-caret-up-square");
-                $(this).text(" Ocultar Detalles").prepend(icon);
-            } else {
-                icon.removeClass("bi-caret-up-square").addClass("bi-caret-down-square");
-                $(this).text(" Ver Detalles").prepend(icon);
-            }
-        });
-    </script>
-
-    @* //Descragar pdf *@
-    <script>
+        // Descargar PDF
         $(".btn-descargar").on("click", function () {
             const id = $(this).data("id");
             const data = { CotizacionId: id };
@@ -198,4 +134,3 @@
         });
     </script>
 }
-
