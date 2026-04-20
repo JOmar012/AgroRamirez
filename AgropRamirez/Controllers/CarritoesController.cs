@@ -25,11 +25,30 @@ namespace AgropRamirez.Controllers
             _context = context;
         }
 
-        // GET: Carritoes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string busqueda)
         {
-            var agropecuariaContext = _context.Carritos.Include(c => c.Usuario);
-            return View(await agropecuariaContext.ToListAsync());
+            var query = _context.Carritos
+                .Include(c => c.Usuario)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(busqueda))
+            {
+                busqueda = busqueda.ToLower();
+
+                query = query.Where(c =>
+                    c.Usuario.Nombre.ToLower().Contains(busqueda) ||
+                    c.Usuario.Apellido.ToLower().Contains(busqueda) ||
+                    (c.FechaCreacion.ToString().Contains(busqueda))
+                );
+            }
+
+            var carritos = await query
+                .OrderByDescending(c => c.FechaCreacion)
+                .ToListAsync();
+
+            ViewBag.Busqueda = busqueda;
+
+            return View(carritos);
         }
 
         // GET: Carritoes/Details/5

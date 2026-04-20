@@ -28,18 +28,44 @@ namespace AgropRamirez.Controllers
         }
 
         // GET: Cotizacions
+        //[Authorize]
         public async Task<IActionResult> Index()
         {
-            
-                var cotizaciones = await _context.Cotizaciones
+            // 💥 Si NO está logueado → enviar a CREATE
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Create", "Cotizacions");
+            }
+
+            // Obtener rol y usuarioId de los claims
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
+            var usuarioIdClaim = User.FindFirst("UsuarioId")?.Value;
+
+            // Si es ADMINISTRADOR → ve todas
+            if (rol == "Administrador")
+            {
+                var cotizacionesAdmin = await _context.Cotizaciones
                     .Include(c => c.Usuario)
-                    .Include(c => c.CotizacionDetalles)               // 🔹 Incluye los detalles
-                        .ThenInclude(d => d.Producto)                 // 🔹 Incluye los productos de cada detalle
-                    .OrderByDescending(c => c.FechaCotizacion)        // 🔹 Ordenar de la más reciente a la más antigua
+                    .Include(c => c.CotizacionDetalles)
+                        .ThenInclude(d => d.Producto)
+                    .OrderByDescending(c => c.FechaCotizacion)
                     .ToListAsync();
 
-                return View(cotizaciones);
-            
+                return View(cotizacionesAdmin);
+            }
+
+            // Si NO es admin → ver solo las propias
+            int usuarioId = int.Parse(usuarioIdClaim);
+
+            var cotizacionesUsuario = await _context.Cotizaciones
+                .Where(c => c.UsuarioId == usuarioId)
+                .Include(c => c.Usuario)
+                .Include(c => c.CotizacionDetalles)
+                    .ThenInclude(d => d.Producto)
+                .OrderByDescending(c => c.FechaCotizacion)
+                .ToListAsync();
+
+            return View(cotizacionesUsuario);
         }
 
         // GET: Cotizacions/Details/5
@@ -64,6 +90,8 @@ namespace AgropRamirez.Controllers
         }
 
         // GET: Cotizacions/Create
+
+        [AllowAnonymous]
         public IActionResult Create()
         {
 
@@ -121,12 +149,27 @@ namespace AgropRamirez.Controllers
         // POST: Cotizacions/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CotizacionCreateViewModel vm)
         {
             // 🔍 LÍNEA DE DEPURACIÓN — imprime en la consola del servidor
             Console.WriteLine($"Detalles recibidos: {vm.Detalles?.Count ?? 0}");
+
+
+            bool isLogged = User.Identity.IsAuthenticated;
+
+            // 🟦 Si NO está logueado → NO GUARDAR en BD
+            if (!isLogged)
+            {
+                // Aquí NO debes guardar nada, solo devolver la vista
+                // o retornar JSON para generar el PDF desde JS.
+
+                TempData["NoGuardar"] = true;
+                return View(vm);
+            }
+
 
             int userId; 
             if (User.IsInRole("Administrador"))

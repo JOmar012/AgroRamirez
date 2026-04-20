@@ -22,7 +22,7 @@
     <div class="card shadow-lg border-0 rounded-3">
         <div class="card-body">
             <!-- Header con título y botón -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-2">
                 <h4 class="mb-0"><i class="bi bi-receipt-cutoff"></i> Lista de Detalles de Pedido</h4>
                @*  <a asp-action="Create" class="btn btn-success">
                     <i class="bi bi-plus-circle-fill"></i> Nuevo Detalle
@@ -32,9 +32,59 @@
                 </a>
             </div>
 
+            <!-- 🔍 FILTROS -->
+            <div class="row g-3 bg-light p-3 rounded-3 mb-4 mt-3">
+
+                <!-- Buscar texto -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-search"></i> Buscar
+                    </label>
+                    <input type="text" id="buscarPedidos" class="form-control"
+                           placeholder="Cliente, producto, total, fecha, estado..." />
+                </div>
+
+                <!-- Filtro por estado -->
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-ui-checks"></i> Estado de pago
+                    </label>
+                    <select id="filtroEstado" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="pagado">Pagado</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="anulado">Anulado</option>
+                        <option value="sin pago">Sin pago</option>
+                    </select>
+                </div>
+
+                <!-- Fecha desde -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-calendar-event"></i> Desde
+                    </label>
+                    <input type="date" id="fechaDesde" class="form-control" />
+                </div>
+
+                <!-- Fecha hasta -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-calendar-check"></i> Hasta
+                    </label>
+                    <input type="date" id="fechaHasta" class="form-control" />
+                </div>
+
+                <!-- Botón limpiar -->
+                <div class="col-md-1 d-flex align-items-end">
+                    <button id="limpiarFiltros" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                </div>
+            </div>
+
             <!-- Tabla -->
             <div class="table-responsive">
-                <table class="table table-custom align-middle text-center">
+                <table class="table table-custom align-middle text-center" id="tablaPedidos">
                     <thead>
                         <tr>
                             <th><i class="bi bi-person-circle"></i> Cliente</th>
@@ -148,3 +198,61 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const txtBusqueda = document.getElementById("buscarPedidos");
+            const filtroEstado = document.getElementById("filtroEstado");
+            const fechaDesde = document.getElementById("fechaDesde");
+            const fechaHasta = document.getElementById("fechaHasta");
+            const limpiarBtn = document.getElementById("limpiarFiltros");
+
+            const filas = document.querySelectorAll("#tablaPedidos tbody tr");
+
+            function filtrar() {
+                let texto = txtBusqueda.value.toLowerCase();
+                let estado = filtroEstado.value.toLowerCase();
+                let desde = fechaDesde.value ? new Date(fechaDesde.value) : null;
+                let hasta = fechaHasta.value ? new Date(fechaHasta.value) : null;
+
+                filas.forEach(fila => {
+
+                    let contenido = fila.innerText.toLowerCase();
+
+                    // 📅 Fecha (segunda columna)
+                    let fechaTexto = fila.children[1].innerText.trim();
+                    let fechaPedido = new Date(fechaTexto.split("/").reverse().join("-"));
+
+                    let coincideTexto = contenido.includes(texto);
+                    let coincideEstado = estado === "" || contenido.includes(estado);
+                    let coincideDesde = !desde || fechaPedido >= desde;
+                    let coincideHasta = !hasta || fechaPedido <= hasta;
+
+                    if (coincideTexto && coincideEstado && coincideDesde && coincideHasta) {
+                        fila.style.display = "";
+                    } else {
+                        fila.style.display = "none";
+                    }
+                });
+            }
+
+            // Eventos de filtrado
+            txtBusqueda.addEventListener("keyup", filtrar);
+            filtroEstado.addEventListener("change", filtrar);
+            fechaDesde.addEventListener("change", filtrar);
+            fechaHasta.addEventListener("change", filtrar);
+
+            // Botón limpiar filtros
+            limpiarBtn.addEventListener("click", () => {
+                txtBusqueda.value = "";
+                filtroEstado.value = "";
+                fechaDesde.value = "";
+                fechaHasta.value = "";
+                filtrar();
+            });
+
+        });
+    </script>
+}

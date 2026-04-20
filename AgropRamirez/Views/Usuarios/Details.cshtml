@@ -56,9 +56,18 @@
 
                     <!-- Botones -->
                     <div class="d-flex justify-content-between mt-4">
-                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
-                            <i class="bi bi-arrow-left-circle"></i> Volver
-                        </a>
+                        @if (ViewBag.ReturnUrl != null && ViewBag.ReturnUrl != "")
+                        {
+                            <a href="@ViewBag.ReturnUrl" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left-circle"></i> Volver
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left-circle"></i> Volver
+                            </a>
+                        }
                         <a asp-action="Edit" asp-route-id="@Model?.UsuarioId" class="btn btn-info text-white px-4">
                             <i class="bi bi-pencil-square"></i> Editar
                         </a>

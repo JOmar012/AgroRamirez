@@ -482,7 +482,46 @@
         });
     });
 
+    // =====================================
+    // 🧩 MODO DALTÓNICO (ON/OFF)
+    // =====================================
+    document.addEventListener("DOMContentLoaded", function () {
 
+        const toggle = document.getElementById('toggleDaltonico');
+        const texto = document.getElementById('textoDaltonico');
+
+        // Cambia el texto según estado
+        function actualizarTexto() {
+            if (toggle.checked) {
+                
+                texto.textContent = "🧩 Modo daltónico";
+            }
+            //else {
+            //    texto.textContent = "🌈 Modo normal";
+            //}
+        }
+
+        // Al hacer clic → activar o desactivar modo
+        toggle.addEventListener('change', function () {
+            if (toggle.checked) {
+                document.documentElement.classList.add('modo-daltonico');
+                localStorage.setItem('modoDaltonico', '1');
+            } else {
+                document.documentElement.classList.remove('modo-daltonico');
+                localStorage.setItem('modoDaltonico', '0');
+            }
+
+            actualizarTexto();
+        });
+
+        // Restaurar preferencia guardada
+        if (localStorage.getItem('modoDaltonico') === '1') {
+            document.documentElement.classList.add('modo-daltonico');
+            toggle.checked = true;
+        }
+
+        actualizarTexto(); // Ajustar el texto al cargar la página
+    });
     
 
 

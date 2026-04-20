@@ -1,5 +1,7 @@
 ﻿@model AgropRamirez.Models.Pago
 
+
+
 @{
     ViewData["Title"] = "Confirmar Pago";
 }
@@ -129,11 +131,20 @@
                                 <p><strong>Monto pagado:</strong> S/ ${res.total.toFixed(2)}</p>
                                 <p><strong>Método:</strong> ${res.metodo}</p>
                             `,
-                            showConfirmButton: false,
-                            timer: 3500
-                        }).then(() => {
-                            // 🔁 Redirigir al catálogo o página principal
-                            window.location.href = "/Productoes/Index";
+                            showCancelButton: true,
+                            confirmButtonText: "Descargar recibo",
+                            cancelButtonText: "Ir a productos"
+                        }).then((result) => {
+                                if (result.isConfirmed) {
+                                window.open(res.urlRecibo, "_blank");
+
+                                setTimeout(() => {
+                                    window.location.href = "/Productoes/Index";
+                                }, 800);
+
+                            } else {
+                                window.location.href = "/Productoes/Index";
+                            }
                         });
                     } else {
                         Swal.fire({

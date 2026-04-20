@@ -46,8 +46,71 @@
 
             </div>
 
+            <!-- 🔍 FILTROS -->
+            <div class="row g-3 bg-light p-3 rounded-3 mb-4 mt-2">
+
+                <!-- Buscar texto -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-search"></i> Buscar
+                    </label>
+                    <input type="text" id="buscarPagos" class="form-control"
+                           placeholder="Cliente, método, estado, pedido, monto..." />
+                </div>
+
+                <!-- Estado de pago -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-ui-checks"></i> Estado
+                    </label>
+                    <select id="filtroEstadoPago" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="pagado">Pagado</option>
+                        <option value="no pagado">No Pagado</option>
+                    </select>
+                </div>
+
+                <!-- Método de pago -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-credit-card"></i> Método
+                    </label>
+                    <select id="filtroMetodo" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="yape">Yape</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                    </select>
+                </div>
+
+                <!-- Fecha desde -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-calendar-event"></i> Desde
+                    </label>
+                    <input type="date" id="fechaDesde" class="form-control" />
+                </div>
+
+                <!-- Fecha hasta -->
+                <div class="col-md-1">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-calendar-check"></i> Hasta
+                    </label>
+                    <input type="date" id="fechaHasta" class="form-control" />
+                </div>
+
+                <!-- Botón limpiar -->
+                <div class="col-md-1 d-flex align-items-end">
+                    <button id="limpiarFiltrosPago" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                </div>
+
+            </div>
+
             <div class="table-responsive">
-                <table class="table table-custom align-middle text-center">
+                <table class="table table-custom align-middle text-center" id="tablaPagos">
                     <thead>
                         <tr>
                             <th><i class="bi bi-calendar-date-fill"></i> Fecha de Pago</th>
@@ -126,4 +189,64 @@
             });
         }
     </script>
+
+    @* FILTROS *@
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const txtBuscar = document.getElementById("buscarPagos");
+            const filtroEstado = document.getElementById("filtroEstadoPago");
+            const filtroMetodo = document.getElementById("filtroMetodo");
+            const fechaDesde = document.getElementById("fechaDesde");
+            const fechaHasta = document.getElementById("fechaHasta");
+            const limpiar = document.getElementById("limpiarFiltrosPago");
+
+            const filas = document.querySelectorAll("#tablaPagos tbody tr");
+
+            function filtrarPagos() {
+                let texto = txtBuscar.value.toLowerCase();
+                let estado = filtroEstado.value.toLowerCase();
+                let metodo = filtroMetodo.value.toLowerCase();
+                let desde = fechaDesde.value ? new Date(fechaDesde.value) : null;
+                let hasta = fechaHasta.value ? new Date(fechaHasta.value) : null;
+
+                filas.forEach(fila => {
+
+                    let contenido = fila.innerText.toLowerCase();
+                    let fechaTexto = fila.children[0].innerText.trim();
+                    let fechaPago = new Date(fechaTexto.split("/").reverse().join("-"));
+
+                    let coincideTexto = contenido.includes(texto);
+                    let coincideEstado = estado === "" || contenido.includes(estado);
+                    let coincideMetodo = metodo === "" || contenido.includes(metodo);
+                    let coincideDesde = !desde || fechaPago >= desde;
+                    let coincideHasta = !hasta || fechaPago <= hasta;
+
+                    if (coincideTexto && coincideEstado && coincideMetodo && coincideDesde && coincideHasta) {
+                        fila.style.display = "";
+                    } else {
+                        fila.style.display = "none";
+                    }
+                });
+            }
+
+            // Eventos
+            txtBuscar.addEventListener("keyup", filtrarPagos);
+            filtroEstado.addEventListener("change", filtrarPagos);
+            filtroMetodo.addEventListener("change", filtrarPagos);
+            fechaDesde.addEventListener("change", filtrarPagos);
+            fechaHasta.addEventListener("change", filtrarPagos);
+
+            limpiar.addEventListener("click", function () {
+                txtBuscar.value = "";
+                filtroEstado.value = "";
+                filtroMetodo.value = "";
+                fechaDesde.value = "";
+                fechaHasta.value = "";
+                filtrarPagos();
+            });
+
+        });
+    </script>
+
 }

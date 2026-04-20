@@ -50,6 +50,9 @@ namespace AgropRamirez.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.UsuarioId.ToString()),
+
+                new Claim("UsuarioId", usuario.UsuarioId.ToString()),  // ← IMPORTANTE
+
                 new Claim(ClaimTypes.Name, $"{usuario.Nombre} {usuario.Apellido}"),
                 new Claim(ClaimTypes.Email, usuario.Email),
                 new Claim(ClaimTypes.Role, usuario.Rol)

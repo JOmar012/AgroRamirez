@@ -1,8 +1,15 @@
 ﻿@model IEnumerable<AgropRamirez.Models.Cotizacion>
+@using System.Security.Claims
 
 @{
     ViewData["Title"] = "Listado de Cotizaciones";
 }
+
+@{
+var usuarioIdClaim = User.FindFirst("UsuarioId")?.Value;
+var rol = User.FindFirst(ClaimTypes.Role)?.Value;
+}
+
 
 <!-- Encabezado -->
 <div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
@@ -32,8 +39,64 @@
                 </a>
             </div>
 
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <!-- 🔍 FILTROS -->
+                <div class="row g-3 bg-light p-3 rounded-3 mb-4 mt-2">
+
+                    <!-- Buscar general -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-search"></i> Buscar
+                        </label>
+                        <input type="text" id="buscarCotizacion" class="form-control"
+                               placeholder="Cliente, estado, fecha, total..." />
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-ui-checks"></i> Estado
+                        </label>
+                        <select id="filtroEstadoCotizacion" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="aceptada">Aceptada</option>
+                            <option value="rechazada">Rechazada</option>
+                            <option value="vencida">Vencida</option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha desde -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-calendar-event"></i> Desde
+                        </label>
+                        <input type="date" id="fechaDesde" class="form-control" />
+                    </div>
+
+                    <!-- Fecha hasta -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-calendar-check"></i> Hasta
+                        </label>
+                        <input type="date" id="fechaHasta" class="form-control" />
+                    </div>
+
+                    <!-- Botón limpiar -->
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button id="limpiarCotizacion" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+
+                </div>
+            }
+           
+
             <div class="table-responsive">
-                <table class="table table-custom align-middle text-center">
+                <table class="table table-custom align-middle text-center" id="tablaCotizaciones">
                     <thead>
                         <tr>
                             @* <th><i class="bi bi-hash"></i> Código</th> *@
@@ -131,6 +194,64 @@
                     window.URL.revokeObjectURL(url);
                 }
             });
+        });
+    </script>
+
+    @* filtros *@
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const txtBuscar = document.getElementById("buscarCotizacion");
+            const filtroEstado = document.getElementById("filtroEstadoCotizacion");
+            const fechaDesde = document.getElementById("fechaDesde");
+            const fechaHasta = document.getElementById("fechaHasta");
+            const limpiar = document.getElementById("limpiarCotizacion");
+
+            const filas = document.querySelectorAll("#tablaCotizaciones tbody tr");
+
+            function filtrarCotizaciones() {
+
+                let texto = txtBuscar?.value.toLowerCase() || "";
+                let estado = filtroEstado?.value.toLowerCase() || "";
+                let desde = fechaDesde?.value ? new Date(fechaDesde.value) : null;
+                let hasta = fechaHasta?.value ? new Date(fechaHasta.value) : null;
+
+                filas.forEach(fila => {
+
+                    let contenido = fila.innerText.toLowerCase();
+
+                    // Fecha de cotización está en la primera columna
+                    let fechaTexto = fila.children[0].innerText.trim();
+                    let fecha = new Date(fechaTexto.split("/").reverse().join("-"));
+
+                    let coincideTexto = contenido.includes(texto);
+                    let coincideEstado = estado === "" || contenido.includes(estado);
+                    let coincideDesde = !desde || fecha >= desde;
+                    let coincideHasta = !hasta || fecha <= hasta;
+
+                    if (coincideTexto && coincideEstado && coincideDesde && coincideHasta) {
+                        fila.style.display = "";
+                    } else {
+                        fila.style.display = "none";
+                    }
+                });
+            }
+
+            if (txtBuscar) txtBuscar.addEventListener("keyup", filtrarCotizaciones);
+            if (filtroEstado) filtroEstado.addEventListener("change", filtrarCotizaciones);
+            if (fechaDesde) fechaDesde.addEventListener("change", filtrarCotizaciones);
+            if (fechaHasta) fechaHasta.addEventListener("change", filtrarCotizaciones);
+
+            if (limpiar) {
+                limpiar.addEventListener("click", () => {
+                    txtBuscar.value = "";
+                    filtroEstado.value = "";
+                    fechaDesde.value = "";
+                    fechaHasta.value = "";
+                    filtrarCotizaciones();
+                });
+            }
+
         });
     </script>
 }

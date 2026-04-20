@@ -491,7 +491,9 @@ namespace AgropRamirez.Controllers
                     success = true,
                     mensaje = $"Tu pago de S/ {pago.Monto:0.00} con {pago.MetodoPago} fue registrado correctamente. ¡Gracias por tu compra! 🎉",
                     total = pago.Monto,
-                    metodo = pago.MetodoPago
+                    metodo = pago.MetodoPago,
+                    pagoId = pago.PagoId,
+                    urlRecibo = Url.Action("Recibo", "Pagoes", new { id = pago.PagoId })
                 });
             }
             catch (Exception ex)
@@ -524,6 +526,23 @@ namespace AgropRamirez.Controllers
                 _context.Notificaciones.Add(notificacion);
                 await _context.SaveChangesAsync();
             }
+        }
+
+
+        //Mostrar recibo
+        public async Task<IActionResult> Recibo(int id)
+        {
+            var pago = await _context.Pagos
+                .Include(p => p.Usuario)
+                .Include(p => p.Pedido)
+                    .ThenInclude(pe => pe.PedidoDetalles)
+                        .ThenInclude(pd => pd.Producto)
+                .FirstOrDefaultAsync(p => p.PagoId == id);
+
+            if (pago == null)
+                return NotFound();
+
+            return View(pago);
         }
     }
     

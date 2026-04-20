@@ -1,0 +1,81 @@
+﻿@model AgropRamirez.Models.Pago
+@{
+    Layout = null;
+}
+@{
+    ViewData["Title"] = "Recibo de Pago";
+}
+
+<body>
+    <button onclick="window.close()"
+            style="position:absolute; top:15px; right:20px; border:none; background:none; font-size:25px; font-weight:bold; cursor:pointer;">
+        ✖
+    </button>
+    <div class="container mt-5">
+
+        <!-- 🔹 ENCABEZADO -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">AGROPECUARIA RAMÍREZ</h2>
+            <p class="mb-0">Jr. Revilla Perez 113 - Cajamarca, Perú</p>
+            <p class="mb-0">Tel: +51 976 811 514</p>
+        </div>
+
+        <div class="card shadow border-0">
+            <div class="card-header bg-success text-white text-center">
+                <h4 class="mb-0">Recibo de Pago</h4>
+            </div>
+
+            <div class="card-body">
+                <p><strong>N° de recibo:</strong> @Model.PagoId</p>
+                <p><strong>Fecha:</strong> @Model.FechaPago.ToString("dd/MM/yyyy HH:mm")</p>
+                <p><strong>Cliente:</strong> @Model.Usuario?.Nombre</p>
+                <p><strong>Método de pago:</strong> @Model.MetodoPago</p>
+                <p><strong>Estado:</strong> @Model.Estado</p>
+
+                <hr />
+
+                <h5>Detalle del pedido</h5>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Pedido.PedidoDetalles)
+                        {
+                            <tr>
+                                <td>@item.Producto?.Nombre</td>
+                                <td>@item.Cantidad</td>
+                                <td>S/ @item.PrecioUnitario.ToString("0.00")</td>
+                                <td>S/ @((item.Cantidad * item.PrecioUnitario).ToString("0.00"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="text-end">
+                    <h5>Total pagado: S/ @Model.Monto.ToString("0.00")</h5>
+                </div>
+
+                <!-- 🔹 BOTÓN -->
+                <div class="text-center mt-4">
+                    <button onclick="window.print()" class="btn btn-primary">
+                        Imprimir / Guardar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔹 PIE SIMPLE -->
+        <div class="text-center mt-3">
+            <small>Gracias por su compra - Agropecuaria Ramírez</small>
+        </div>
+
+    </div>
+</body>
+</html>

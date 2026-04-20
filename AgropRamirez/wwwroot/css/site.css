@@ -439,3 +439,148 @@ main[role="main"] {
     .btn-download:hover {
         color: #e61919;
     }
+
+/*Nabvar*/
+
+.navbar .nav-link.dropdown-toggle {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.navbar .dropdown-menu {
+    max-width: 250px;
+    left: auto !important;
+    right: 0 !important;
+    overflow-wrap: break-word;
+    border-radius: 10px;
+    padding: 0.5rem;
+    animation: fadeDown 0.15s ease-out;
+}
+
+@keyframes fadeDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ============================
+   🎨 MODO DALTÓNICO
+   ============================ */
+html.modo-daltonico {
+    /* Aumentar saturación y contraste */
+    filter: saturate(140%) contrast(115%);
+}
+
+    /* Refuerza botones y textos */
+    html.modo-daltonico button,
+    html.modo-daltonico .btn {
+        border: 2px solid #000 !important;
+    }
+
+    /* Íconos más oscuros y fuertes */
+    html.modo-daltonico i {
+        filter: brightness(60%);
+    }
+
+    /* Bordes más visibles en tarjetas, dropdowns, inputs */
+    html.modo-daltonico .card,
+    html.modo-daltonico .dropdown-menu,
+    html.modo-daltonico .form-control {
+        border: 2px solid rgba(0,0,0,0.3) !important;
+    }
+
+    /* Notificaciones más marcadas */
+    html.modo-daltonico .badge {
+        outline: 2px solid #000 !important;
+    }
+
+
+
+
+
+
+/* ====== SWITCH MODERNO iOS STYLE ====== */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #999;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+/* Activado */
+.switch input:checked + .slider {
+    background-color: #06C167; /* verde accesible */
+}
+
+    .switch input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+
+/* ====== TEXTO Y CONTENEDOR ====== */
+.modo-daltonico-switch {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+
+
+/* Eliminar el rectángulo enorme del control */
+.carousel-control-prev,
+.carousel-control-next {
+    /*background: none !important;
+    opacity: 1 !important;*/
+    /*width: auto !important;*/
+   /* height: auto !important;*/ /* 🔥 ESTO MATA EL RECTÁNGULO */
+    top: 80%;
+    transform: translateY(-200%);
+    padding: 0;
+}
+
+
+
+
+
+/* ============================
+   🎨FIN MODO DALTÓNICO
+   ============================ */

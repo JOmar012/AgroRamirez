@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace AgropRamirez.Controllers
 {
-    [Authorize(Roles = "Administrador")]
+    [Authorize]
     public class UsuariosController : Controller
     {
         private readonly AgropecuariaContext _context;
@@ -25,6 +25,7 @@ namespace AgropRamirez.Controllers
         }
 
         // GET: Usuarios
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Index(string rolFiltro, string busqueda)
         {
 
@@ -73,6 +74,9 @@ namespace AgropRamirez.Controllers
             {
                 return NotFound();
             }
+
+            // Guardar URL de origen para el botón "Volver"
+            ViewBag.ReturnUrl = Request.Headers["Referer"].ToString();
 
             return View(usuario);
         }

@@ -29,9 +29,33 @@
                 </a>
             </div>
 
+
+            <!-- Buscador -->
+            <form method="get" class="mb-3">
+                <div class="row g-2 bg-light p-3 rounded-3">
+
+                    <div class="col-md-10">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-search"></i> Buscar por usuario o fecha
+                        </label>
+                        <input type="text" id="txtBuscar" name="busqueda"
+                               value="@ViewBag.Busqueda"
+                               class="form-control"
+                               placeholder="Ej: Carlos, Pérez, 2024-01-12..." />
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+
             <!-- 🔹 Tabla -->
             <div class="table-responsive">
-                <table class="table table-custom align-middle text-center">
+                <table class="table table-custom align-middle text-center" id="tablaCarritos">
                     <thead>
                         <tr>
                             <th><i class="bi bi-calendar3"></i> Fecha de Creación</th>
@@ -84,3 +108,28 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const input = document.getElementById("txtBuscar");
+            const filas = document.querySelectorAll("#tablaCarritos tbody tr");
+
+            input.addEventListener("keyup", function () {
+                let texto = this.value.toLowerCase();
+
+                filas.forEach(fila => {
+                    let fecha = fila.children[0].innerText.toLowerCase();
+                    let usuario = fila.children[1].innerText.toLowerCase();
+
+                    if (fecha.includes(texto) || usuario.includes(texto)) {
+                        fila.style.display = "";
+                    } else {
+                        fila.style.display = "none";
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,4 +1,5 @@
-﻿@model IEnumerable<AgropRamirez.Models.Promocion>
+﻿@* @model IEnumerable<AgropRamirez.Models.Promocion> *@
+@model AgropRamirez.ViewModels.PromocionesIndexViewModel
 
 @{
     ViewData["Title"] = "Promociones";
@@ -46,9 +47,12 @@
         <div id="carouselPromociones" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
 
-                @if (Model != null && Model.Any())
+               @*  @if (Model != null && Model.Any())
                 {
-                    var promos = Model.Take(6).ToList(); // máximo 6
+                    var promos = Model.Take(6).ToList(); // máximo 6 *@
+                @if (Model.Promociones != null && Model.Promociones.Any())
+                {
+                    var promos = Model.Promociones.Take(6).ToList();// máximo 6
                     for (int i = 0; i < promos.Count; i += 3)
                     {
                         <div class="carousel-item @(i == 0 ? "active" : "")">
@@ -166,11 +170,90 @@
         }
     </div>
 
-    @if (Model != null && Model.Any())
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body" style="background-color: #eaf6e8;">
+
+            <form method="get">
+                <div class="row g-3 align-items-end">
+
+                    <!-- Buscar por nombre -->
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-search"></i> Buscar
+                        </label>
+                        <input type="text" name="busqueda"
+                               class="form-control"
+                               value="@Model.Busqueda"
+                               placeholder="Ej: 'Combo alimentos', 'Descuento 20%', etc." />
+                    </div>
+
+                    <!-- Filtro descuento min -->
+                    <div class="col-lg-3 col-md-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-percent"></i> Descuento mínimo
+                        </label>
+                        <select name="descuentoMin" class="form-select">
+                            <option value="">Todos</option>
+                            @for (int i = 5; i <= 50; i += 5)
+                            {
+                                <option value="@i" selected="@(Model.DescuentoMin == i)">
+                                    @i% o más
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Fecha inicio -->
+                    <div class="col-lg-2 col-md-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-calendar-event"></i> Desde
+                        </label>
+                        <input type="date" name="fechaInicio"
+                               value="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))"
+                               class="form-control" />
+                    </div>
+
+                    <!-- Fecha fin -->
+                    <div class="col-lg-2 col-md-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-calendar-check"></i> Hasta
+                        </label>
+                        <input type="date" name="fechaFin"
+                               value="@(Model.FechaFin?.ToString("yyyy-MM-dd"))"
+                               class="form-control" />
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="col-lg-1 col-md-12 d-flex justify-content-end mt-md-0 mt-2 gap-2">
+                        <button class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i>
+                        </button>
+
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+
+
+    @if (Model.Promociones != null && Model.Promociones.Any())
     {
         <div class="row g-4">
-            @foreach (var item in Model)
+            @foreach (var item in Model.Promociones)
             {
+
+                decimal subtotal = item.Productos.Sum(p => p.Precio);
+                decimal descuento = subtotal * (decimal)item.Descuento / 100;
+                decimal totalConDescuento = subtotal - descuento;
+
+
                 <div class="col-lg-3 col-md-4 col-sm-6">
                     <div class="card h-100 shadow-lg border-0 rounded-3 d-flex flex-column position-relative promo-card"
                          data-id="@item.PromocionId"
@@ -222,12 +305,17 @@
                                 </a>
                             }
 
-                            <!-- Botón añadir promoción -->
-                            <button type="button"
-                                    class="btn btn-warning btn-sm fw-bold text-dark btn-add-promo"
-                                    data-id="@item.PromocionId">
-                                <i class="bi bi-cart-plus"></i> Añadir promoción
-                            </button>
+                            <!-- TOTAL final -->
+                            <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                                <span class="fw-bold text-success">S/ @totalConDescuento.ToString("0.00")</span>
+
+                                <!-- Botón añadir promoción -->
+                                <button type="button"
+                                        class="btn btn-warning btn-sm fw-bold text-dark btn-add-promo"
+                                        data-id="@item.PromocionId">
+                                    <i class="bi bi-cart-plus"></i> Añadir promoción
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Footer -->
@@ -252,6 +340,41 @@
                 </div>
             }
         </div>
+
+        @* PAGINACIÓN *@
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+
+                <!-- Anterior -->
+                <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       href="@Url.Action("Index", new { pagina = Model.PaginaActual - 1, busqueda = Model.Busqueda, descuentoMin = Model.DescuentoMin, fechaInicio = Model.FechaInicio?.ToString("yyyy-MM-dd"), fechaFin = Model.FechaFin?.ToString("yyyy-MM-dd") })">
+                        &laquo; Anterior
+                    </a>
+                </li>
+
+                <!-- Números -->
+                @for (int i = 1; i <= Model.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                        <a class="page-link"
+                           href="@Url.Action("Index", new { pagina = i, busqueda = Model.Busqueda, descuentoMin = Model.DescuentoMin, fechaInicio = Model.FechaInicio?.ToString("yyyy-MM-dd"), fechaFin = Model.FechaFin?.ToString("yyyy-MM-dd") })">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                <!-- Siguiente -->
+                <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link"
+                       href="@Url.Action("Index", new { pagina = Model.PaginaActual + 1, busqueda = Model.Busqueda, descuentoMin = Model.DescuentoMin, fechaInicio = Model.FechaInicio?.ToString("yyyy-MM-dd"), fechaFin = Model.FechaFin?.ToString("yyyy-MM-dd") })">
+                        Siguiente &raquo;
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+
     }
     else
     {

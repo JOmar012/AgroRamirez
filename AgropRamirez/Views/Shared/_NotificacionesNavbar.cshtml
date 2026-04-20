@@ -5,41 +5,60 @@
     var notificaciones = Model ?? new List<AgropRamirez.Models.Notificacion>();
 }
 
-<a class="nav-link position-relative" href="#" id="notifDropdown" role="button"
-   data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="bi bi-bell-fill fs-5"></i>
-    <span id="notificacionesCount"
-          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-          style="display:@(notificaciones.Any(n => !n.Leido) ? "inline" : "none");">
-        @notificaciones.Count(n => !n.Leido)
-    </span>
-</a>
+<li class="nav-item dropdown position-relative">
 
-<ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="notifDropdown" style="width: 300px;">
-    <li class="dropdown-header text-center fw-semibold">Notificaciones</li>
-    <li><hr class="dropdown-divider" /></li>
+    <a class="nav-link position-relative"
+       href="#"
+       id="notifDropdown"
+       role="button"
+       data-bs-toggle="dropdown"
+       aria-expanded="false">
 
-    @if (notificaciones.Any())
-    {
-        @foreach (var n in notificaciones)
+        <i class="bi bi-bell-fill fs-5"></i>
+
+        <span id="notificacionesCount"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              style="display:@(notificaciones.Any(n => !n.Leido) ? "inline" : "none")">
+            @notificaciones.Count(n => !n.Leido)
+        </span>
+    </a>
+
+    <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="notifDropdown" style="width: 300px;">
+        <li class="dropdown-header text-center fw-semibold">Notificaciones</li>
+        <li><hr class="dropdown-divider" /></li>
+
+        @if (notificaciones.Any())
         {
-            <li class="px-3 py-2 @(n.Leido ? "" : "bg-light-danger") border-bottom">
+            @foreach (var n in notificaciones)
+            {
+                <li class="px-3 py-2 @(n.Leido ? "" : "bg-light-danger") border-bottom">
+                    <a asp-controller="Notificacions"
+                       asp-action="Details"
+                       asp-route-id="@n.NotificacionId"
+                       class="text-decoration-none text-reset d-block">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold text-truncate" style="max-width: 200px;">@n.Titulo</span>
+                            <small class="text-muted">@n.Fecha.ToString("dd/MM")</small>
+                        </div>
+
+                        <small class="text-muted d-block text-truncate">@n.Mensaje</small>
+                    </a>
+                </li>
+            }
+
+            <li>
                 <a asp-controller="Notificacions"
-                   asp-action="Details"
-                   asp-route-id="@n.NotificacionId"
-                   class="text-decoration-none text-reset d-block">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="fw-semibold text-truncate" style="max-width: 200px;">@n.Titulo</span>
-                        <small class="text-muted">@n.Fecha.ToString("dd/MM")</small>
-                    </div>
-                    <small class="text-muted d-block text-truncate">@n.Mensaje</small>
+                   asp-action="Index"
+                   class="dropdown-item text-center text-primary fw-semibold">
+                    Ver todas
                 </a>
             </li>
         }
-        <li><a asp-controller="Notificacions" asp-action="Index" class="dropdown-item text-center text-primary fw-semibold">Ver todas</a></li>
-    }
-    else
-    {
-        <li class="text-center text-muted py-2">Sin notificaciones</li>
-    }
-</ul>   
+        else
+        {
+            <li class="text-center text-muted py-2">Sin notificaciones</li>
+        }
+    </ul>
+
+</li>

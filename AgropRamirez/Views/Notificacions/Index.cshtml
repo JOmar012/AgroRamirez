@@ -40,15 +40,78 @@
                         </a>
                     }
 
-                    <a asp-action="Create" class="btn btn-success">
-                        <i class="bi bi-plus-circle"></i> Nueva Notificación
-                    </a>
+                   @*  @if (User.IsInRole("Administrador"))
+                    { *@
+                        <a asp-action="Create" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Nueva Notificación
+                        </a>
+                    @* } *@
+                </div>
+            </div>
+
+            <!-- 🔍 FILTROS -->
+            <div class="row g-3 bg-light p-3 rounded-3 mb-4 mt-2">
+
+                <!-- Buscar -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-search"></i> Buscar
+                    </label>
+                    <input type="text" id="buscarNoti" class="form-control"
+                           placeholder="Título, mensaje, usuario, fecha..." />
+                </div>
+
+                <!-- Estado -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-envelope-check"></i> Estado
+                    </label>
+                    <select id="filtroEstadoNoti" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="leído">Leído</option>
+                        <option value="no leído">No leído</option>
+                    </select>
+                </div>
+
+                <!-- Desde -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-calendar-event"></i> Desde
+                    </label>
+                    <input type="date" id="fechaDesde" class="form-control" />
+                </div>
+
+                <!-- Hasta -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-calendar-check"></i> Hasta
+                    </label>
+                    <input type="date" id="fechaHasta" class="form-control" />
+                </div>
+
+                <!-- Solo para ADMIN: filtrar por usuario -->
+              @*   @if ((bool)ViewBag.EsAdmin)
+                {
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-person-fill"></i> Usuario
+                        </label>
+                        <input type="text" id="filtroUsuario" class="form-control"
+                               placeholder="Nombre o apellido..." />
+                    </div>
+                } *@
+
+                <!-- Botón limpiar -->
+                <div class="col-md-1 d-flex align-items-end">
+                    <button id="limpiarNotis" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
                 </div>
             </div>
 
             <!-- Tabla -->
             <div class="table-responsive">
-                <table class="table table-custom align-middle text-center">
+                <table class="table table-custom align-middle text-center" id="tablaNotificaciones">
                     <thead>
                         <tr>
                             <th><i class="bi bi-card-heading"></i> Título</th>
@@ -158,6 +221,70 @@
                         }
                     }
                 });
+            });
+        });
+    </script>
+
+    @* filtros *@
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const txtBuscar = document.getElementById("buscarNoti");
+            const filtroEstado = document.getElementById("filtroEstadoNoti");
+            const fechaDesde = document.getElementById("fechaDesde");
+            const fechaHasta = document.getElementById("fechaHasta");
+            const filtroUsuario = document.getElementById("filtroUsuario");
+            const limpiar = document.getElementById("limpiarNotis");
+
+            const filas = document.querySelectorAll("#tablaNotificaciones tbody tr");
+
+            function filtrarNotificaciones() {
+
+                let texto = txtBuscar.value.toLowerCase();
+                let estado = filtroEstado.value.toLowerCase();
+                let desde = fechaDesde.value ? new Date(fechaDesde.value) : null;
+                let hasta = fechaHasta.value ? new Date(fechaHasta.value) : null;
+                let usuario = filtroUsuario ? filtroUsuario.value.toLowerCase() : "";
+
+                filas.forEach(fila => {
+
+                    let contenido = fila.innerText.toLowerCase();
+
+                    // FECHA (tercera columna)
+                    let fechaTexto = fila.children[2].innerText.trim();
+                    let fecha = new Date(fechaTexto.split("/").reverse().join("-"));
+
+                    // ESTADO: leído / no leído
+                    let estadoFila = fila.children[3].innerText.toLowerCase();
+
+                    let coincideTexto = contenido.includes(texto);
+                    let coincideEstado = estado === "" || estadoFila.includes(estado);
+                    let coincideUsuario = usuario === "" || contenido.includes(usuario);
+                    let coincideDesde = !desde || fecha >= desde;
+                    let coincideHasta = !hasta || fecha <= hasta;
+
+                    if (coincideTexto && coincideEstado && coincideUsuario && coincideDesde && coincideHasta) {
+                        fila.style.display = "";
+                    } else {
+                        fila.style.display = "none";
+                    }
+                });
+            }
+
+            // EVENTOS
+            txtBuscar.addEventListener("keyup", filtrarNotificaciones);
+            filtroEstado.addEventListener("change", filtrarNotificaciones);
+            fechaDesde.addEventListener("change", filtrarNotificaciones);
+            fechaHasta.addEventListener("change", filtrarNotificaciones);
+            if (filtroUsuario) filtroUsuario.addEventListener("keyup", filtrarNotificaciones);
+
+            limpiar.addEventListener("click", function () {
+                txtBuscar.value = "";
+                filtroEstado.value = "";
+                fechaDesde.value = "";
+                fechaHasta.value = "";
+                if (filtroUsuario) filtroUsuario.value = "";
+                filtrarNotificaciones();
             });
         });
     </script>

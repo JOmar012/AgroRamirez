@@ -21,12 +21,63 @@ namespace AgropRamirez.Controllers
         }
 
         // GET: Promocions
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+                                        string busqueda,
+                                        int? descuentoMin,
+                                        DateTime? fechaInicio,
+                                        DateTime? fechaFin,
+                                        int pagina = 1)
         {
-            var promos = await _context.Promociones
-                                       .Include(p => p.Productos)
-                                       .ToListAsync();
-            return View(promos);
+            int cantidadPorPagina = 8;
+
+            var query = _context.Promociones
+                .Include(p => p.Productos)
+                .AsQueryable();
+
+            // 🔍 Filtro por nombre
+            if (!string.IsNullOrEmpty(busqueda))
+            {
+                busqueda = busqueda.ToLower();
+                query = query.Where(p => p.Nombre.ToLower().Contains(busqueda));
+            }
+
+            // 🎯 Filtro por descuento mínimo
+            if (descuentoMin.HasValue)
+            {
+                query = query.Where(p => p.Descuento >= descuentoMin.Value);
+            }
+
+            // 📅 Filtro por rango de fechas
+            if (fechaInicio.HasValue)
+            {
+                query = query.Where(p => p.FechaInicio >= fechaInicio.Value);
+            }
+
+            if (fechaFin.HasValue)
+            {
+                query = query.Where(p => p.FechaFin <= fechaFin.Value);
+            }
+
+            int totalPromos = await query.CountAsync();
+
+            var promos = await query
+                .OrderByDescending(p => p.FechaInicio)
+                .Skip((pagina - 1) * cantidadPorPagina)
+                .Take(cantidadPorPagina)
+                .ToListAsync();
+
+            var vm = new PromocionesIndexViewModel
+            {
+                Promociones = promos,
+                Busqueda = busqueda,
+                DescuentoMin = descuentoMin,
+                FechaInicio = fechaInicio,
+                FechaFin = fechaFin,
+                PaginaActual = pagina,
+                TotalPaginas = (int)Math.Ceiling(totalPromos / (double)cantidadPorPagina)
+            };
+
+            return View(vm);
         }
 
         // GET: Promocions/Details/5
