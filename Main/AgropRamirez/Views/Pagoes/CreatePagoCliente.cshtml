@@ -62,8 +62,8 @@
                         <select asp-for="MetodoPago" class="form-select" id="metodoPagoSelect" onchange="mostrarImagenYape()">
                             <option value="">-- Seleccione un método --</option>
                             <option value="Efectivo">Efectivo</option>
-                            <option value="Transferencia">Transferencia</option>
-                            <option value="Tarjeta">Tarjeta</option>
+                            @* <option value="Transferencia">Transferencia</option>
+                            <option value="Tarjeta">Tarjeta</option> *@
                             <option value="Yape / Plin">Yape / Plin</option>
                         </select>
                     </div>
@@ -72,7 +72,7 @@
 
                 <!-- Contenedor para imagen de Yape -->
                 <div id="imagenYapeContainer" class="text-center mt-3" style="display:none;">
-                    <img src="~/img/yape-plin.png" alt="Pago con Yape o Plin"
+                    <img src="~/img/111.png" alt="Pago con Yape o Plin"
                          class="img-fluid rounded shadow-sm" style="max-width: 220px;">
                     <p class="text-muted mt-2">
                         Escanea el código QR con tu app <strong>Yape</strong> o <strong>Plin</strong> para completar el pago.
